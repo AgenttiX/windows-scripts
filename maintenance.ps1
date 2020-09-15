@@ -252,3 +252,9 @@ Get-Volume | ForEach-Object {
         Optimize-Volume -DriveLetter $_.DriveLetter -Verbose
     }
 }
+
+Write-Host "Updating Windows Defender definitions"
+Update-MpSignature
+
+Write-Host "Running Windows Defender full scan"
+Start-MpScan -ScanType "FullScan"
