@@ -211,6 +211,8 @@ Function Test-CommandExists {
 # Script starts here
 # ---
 
+gpupdate /force
+
 Install-Module PSWindowsUpdate -Force
 Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
 
