@@ -213,25 +213,44 @@ Function Test-CommandExists {
 
 gpupdate /force
 
-Install-Module PSWindowsUpdate -Force
-Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
+if (Test-CommandExists "Install-Module") {
+    Install-Module PSWindowsUpdate -Force
+} else {
+    Write-Host "Windows Update PowerShell module could not be installed. Check Windows updates manually."
+}
+if (Test-CommandExists "Install-WindowsUpdate") {
+    Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
+}
 
 if (-Not (Test-CommandExists "choco")) {
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
-choco upgrade all -y
+if (Test-CommandExists "choco") {
+    choco upgrade all -y
+}
 
-# This may fail on 32-bit systems
-if (-Not (Test-Path "C:\Program Files (x86)\BleachBit\bleachbit_console.exe")) {
+# BleachBit
+$bleachbit_path_native = "C:\Program Files\BleachBit\bleachbit_console.exe"
+$bleachbit_path_x86 = "C:\Program Files (x86)\BleachBit\bleachbit_console.exe"
+
+if ((-not ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86))) -and (Test-CommandExists "choco")) {
     choco install bleachbit -y
 }
-$bleachbit_cleaners = $bleachbit_features
-if ($Deep) {$bleachbit_cleaners += $bleachbit_features_deep}
-if ($Firefox) {$bleachbit_cleaners += $bleachbit_features_firefox}
-if ($Thunderbird) {$bleachbit_cleaners += $bleachbit_features_thunderbird}
-Write-Host "Running Bleachbit with the following cleaners:"
-Write-Host $bleachbit_cleaners
-& "C:\Program Files (x86)\BleachBit\bleachbit_console.exe" --clean $bleachbit_cleaners
+if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
+    $bleachbit_cleaners = $bleachbit_features
+    if ($Deep) {$bleachbit_cleaners += $bleachbit_features_deep}
+    if ($Firefox) {$bleachbit_cleaners += $bleachbit_features_firefox}
+    if ($Thunderbird) {$bleachbit_cleaners += $bleachbit_features_thunderbird}
+    Write-Host "Running Bleachbit with the following cleaners:"
+    Write-Host $bleachbit_cleaners
+    if (Test-Path $bleachbit_path_native) {
+        & $bleachbit_path_native --clean $bleachbit_cleaners
+    } else {
+        & $bleachbit_path_x86 --clean $bleachbit_cleaners
+    }
+} else {
+    Write-Host BleachBit could not be installed
+}
 
 Write-Host "Running Windows disk cleanup"
 # This command is non-blocking
@@ -245,8 +264,12 @@ if (Test-CommandExists "docker") {
     Write-Host "Docker was not found"
 }
 
-Write-Host "Updating PowerShell help"
-Update-Help
+if (Test-CommandExists "Update-Help") {
+    Write-Host "Updating PowerShell help"
+    Update-Help
+} else {
+    Write-Host "Help updates are not supported by this PowerShell version"
+}
 
 Write-Host "Optimizing drives"
 Get-Volume | ForEach-Object {
@@ -255,8 +278,16 @@ Get-Volume | ForEach-Object {
     }
 }
 
-Write-Host "Updating Windows Defender definitions"
-Update-MpSignature
-
-Write-Host "Running Windows Defender full scan"
-Start-MpScan -ScanType "FullScan"
+# Antivirus
+if (Test-CommandExists "Update-MpSignature") {
+    Write-Host "Updating Windows Defender definitions"
+    Update-MpSignature
+} else {
+    Write-Host "Virus definition updates are not supported. Check them manually."
+}
+if (Test-CommandExists "Start-MpScan") {
+    Write-Host "Running Windows Defender full scan"
+    Start-MpScan -ScanType "FullScan"
+} else {
+    Write-Host "Virus scan is not supported. Run it manually."
+}
