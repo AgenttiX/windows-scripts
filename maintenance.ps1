@@ -292,3 +292,5 @@ if (Test-CommandExists "Start-MpScan") {
 } else {
     Write-Host "Virus scan is not supported. Run it manually."
 }
+
+Write-Host "The maintenance script is ready. You can close this window now."
