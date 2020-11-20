@@ -212,6 +212,11 @@ Function Test-CommandExists {
 # Script starts here
 # ---
 
+# Resynchronize time with domain controllers or other NTP server.
+# This may be needed for gpupdate if the internal clock is out of sync with the domain.
+w32tm /resync
+
+# Update group policies
 gpupdate /force
 
 if (Test-CommandExists "Install-Module") {
