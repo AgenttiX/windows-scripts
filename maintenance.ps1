@@ -258,9 +258,14 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
     Write-Host BleachBit could not be installed
 }
 
-Write-Host "Running Windows disk cleanup"
-# This command is non-blocking
-cleanmgr /verylowdisk
+if (Test-CommandExists "cleanmgr") {
+    Write-Host "Running Windows disk cleanup"
+    # This command is non-blocking
+    cleanmgr /verylowdisk
+} else {
+    # Cleanmgr is not installed on Hyper-V Server
+    Write-Host "Windows disk cleanup was not found"
+}
 
 if (Test-CommandExists "docker") {
     Write-Host "Cleaning Docker"
