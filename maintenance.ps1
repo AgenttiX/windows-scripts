@@ -21,24 +21,8 @@ param(
     [switch]$Thunderbird
 )
 
-# Configuration to ensure that the script is run as an administrator
-# https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
-function Test-Admin {
-  $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-  $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-}
-
-if ((Test-Admin) -eq $false)  {
-    if ($elevated)
-    {
-        # tried to elevate, did not work, aborting
-    }
-    else {
-        Write-Host "This script requires admin access. Elevating."
-        Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated' -f ($myinvocation.MyCommand.Definition))
-    }
-exit
-}
+. "./utils.ps1"
+Elevate($myinvocation.MyCommand.Definition)
 
 # ---
 # Constants
