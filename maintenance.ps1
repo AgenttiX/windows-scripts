@@ -201,8 +201,12 @@ Function Test-CommandExists {
 Write-Host "Synchronizing system clock"
 w32tm /resync
 
-Write-Host "Updating group policies"
-gpupdate /force
+if (Test-CommandExists "gpupdate") {
+    Write-Host "Updating group policies"
+    gpupdate /force
+} else {
+    Write-Host "Group policy updates are not supported on this system."
+}
 
 if (Test-CommandExists "Install-Module") {
     Install-Module PSWindowsUpdate -Force
