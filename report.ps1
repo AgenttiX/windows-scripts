@@ -20,3 +20,6 @@ powercfg /batteryreport /output ".\reports\battery.html"
 Write-Host "Creating WiFi report"
 netsh wlan show wlanreport
 cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" ./reports
+
+Write-Host "Creating the report archive"
+Compress-Archive -Path ".\reports" -DestinationPath ".\reports.zip" -CompressionLevel Optimal
