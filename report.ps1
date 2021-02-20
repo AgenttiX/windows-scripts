@@ -23,3 +23,7 @@ cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" ./repor
 
 Write-Host "Creating the report archive"
 Compress-Archive -Path ".\reports" -DestinationPath ".\reports.zip" -CompressionLevel Optimal
+
+Write-Host "The reporting script is ready. You can close this window now." -ForegroundColor Green
+Write-Host 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
+Write-Host "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green

@@ -196,6 +196,10 @@ Function Test-CommandExists {
 # Script starts here
 # ---
 
+Write-Host "Performing initial steps that have to be performed before Windows Update."
+Write-Host "Do not write in the console or press enter unless requested." -ForegroundColor Red
+Write-Host "After a moment you may be asked about Windows Updates, and writing in the console now may cause in the selection of updates you don't want."
+
 # Resynchronize time with domain controllers or other NTP server.
 # This may be needed for gpupdate if the internal clock is out of sync with the domain.
 Write-Host "Synchronizing system clock"
@@ -209,11 +213,16 @@ if (Test-CommandExists "gpupdate") {
 }
 
 if (Test-CommandExists "Install-Module") {
+    Write-Host "You may now be asked whether to install the NuGet package provider. Please select yes."
     Install-Module PSWindowsUpdate -Force
 } else {
     Write-Host "Windows Update PowerShell module could not be installed. Check Windows updates manually."
 }
 if (Test-CommandExists "Install-WindowsUpdate") {
+    Write-Host "You may now be asked whether to install some Windows Updates."
+    Write-Host "It's recommended to answer yes EXCEPT for the following:"
+    Write-Host "- Microsoft Silverlight"
+    Write-Host "- Preview versions"
     Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
 }
 
@@ -292,4 +301,4 @@ if (Test-CommandExists "Start-MpScan") {
     Write-Host "Virus scan is not supported. Run it manually."
 }
 
-Write-Host "The maintenance script is ready. You can close this window now."
+Write-Host "The maintenance script is ready. You can close this window now." -ForegroundColor Green
