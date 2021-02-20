@@ -3,6 +3,13 @@
     Utility methods for scripts
 #>
 
+# Configure PSScriptRoot variable for old PowerShell versions
+# https://stackoverflow.com/a/8406946
+if($PSVersionTable.PSVersion.Major -lt 3) {
+    $invocation = (Get-Variable MyInvocation).Value
+    $PSScriptRoot = $directorypath = Split-Path $invocation.MyCommand.Path
+}
+
 # Configuration to ensure that the script is run as an administrator
 # https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
 function Test-Admin {
