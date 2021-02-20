@@ -15,7 +15,7 @@ dxdiag /x ".\reports\dxdiag-whql.xml" /whql:on
 dxdiag /t ".\reports\dxdiag-whql.txt" /whql:on
 
 Write-Host "Creating battery report"
-powercfg /batteryreport /output "./reports/battery.html"
+powercfg /batteryreport /output ".\reports\battery.html"
 
 Write-Host "Creating WiFi report"
 netsh wlan show wlanreport
