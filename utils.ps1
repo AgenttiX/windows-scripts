@@ -25,3 +25,14 @@ function Elevate {
     exit
     }
 }
+
+Function Test-CommandExists {
+    Param ($command)
+    $oldPreference = $ErrorActionPreference
+    $ErrorActionPreference = "stop"
+    try {
+        if (Get-Command $command){RETURN $true}
+    }
+    catch {RETURN $false}
+    finally {$ErrorActionPreference=$oldPreference}
+}
