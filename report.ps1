@@ -6,6 +6,8 @@
 . "./utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 
+$host.ui.RawUI.WindowTitle = "Mika's reporting script"
+
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force
 
 Write-Host "Creating DirectX reports"
