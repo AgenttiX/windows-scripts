@@ -8,6 +8,12 @@ Elevate($myinvocation.MyCommand.Definition)
 
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force
 
+Write-Host "Creating DirectX reports"
+dxdiag /x ".\reports\dxdiag.xml"
+dxdiag /t ".\reports\dxdiag.txt"
+dxdiag /x ".\reports\dxdiag-whql.xml" /whql:on
+dxdiag /t ".\reports\dxdiag-whql.txt" /whql:on
+
 Write-Host "Creating battery report"
 powercfg /batteryreport /output "./reports/battery.html"
 
