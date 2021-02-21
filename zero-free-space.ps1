@@ -10,7 +10,8 @@
 #>
 
 param(
-    [Parameter(Mandatory=$true)] [string]$DriveLetter
+    [Parameter(Mandatory=$true)] [string]$DriveLetter,
+    [switch]$Elevated
 )
 
 . "./utils.ps1"
