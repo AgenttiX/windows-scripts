@@ -26,8 +26,8 @@ if (! (Test-Path "./lib/SDelete")) {
 
 if ([Environment]::Is64BitOperatingSystem) {
     Write-Host "64-bit operating system detected. Using 64-bit SDelete."
-    # ./lib/SDelete/sdelete64.exe $DriveLetter -z
+    ./lib/SDelete/sdelete64.exe $DriveLetter -z
 } else {
     Write-Host "32-bit operating system detected. Using 32-bit SDelete."
-    # ./lib/SDelete/sdelete.exe $DriveLetter -z
+    ./lib/SDelete/sdelete.exe $DriveLetter -z
 }
