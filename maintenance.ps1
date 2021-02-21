@@ -212,9 +212,7 @@ if (Test-CommandExists "Install-WindowsUpdate") {
     Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
 }
 
-if (-Not (Test-CommandExists "choco")) {
-    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-}
+Install-Chocolatey
 if (Test-CommandExists "choco") {
     choco upgrade all -y
 }

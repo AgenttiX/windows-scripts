@@ -33,6 +33,17 @@ function Elevate {
     }
 }
 
+function Install-Chocolatey {
+    param(
+        [switch]$Force
+    )
+    if($Force -Or (-Not (Test-CommandExists "choco"))) {
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    }
+}
+
 Function Test-CommandExists {
     Param ($command)
     $oldPreference = $ErrorActionPreference
