@@ -3,6 +3,7 @@
     Zero free space on the disk.
 .DESCRIPTION
     Indended for VirtualBox guests.
+.LINK
     https://superuser.com/questions/529149/how-to-compact-virtualboxs-vdi-file-size
 .PARAMETER DriveLetter
     Name of the drive to be cleaned
