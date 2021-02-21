@@ -18,10 +18,12 @@ Elevate($myinvocation.MyCommand.Definition)
 if (! (Test-Path "./lib/SDelete")) {
     New-Item -Path "." -Name "lib" -ItemType "directory" -Force
 
-    # https://docs.microsoft.com/en-us/sysinternals/downloads/sdelete
-    Invoke-WebRequest -Uri "https://download.sysinternals.com/files/SDelete.zip" -OutFile "./lib/SDelete.zip"
+    $SDeleteUri = "https://download.sysinternals.com/files/SDelete.zip"
+    $SDeleteZipPath = "./lib/SDelete.zip"
 
-    Expand-Archive -Path "./lib/SDelete.zip" -DestinationPath "./lib/SDelete"
+    # https://docs.microsoft.com/en-us/sysinternals/downloads/sdelete
+    Invoke-WebRequest -Uri $SDeleteUri -OutFile $SDeleteZipPath
+    Expand-Archive -Path $SDeleteZipPath -DestinationPath "./lib/SDelete"
 }
 
 if ([Environment]::Is64BitOperatingSystem) {
