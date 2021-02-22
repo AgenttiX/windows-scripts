@@ -1,8 +1,8 @@
-﻿<#
+<#
 .SYNOPSIS
     Zero free space on the disk.
 .DESCRIPTION
-    Indended for VirtualBox guests.
+    Indended for VirtualBox guests as a preparation for compacting the disk image.
 .LINK
     https://superuser.com/questions/529149/how-to-compact-virtualboxs-vdi-file-size
 .PARAMETER DriveLetter
