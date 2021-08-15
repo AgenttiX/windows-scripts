@@ -22,6 +22,7 @@ param(
 )
 
 . "./utils.ps1"
+GitPull
 Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = “Mika's maintenance script"
