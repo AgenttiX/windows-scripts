@@ -64,6 +64,13 @@ function Elevate {
     }
 }
 
+function GitPull {
+    # Git pull should be run before elevating
+    if (-Not ($elevated)) {
+        git pull
+    }
+}
+
 function Install-Chocolatey {
     param(
         [switch]$Force
