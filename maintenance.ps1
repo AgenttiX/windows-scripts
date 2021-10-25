@@ -189,11 +189,11 @@ Write-Host "After a moment you may be asked about Windows Updates, and writing i
 
 # Resynchronize time with domain controllers or other NTP server.
 # This may be needed for gpupdate if the internal clock is out of sync with the domain.
-Write-Host "Synchronizing system clock"
+Write-Host "Synchronizing system clock."
 w32tm /resync
 
 if (Test-CommandExists "gpupdate") {
-    Write-Host "Updating group policies"
+    Write-Host "Updating group policies."
     gpupdate /force
 } else {
     Write-Host "Group policy updates are not supported on this system."
@@ -242,12 +242,12 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
 }
 
 if (Test-CommandExists "cleanmgr") {
-    Write-Host "Running Windows disk cleanup"
+    Write-Host "Running Windows disk cleanup."
     # This command is non-blocking
     cleanmgr /verylowdisk
 } else {
     # Cleanmgr is not installed on Hyper-V Server
-    Write-Host "Windows disk cleanup was not found"
+    Write-Host "Windows disk cleanup was not found."
 }
 
 if (Test-CommandExists "docker") {
@@ -255,14 +255,14 @@ if (Test-CommandExists "docker") {
     if ($Docker) {docker system prune -f -a}
     else {docker system prune -f}
 } else {
-    Write-Host "Docker was not found"
+    Write-Host "Docker was not found."
 }
 
 if (Test-CommandExists "Update-Help") {
     Write-Host "Updating PowerShell help"
     Update-Help
 } else {
-    Write-Host "Help updates are not supported by this PowerShell version"
+    Write-Host "Help updates are not supported by this PowerShell version."
 }
 
 Write-Host "Optimizing drives"
@@ -274,13 +274,13 @@ Get-Volume | ForEach-Object {
 
 # Antivirus
 if (Test-CommandExists "Update-MpSignature") {
-    Write-Host "Updating Windows Defender definitions"
+    Write-Host "Updating Windows Defender definitions."
     Update-MpSignature
 } else {
     Write-Host "Virus definition updates are not supported. Check them manually."
 }
 if (Test-CommandExists "Start-MpScan") {
-    Write-Host "Running Windows Defender full scan"
+    Write-Host "Running Windows Defender full scan."
     Start-MpScan -ScanType "FullScan"
 } else {
     Write-Host "Virus scan is not supported. Run it manually."
