@@ -250,6 +250,41 @@ if (Test-CommandExists "cleanmgr") {
     Write-Host "Windows disk cleanup was not found."
 }
 
+# Game updates (non-blocking)
+$steam_path="C:\Program Files (x86)\Steam\Steam.exe"
+if (Test-Path $steam_path) {
+    Write-Host "Starting Steam for updates."
+    & $steam_path
+}
+
+$epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
+if (Test-Path $epic_games_path) {
+    Write-Host "Staring Epic Games Launcher for updates."
+    & $epic_games_path
+}
+
+# TODO: add Origin
+
+$ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
+if (Test-Path $ubisoft_connect_path) {
+    Write-Host "Starting Ubisoft Connect for updates."
+    & $ubisoft_connect_path
+}
+
+$riot_client_path="C:\Riot Games\Riot Client\RiotClientServices.exe"
+if (Test-Path $riot_client_path) {
+    Write-Host "Starting League of Legends for updates."
+    & $riot_client_path --launch-product=league_of_legends --launch-patchline=live
+}
+
+$minecraft_path="C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
+if (Test-Path $minecraft_path) {
+    Write-Host "Starting Minecraft for updates."
+    & $minecraft_path
+}
+
+# Misc tasks
+
 if (Test-CommandExists "docker") {
     Write-Host "Cleaning Docker"
     if ($Docker) {docker system prune -f -a}
