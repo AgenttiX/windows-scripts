@@ -189,11 +189,11 @@ Write-Host "After a moment you may be asked about Windows Updates, and writing i
 
 # Resynchronize time with domain controllers or other NTP server.
 # This may be needed for gpupdate if the internal clock is out of sync with the domain.
-Write-Host "Synchronizing system clock"
+Write-Host "Synchronizing system clock."
 w32tm /resync
 
 if (Test-CommandExists "gpupdate") {
-    Write-Host "Updating group policies"
+    Write-Host "Updating group policies."
     gpupdate /force
 } else {
     Write-Host "Group policy updates are not supported on this system."
@@ -242,27 +242,62 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
 }
 
 if (Test-CommandExists "cleanmgr") {
-    Write-Host "Running Windows disk cleanup"
+    Write-Host "Running Windows disk cleanup."
     # This command is non-blocking
     cleanmgr /verylowdisk
 } else {
     # Cleanmgr is not installed on Hyper-V Server
-    Write-Host "Windows disk cleanup was not found"
+    Write-Host "Windows disk cleanup was not found."
 }
+
+# Game updates (non-blocking)
+$steam_path="C:\Program Files (x86)\Steam\Steam.exe"
+if (Test-Path $steam_path) {
+    Write-Host "Starting Steam for updates."
+    & $steam_path
+}
+
+$epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
+if (Test-Path $epic_games_path) {
+    Write-Host "Staring Epic Games Launcher for updates."
+    & $epic_games_path
+}
+
+# TODO: add Origin
+
+$ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
+if (Test-Path $ubisoft_connect_path) {
+    Write-Host "Starting Ubisoft Connect for updates."
+    & $ubisoft_connect_path
+}
+
+$riot_client_path="C:\Riot Games\Riot Client\RiotClientServices.exe"
+if (Test-Path $riot_client_path) {
+    Write-Host "Starting League of Legends for updates."
+    & $riot_client_path --launch-product=league_of_legends --launch-patchline=live
+}
+
+$minecraft_path="C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
+if (Test-Path $minecraft_path) {
+    Write-Host "Starting Minecraft for updates."
+    & $minecraft_path
+}
+
+# Misc tasks
 
 if (Test-CommandExists "docker") {
     Write-Host "Cleaning Docker"
     if ($Docker) {docker system prune -f -a}
     else {docker system prune -f}
 } else {
-    Write-Host "Docker was not found"
+    Write-Host "Docker was not found."
 }
 
 if (Test-CommandExists "Update-Help") {
     Write-Host "Updating PowerShell help"
     Update-Help
 } else {
-    Write-Host "Help updates are not supported by this PowerShell version"
+    Write-Host "Help updates are not supported by this PowerShell version."
 }
 
 Write-Host "Optimizing drives"
@@ -274,13 +309,13 @@ Get-Volume | ForEach-Object {
 
 # Antivirus
 if (Test-CommandExists "Update-MpSignature") {
-    Write-Host "Updating Windows Defender definitions"
+    Write-Host "Updating Windows Defender definitions."
     Update-MpSignature
 } else {
     Write-Host "Virus definition updates are not supported. Check them manually."
 }
 if (Test-CommandExists "Start-MpScan") {
-    Write-Host "Running Windows Defender full scan"
+    Write-Host "Running Windows Defender full scan."
     Start-MpScan -ScanType "FullScan"
 } else {
     Write-Host "Virus scan is not supported. Run it manually."
