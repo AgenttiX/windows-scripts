@@ -22,13 +22,17 @@ powercfg /batteryreport /output ".\reports\battery.html"
 
 Write-Host "Creating WiFi report"
 netsh wlan show wlanreport
-cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" ./reports
+cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" ".\reports"
+
+Write-Host "Creating report of installed Windows Store apps."
+Get-AppxPackage > ".\reports\appx_packages.txt"
 
 Write-Host "Installing Geekbench"
 $GeekbenchVersions = @("5.4.1", "4.4.4", "3.4.4", "2.4.3")
 foreach ($Version in $GeekbenchVersions) {
     $Filename = "Geekbench-4.3.3-WindowsSetup.exe"
     $Url = "https://cdn.geekbench.com/$Filename"
+    # TODO: add installation
 }
 
 Write-Host "Creating the report archive"
