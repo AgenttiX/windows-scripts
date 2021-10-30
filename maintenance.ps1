@@ -285,6 +285,11 @@ if (Test-Path $minecraft_path) {
 
 # Misc tasks
 
+if (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
+    Write-Host "Starting Lenovo Vantage for updates."
+    start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
+}
+
 if (Test-CommandExists "docker") {
     Write-Host "Cleaning Docker"
     if ($Docker) {docker system prune -f -a}
