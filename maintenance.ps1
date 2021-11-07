@@ -32,8 +32,13 @@ if ($Reboot -and $Shutdown) {
     Exit 1
 }
 
+# Load utility functions from another file.
 . "./utils.ps1"
-GitPull
+
+# This git pull may cause the GitHub rate limits to be reached in an enterprise network.
+# It may also cause problems if the script is already elevated, as the script file would be modified while executing.
+# GitPull
+
 Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = “Mika's maintenance script"
