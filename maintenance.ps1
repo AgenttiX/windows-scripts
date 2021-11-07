@@ -283,12 +283,16 @@ $steam_path="C:\Program Files (x86)\Steam\Steam.exe"
 if (Test-Path $steam_path) {
     Write-Host "Starting Steam for updates."
     & $steam_path
+} else {
+    Write-Host "Steam was not found."
 }
 
 $epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
 if (Test-Path $epic_games_path) {
     Write-Host "Staring Epic Games Launcher for updates."
     & $epic_games_path
+} else {
+    Write-Host "Epic Games Launcher was not found."
 }
 
 # TODO: add Origin
@@ -297,18 +301,24 @@ $ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\Ubis
 if (Test-Path $ubisoft_connect_path) {
     Write-Host "Starting Ubisoft Connect for updates."
     & $ubisoft_connect_path
+} else {
+    Write-Host "Ubisoft Connect was not found."
 }
 
 $riot_client_path="C:\Riot Games\Riot Client\RiotClientServices.exe"
 if (Test-Path $riot_client_path) {
     Write-Host "Starting League of Legends for updates."
     & $riot_client_path --launch-product=league_of_legends --launch-patchline=live
+} else {
+    Write-Host "League of Legends was not found."
 }
 
 $minecraft_path="C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
 if (Test-Path $minecraft_path) {
     Write-Host "Starting Minecraft for updates."
     & $minecraft_path
+} else {
+    Write-Host "Minecraft was not found."
 }
 
 # Misc non-blocking tasks
