@@ -9,6 +9,10 @@
     This parameter is for internal use to check whether an UAC prompt has already been attempted
 .PARAMETER Firefox
     Remove Firefox cookies etc.
+.PARAMETER Reboot
+    Reboot the computer when the script is ready.
+.PARAMETER Shutdown
+    Shut the computer down when the script is ready.
 .PARAMETER Thunderbird
     Remove local Thunderbird IMAP folders etc.
 #>
@@ -18,8 +22,15 @@ param(
     [switch]$Docker,
     [switch]$Elevated,
     [switch]$Firefox,
+    [switch]$Reboot,
+    [switch]$Shutdown,
     [switch]$Thunderbird
 )
+
+if ($Reboot -and $Shutdown) {
+    Write-Host "Both reboot and shutdown switches cannot be enabled at the same time."
+    Exit 1
+}
 
 . "./utils.ps1"
 GitPull
@@ -182,6 +193,27 @@ $bleachbit_features_thunderbird = @(
 # ---
 # Script starts here
 # ---
+if ($Reboot) {
+    Write-Host "The computer will be rebooted automatically after the script is complete due to a command-line argument."
+} elseif ($Shutdown) {
+    Write-Host "The computer will be shut down automatically after the script is complete due to a command-line argument."
+}
+# else {
+#     Write-Host "Do you want to reboot or shut down automatically after the script is complete?"
+#     Write-Host "Do not enable these if you have large game updates to download, as those may not finish."
+#     $reply = Read-Host -Prompt "[r/s/n]?"
+#     if ($reply -match "[rR]") {
+#         $Reboot = $true
+#         Write-Host "Automatic reboot has been enabled."
+#     } elseif ($reply -match "[sS]" ) {
+#         $Shutdown = $true
+#         Write-Host "Automatic shutdown has been enabled."
+#     } else {
+#         $Reboot = $false
+#         $Shutdown = $false
+#         Write-Host "Automatic reboot and shutdown are disabled."
+#     }
+# }
 
 Write-Host "Performing initial steps that have to be performed before Windows Update."
 Write-Host "Do not write in the console or press enter unless requested." -ForegroundColor Red
@@ -285,9 +317,14 @@ if (Test-Path $minecraft_path) {
 
 # Misc tasks
 
-if (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
+# Lenovo Vantage (non-blocking)
+if ($Reboot -or $Shutdown) {
+    Write-Host "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
+} elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
     Write-Host "Starting Lenovo Vantage for updates."
     start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
+} else {
+    Write-Host "Lenovo Vantage was not found."
 }
 
 if (Test-CommandExists "docker") {
@@ -326,4 +363,14 @@ if (Test-CommandExists "Start-MpScan") {
     Write-Host "Virus scan is not supported. Run it manually."
 }
 
-Write-Host "The maintenance script is ready. You can close this window now." -ForegroundColor Green
+Write-Host "The maintenance script is ready." -ForegroundColor Green
+if ($Reboot) {
+    Write-Host "The computer will be rebooted in 10 seconds."
+    # The /g switch will automatically login and lock the current user, if this feature is enabled in Windows settings."
+    shutdown /g /t 10 /c "Mika's maintenance script is ready. Rebooting."
+} elseif ($Shutdown) {
+    Write-host "The computer will be shut down in 10 seconds."
+    shutdown /s /t 10 /c "Mika's maintenance script is ready. Shutting down."
+} else {
+    Write-Host "You can close this window now." -ForegroundColor Green
+}
