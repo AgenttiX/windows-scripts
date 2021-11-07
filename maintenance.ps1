@@ -332,6 +332,10 @@ if (Test-CommandExists "cleanmgr") {
     Write-Host "Windows disk cleanup was not found."
 }
 
+# Windows Store app updates (partially blocking)
+# May update Lenovo Vantage, and therefore needs to be before it.
+Write-Host "Updating Windows Store apps."
+Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | Invoke-CimMethod -MethodName UpdateScanMethod
 
 # Lenovo Vantage (non-blocking)
 if ($Reboot -or $Shutdown) {
@@ -342,6 +346,8 @@ if ($Reboot -or $Shutdown) {
 } else {
     Write-Host "Lenovo Vantage was not found."
 }
+
+# Misc blocking tasks
 
 if (Test-CommandExists "docker") {
     Write-Host "Cleaning Docker"
