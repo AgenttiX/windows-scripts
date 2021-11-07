@@ -278,15 +278,6 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
     Write-Host BleachBit could not be installed
 }
 
-if (Test-CommandExists "cleanmgr") {
-    Write-Host "Running Windows disk cleanup."
-    # This command is non-blocking
-    cleanmgr /verylowdisk
-} else {
-    # Cleanmgr is not installed on Hyper-V Server
-    Write-Host "Windows disk cleanup was not found."
-}
-
 # Game updates (non-blocking)
 $steam_path="C:\Program Files (x86)\Steam\Steam.exe"
 if (Test-Path $steam_path) {
@@ -320,7 +311,17 @@ if (Test-Path $minecraft_path) {
     & $minecraft_path
 }
 
-# Misc tasks
+# Misc non-blocking tasks
+
+if (Test-CommandExists "cleanmgr") {
+    Write-Host "Running Windows disk cleanup."
+    # This command is non-blocking
+    cleanmgr /verylowdisk
+} else {
+    # Cleanmgr is not installed on Hyper-V Server
+    Write-Host "Windows disk cleanup was not found."
+}
+
 
 # Lenovo Vantage (non-blocking)
 if ($Reboot -or $Shutdown) {
