@@ -287,6 +287,12 @@ if (Test-Path $steam_path) {
     Write-Host "Steam was not found."
 }
 
+$battle_net_path="C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe"
+if (Test-Path $battle_net_path) {
+    Write-Host "Starting Battle.net for updates."
+    & $battle_net_path
+}
+
 $epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
 if (Test-Path $epic_games_path) {
     Write-Host "Staring Epic Games Launcher for updates."
@@ -295,7 +301,11 @@ if (Test-Path $epic_games_path) {
     Write-Host "Epic Games Launcher was not found."
 }
 
-# TODO: add Origin
+$origin_path="C:\Program Files (x86)\Origin\Origin.exe"
+if (Test-Path $origin_path) {
+    Write-Host "Starting Origin for updates."
+    & $origin_path
+}
 
 $ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
 if (Test-Path $ubisoft_connect_path) {
