@@ -1,43 +1,76 @@
 ﻿<#
 .SYNOPSIS
     Create reports on computer status and health
+.PARAMETER NoArchive
+    Do not generate the zip archive. This is useful if you want to generate additional reports after this script.
+.PARAMETER OnlyArchive
+    Only create the archive from existing reports. This is useful if you have generated additional reports after this script.
 #>
 
-. "./utils.ps1"
+param(
+    [switch]$NoArchive
+)
+
+. ".\utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
+$Downloads = ".\downloads"
+$Reports = ".\reports"
+
+function Create-ReportArchive {
+    Write-Host "Creating the report archive"
+    $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
+    Compress-Archive -Path "${Reports}" -DestinationPath ".\reports_${Timestamp}.zip" -CompressionLevel Optimal
+}
+
+if ($OnlyArchive) {
+    Create-ReportArchive
+    exit
+}
+
+
+Write-Host "Running Mika's reporting script"
 New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force
 
+Write-Host "Removing old reports"
+Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
+
+Write-Host "Checking Windows Experience Index"
+Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
+
 Write-Host "Creating DirectX reports"
-dxdiag /x ".\reports\dxdiag.xml"
-dxdiag /t ".\reports\dxdiag.txt"
-dxdiag /x ".\reports\dxdiag-whql.xml" /whql:on
-dxdiag /t ".\reports\dxdiag-whql.txt" /whql:on
+dxdiag /x "${Reports}\dxdiag.xml"
+dxdiag /t "${Reports}\dxdiag.txt"
+dxdiag /x "${Reports}\dxdiag-whql.xml" /whql:on
+dxdiag /t "${Reports}\dxdiag-whql.txt" /whql:on
 
 Write-Host "Creating battery report"
-powercfg /batteryreport /output ".\reports\battery.html"
+powercfg /batteryreport /output "${Reports}\battery.html"
 
 Write-Host "Creating WiFi report"
 netsh wlan show wlanreport
-cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" ".\reports"
+cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
 
 Write-Host "Creating report of installed Windows Store apps."
-Get-AppxPackage > ".\reports\appx_packages.txt"
+Get-AppxPackage > "${Reports}\appx_packages.txt"
 
-Write-Host "Installing Geekbench"
-$GeekbenchVersions = @("5.4.1", "4.4.4", "3.4.4", "2.4.3")
-foreach ($Version in $GeekbenchVersions) {
-    $Filename = "Geekbench-4.3.3-WindowsSetup.exe"
-    $Url = "https://cdn.geekbench.com/$Filename"
-    # TODO: add installation
+$PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
+if (Test-Path $PTS) {
+    Write-Host "Creating Phoronix Test Suite (PTS) reports"
+    & "$PTS" diagnostics > "${Reports}\pts_diagnostics.txt"
+    & "$PTS" system-info > "${Reports}\pts_system_info.txt"
+    & "$PTS" system-properties > "${Reports}\pts_system_properties.txt"
+    & "$PTS" system-sensors > "${Reports}\pts_system_sensors.txt"
+    & "$PTS" network-info > "${Reports}\pts_network_info.txt"
 }
 
-Write-Host "Creating the report archive"
-Compress-Archive -Path ".\reports" -DestinationPath ".\reports.zip" -CompressionLevel Optimal
-
-Write-Host "The reporting script is ready. You can close this window now." -ForegroundColor Green
-Write-Host 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
-Write-Host "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
+if (-not $NoArchive) {
+    Create-ReportArchive
+    Write-Host "The reporting script is ready." -ForegroundColor Green
+    Write-Host 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
+    Write-Host "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
+    Write-Host "You can close this window now." -ForegroundColor Green
+}
