@@ -30,7 +30,7 @@ if (-Not (Test-Path "$PTS")) {
     $PTS_version = "10.6.1"
     Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_Version}.zip"- OutFile "${Downloads}\phoronix-test-suite-${PTS_Version}.zip"
     Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_Version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_Version}"
-    "${Downloads}\phoronix-test-suite-${PTS_Version}\install.bat"
+    & "${Downloads}\phoronix-test-suite-${PTS_Version}\install.bat"
     Write-Host "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
     & "$PTS" openbenchmarking-login
 }
