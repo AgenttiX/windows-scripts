@@ -46,6 +46,8 @@ if (-Not (Test-Path "$PTS")) {
     }
     Write-Host "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
     & "$PTS" openbenchmarking-login
+    Write-Host "You must now configure the batch mode according to your preferences. Some of the settings may get overwritten later by this script."
+    & "$PTS" batch-setup
 }
 & "$PTS" openbenchmarking-refresh
 
