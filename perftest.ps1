@@ -33,7 +33,7 @@ $Downloads = "${RepoPath}\downloads"
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (-Not (Test-Path "$PTS")) {
     Write-Host "Installing Phoronix Test Suite (PTS)"
-    $PTS_version = "10.6.1"
+    $PTS_version = "10.8.0"
     Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
     Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
     # The installation script needs to be executed in its directory
