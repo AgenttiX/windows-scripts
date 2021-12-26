@@ -132,7 +132,7 @@ Write-Host "Running PTS"
     pts/x264
 
 Write-Host "Running Speedtest"
-speedtest --accept-license --format=csv --output-header > "${Reports}\speedtest.csv"
+speedtest --accept-license --accept-gdpr --format=csv --output-header > "${Reports}\speedtest.csv"
 
 Write-Host "Running Windows performance monitoring"
 Start-Process -NoNewWindow -Wait perfmon /report
