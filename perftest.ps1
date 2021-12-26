@@ -25,6 +25,7 @@ Elevate($myinvocation.MyCommand.Definition)
 Write-Host "Running Mika's performance testing script"
 # The downloads folder has to be created already here for PTS download
 New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
+$Downloads = ".\downloads"
 
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (-Not (Test-Path "$PTS")) {
@@ -40,9 +41,7 @@ if (-Not (Test-Path "$PTS")) {
 
 # The reporting has to be after PTS installation to be able to generate the PTS reports
 & ".\report.ps1"
-
-# These folders are created by the reporting script
-$Downloads = ".\downloads"
+# This folder is created by the reporting script
 $Reports = ".\reports"
 
 
