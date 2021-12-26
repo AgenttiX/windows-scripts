@@ -23,14 +23,16 @@ param(
 Elevate($myinvocation.MyCommand.Definition)
 
 Write-Host "Running Mika's performance testing script"
+# The downloads folder has to be created already here for PTS download
+New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
 
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (-Not (Test-Path "$PTS")) {
     Write-Host "Installing Phoronix Test Suite (PTS)"
     $PTS_version = "10.6.1"
-    Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_Version}.zip"- OutFile "${Downloads}\phoronix-test-suite-${PTS_Version}.zip"
-    Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_Version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_Version}"
-    & "${Downloads}\phoronix-test-suite-${PTS_Version}\install.bat"
+    Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip"- OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
+    Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}"
+    & "${Downloads}\phoronix-test-suite-${PTS_version}\install.bat"
     Write-Host "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
     & "$PTS" openbenchmarking-login
 }
