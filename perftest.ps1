@@ -100,6 +100,7 @@ $Env:PERFORMANCE_PER_WATT="1"
 & "$PTS" user-config-set AllowResultUploadsToOpenBenchmarking=TRUE
 & "$PTS" user-config-set AlwaysUploadSystemLogs=TRUE
 & "$PTS" user-config-set AlwaysUploadResultsToOpenBenchmarking=TRUE
+& "$PTS" user-config-set AnonymousUsageReporting=TRUE
 & "$PTS" user-config-set SaveSystemLogs=TRUE
 & "$PTS" user-config-set SaveResults=TRUE
 # & "$PTS" user-config-set PromptForTestDescription=FALSE
