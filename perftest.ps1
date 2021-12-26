@@ -68,7 +68,7 @@ if (-not (Test-Path "${Downloads}\UserBenchMark.exe")) {
 # https://github.com/ayavilevich/DiskSpdAuto
 
 if ($Geekbench -or $All) {
-    $GeekbenchVersions = @("5.4.1", "4.4.4", "3.4.4", "2.4.3")
+    $GeekbenchVersions = @("5.4.4", "4.4.4", "3.4.4", "2.4.3")
     foreach ($Version in $GeekbenchVersions) {
         Write-Host "Downloading Geekbench ${Version}"
         $Filename = "Geekbench-$Version-WindowsSetup.exe"
