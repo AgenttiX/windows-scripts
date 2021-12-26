@@ -134,11 +134,12 @@ Write-Host "Running PTS"
 Write-Host "Running Speedtest"
 speedtest --accept-license --accept-gdpr --format=csv --output-header > "${Reports}\speedtest.csv"
 
-Write-Host "Running Windows performance monitoring"
-Start-Process -NoNewWindow -Wait perfmon /report
-
 Write-Host "Running winsat disk test"
 winsat disk -drive C > "${Reports}\winsat_disk.txt"
+
+Write-Host "Running Windows performance monitoring."
+Write-Host "If it gets stuck, you can close its window."
+Start-Process -NoNewWindow -Wait perfmon /report
 
 # furmark /log_temperature /log_score
 
