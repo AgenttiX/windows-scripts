@@ -32,7 +32,7 @@ if (-Not (Test-Path "$PTS")) {
     Write-Host "Installing Phoronix Test Suite (PTS)"
     $PTS_version = "10.6.1"
     Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
-    Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}"
+    Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
     & "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}\install.bat"
     if (-Not (Test-Path "$PTS")) {
         Write-Host "Phoronix Test Suite (PTS) installation failed."
