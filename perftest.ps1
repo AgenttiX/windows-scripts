@@ -32,12 +32,16 @@ $Downloads = "${RepoPath}\downloads"
 
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (-Not (Test-Path "$PTS")) {
-    Write-Host "Installing Phoronix Test Suite (PTS)"
+    Write-Host "Downloading Phoronix Test Suite (PTS)"
     $PTS_version = "10.8.0"
     Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
+    Write-Host "Extracting Phoronix Test Suite (PTS)"
     Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
     # The installation script needs to be executed in its directory
     cd "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}"
+    Write-Host "Installing Phoronix Test Suite (PTS)."
+    Write-Host "You may get prompts asking whether you accept the EULA and whether to send anonymous usage statistics."
+    Write-Host "Please select yes to the former and preferably to the latter as well."
     & ".\install.bat"
     cd "$StartPath"
     if (-Not (Test-Path "$PTS")) {
