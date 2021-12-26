@@ -20,12 +20,15 @@ param(
 )
 
 . "./utils.ps1"
-Elevate($myinvocation.MyCommand.Definition)
+Elevate($MyInvocation.MyCommand.Definition)
 
 Write-Host "Running Mika's performance testing script"
+$ScriptPath = $MyInvocation.MyCommand.Path
+$RepoPath = Split-Path $ScriptPath -Parent
+$StartPath = Get-Location
 # The downloads folder has to be created already here for PTS download
-New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
-$Downloads = ".\downloads"
+New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force
+$Downloads = "${RepoPath}\downloads"
 
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (-Not (Test-Path "$PTS")) {
@@ -33,7 +36,10 @@ if (-Not (Test-Path "$PTS")) {
     $PTS_version = "10.6.1"
     Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
     Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
-    & "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}\install.bat"
+    # The installation script needs to be executed in its directory
+    cd "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}"
+    & ".\install.bat"
+    cd "$StartPath"
     if (-Not (Test-Path "$PTS")) {
         Write-Host "Phoronix Test Suite (PTS) installation failed."
         exit 1
