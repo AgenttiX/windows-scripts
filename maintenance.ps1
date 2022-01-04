@@ -41,7 +41,9 @@ if ($Reboot -and $Shutdown) {
 
 Elevate($myinvocation.MyCommand.Definition)
 
-$host.ui.RawUI.WindowTitle = “Mika's maintenance script"
+$host.ui.RawUI.WindowTitle = "Mika's maintenance script"
+Write-Host "Starting Mika's maintenance script."
+Write-Host "If your computer is part of a domain, please connect it to the domain network now. A VPN is OK but a physical connection is better."
 
 # ---
 # Constants
@@ -226,11 +228,11 @@ Write-Host "After a moment you may be asked about Windows Updates, and writing i
 
 # Resynchronize time with domain controllers or other NTP server.
 # This may be needed for gpupdate if the internal clock is out of sync with the domain.
-Write-Host "Synchronizing system clock."
+Write-Host "Synchronizing system clock. If your computer is part of a domain but not connected to the domain network, this may fail."
 w32tm /resync
 
 if (Test-CommandExists "gpupdate") {
-    Write-Host "Updating group policies."
+    Write-Host "Updating group policies. If your computer is part of a domain but not connected to the domain network, this will fail."
     gpupdate /force
 } else {
     Write-Host "Group policy updates are not supported on this system."
@@ -275,7 +277,7 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
         & $bleachbit_path_x86 --clean $bleachbit_cleaners
     }
 } else {
-    Write-Host BleachBit could not be installed
+    Write-Host "BleachBit could not be installed."
 }
 
 # Game updates (non-blocking)
@@ -291,6 +293,8 @@ $battle_net_path="C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe"
 if (Test-Path $battle_net_path) {
     Write-Host "Starting Battle.net for updates."
     & $battle_net_path
+} else {
+    Write-Host "Battle.net was not found."
 }
 
 $epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
@@ -305,6 +309,8 @@ $origin_path="C:\Program Files (x86)\Origin\Origin.exe"
 if (Test-Path $origin_path) {
     Write-Host "Starting Origin for updates."
     & $origin_path
+} else {
+    Write-Host "Origin was not found."
 }
 
 $ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
@@ -317,10 +323,10 @@ if (Test-Path $ubisoft_connect_path) {
 
 $riot_client_path="C:\Riot Games\Riot Client\RiotClientServices.exe"
 if (Test-Path $riot_client_path) {
-    Write-Host "Starting League of Legends for updates."
+    Write-Host "Starting Riot Games client for League of Legends updates."
     & $riot_client_path --launch-product=league_of_legends --launch-patchline=live
 } else {
-    Write-Host "League of Legends was not found."
+    Write-Host "Riot Games client was not found."
 }
 
 $minecraft_path="C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
