@@ -38,7 +38,7 @@ $ChocoPrograms = [ordered]@{
     "LibreOffice" = "libreoffice-fresh", "Office suite";
     "Logitech Gaming Software" = "logitechgaming", "Driver for old Logitech input devices";
     "Logitech G Hub" = "lghub", "Driver for new Logitech input devices";
-    "Microsoft Teams" = "microsoft-teams", "Instant messaging and video conferencing platform"
+    "Microsoft Teams" = "microsoft-teams", "Instant messaging and video conferencing platform";
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
@@ -60,7 +60,7 @@ $ChocoPrograms = [ordered]@{
     "Thunderbird" = "thunderbird", "Email client";
     "Ubisoft Connect" = "ubisoft-connect", "Game store";
     "VLC" = "vlc", "Video player";
-    "Visual Studio Code" = "vscode", "Text editor / IDE"
+    "Visual Studio Code" = "vscode", "Text editor / IDE";
     "Wacom drivers" = "wacom-drivers", "Drivers for Wacom drawing tablet";
     "Xournal++" = "xournalplusplus", "For taking handwritten notes with a drawing tablet";
 }
