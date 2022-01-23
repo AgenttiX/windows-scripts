@@ -33,7 +33,7 @@ if ($Reboot -and $Shutdown) {
 }
 
 # Load utility functions from another file.
-. "./utils.ps1"
+. ".\utils.ps1"
 
 # This git pull may cause the GitHub rate limits to be reached in an enterprise network.
 # It may also cause problems if the script is already elevated, as the script file would be modified while executing.
@@ -255,6 +255,10 @@ if (Test-CommandExists "Install-WindowsUpdate") {
 Install-Chocolatey
 if (Test-CommandExists "choco") {
     choco upgrade all -y
+}
+
+if (Test-CommandExists "winget") {
+    winget upgrade --all
 }
 
 # BleachBit
