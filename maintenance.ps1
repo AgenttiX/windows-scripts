@@ -418,7 +418,7 @@ if (Test-CommandExists "Start-MpScan") {
     Write-Host "Virus scan is not supported. Run it manually."
 }
 
-Write-Host "The maintenance script is ready." -ForegroundColor Green
+Write-Host -ForegroundColor Green "The maintenance script is ready."
 if ($Reboot) {
     Write-Host "The computer will be rebooted in 10 seconds."
     # The /g switch will automatically login and lock the current user, if this feature is enabled in Windows settings."
@@ -427,5 +427,5 @@ if ($Reboot) {
     Write-host "The computer will be shut down in 10 seconds."
     shutdown /s /t 10 /c "Mika's maintenance script is ready. Shutting down."
 } else {
-    Write-Host "You can close this window now." -ForegroundColor Green
+    Write-Host -ForegroundColor Green "You can close this window now."
 }
