@@ -6,7 +6,8 @@
 # Compatibility for old PowerShell versions
 if($PSVersionTable.PSVersion.Major -lt 3) {
     # Configure PSScriptRoot variable for old PowerShell versions
-    # https://stackoverflow.com/a/8406946
+    # https://stackoverflow.com/a/8406946/
+    # https://stackoverflow.com/a/5466355/
     $invocation = (Get-Variable MyInvocation).Value
     $PSScriptRoot = $directorypath = Split-Path $invocation.MyCommand.Path
 
@@ -19,9 +20,9 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
         .LINK
             https://stackoverflow.com/a/43544903
         #>
-        param (
-            [Parameter(Mandatory=$true)] [string]$Uri,
-            [Parameter(Mandatory=$true)] [string]$OutFile
+        param(
+            [Parameter(Mandatory=$true)][string]$Uri,
+            [Parameter(Mandatory=$true)][string]$OutFile
         )
         $WebClient_Obj = New-Object System.Net.WebClient
         # TODO: this fails for some reason
@@ -38,8 +39,8 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
             https://stackoverflow.com/a/54687028
         #>
         param(
-            [Parameter(Mandatory=$true)] [string]$Path,
-            [Parameter(Mandatory=$true)] [string]$DestinationPath
+            [Parameter(Mandatory=$true)][string]$Path,
+            [Parameter(Mandatory=$true)][string]$DestinationPath
         )
         $shell_ComObject = New-Object -ComObject shell.application
         $zip_file = $shell_ComObject.namespace($Path)
@@ -56,6 +57,10 @@ New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force
 $Downloads = "${RepoPath}\downloads"
 
 function Elevate {
+    <#
+    .SYNOPSIS
+        Elevate the current process to admin privileges.
+    #>
     param(
         [Parameter(Mandatory=$true)][string]$command
     )
@@ -116,7 +121,7 @@ function Install-PTS {
     )
     $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
     if (-Not (Test-Path "$PTS")) {
-        Write-Host "Downloading Phoronix Test Suite (PTS)"
+        Write-Host "Downloading Phoronix Test Suite (PTS), as it seems not to be installed yet."
         Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
         Write-Host "Extracting Phoronix Test Suite (PTS)"
         Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
@@ -140,14 +145,22 @@ function Install-PTS {
 }
 
 function Test-Admin {
-    # Test whether the script is being run as an administrator
-    # https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
+    <#
+    .SYNOPSIS
+        Test whether the script is being run as an administrator
+    .LINK
+        https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
+    #>
+    [OutputType([bool])]
     $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-    $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    return $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
 Function Test-CommandExists {
-    Param ($command)
+    [OutputType([bool])]
+    Param(
+        [Parameter(Mandatory=$true)][string]$command
+    )
     $oldPreference = $ErrorActionPreference
     $ErrorActionPreference = "stop"
     try {
