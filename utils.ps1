@@ -112,7 +112,7 @@ function Install-Geekbench {
 
 function Install-PTS {
     param(
-        [string]$PTS_version = "10.8.0"
+        [string]$PTS_version = "10.8.1"
     )
     $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
     if (-Not (Test-Path "$PTS")) {
