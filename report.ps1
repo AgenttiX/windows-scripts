@@ -19,14 +19,14 @@ $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 $Downloads = ".\downloads"
 $Reports = ".\reports"
 
-function Create-ReportArchive {
+function Compress-ReportArchive {
     Show-Output "Creating the report archive"
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
     Compress-Archive -Path "${Reports}" -DestinationPath ".\reports_${Timestamp}.zip" -CompressionLevel Optimal
 }
 
 if ($OnlyArchive) {
-    Create-ReportArchive
+    Compress-ReportArchive
     exit
 }
 
@@ -68,7 +68,7 @@ if (Test-Path $PTS) {
 }
 
 if (-not $NoArchive) {
-    Create-ReportArchive
+    Compress-ReportArchive
     Show-Output "The reporting script is ready." -ForegroundColor Green
     Show-Output 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
     Show-Output "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
