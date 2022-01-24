@@ -267,7 +267,7 @@ if ($ChocoSelected.Count) {
 
 $WingetSelected = GetSelectedCommands $WingetProgramsView
 if ($WingetSelected.Count) {
-    Write-Host "Installing programs with Winget."
+    Write-Host "Installing programs with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($program in $WingetSelected) {
         winget install "${program}"
     }
