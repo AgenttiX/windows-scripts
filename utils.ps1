@@ -59,11 +59,8 @@ function Elevate {
             Write-Host "This script requires admin access. Elevating."
             Write-Host "$command"
             # Use newer PowerShell if available.
-            if (Test-CommandExists "pwsh") {
-                Start-Process -FilePath pwsh -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
-            } else {
-                Start-Process -FilePath powershell -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
-            }
+            if (Test-CommandExists "pwsh") {$shell = "pwsh"} else {$shell = "powershell"}
+            Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
         }
     exit
     }
