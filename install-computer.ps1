@@ -72,6 +72,21 @@ $WingetPrograms = [ordered]@{
     # "PowerToys" = "Microsoft.PowerToys";
 }
 
+# Installer functions
+
+function Install-StarLab {
+    Write-Host "Downloading Ophir StarLab"
+    Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/StarLab_Setup.exe" -OutFile "${Downloads}\StarLab_Setup.exe"
+    Write-Host "Installing Ophir StarLab"
+    Start-Process -NoNewWindow -Wait "${Downloads}\StarLab_Setup.exe"
+}
+
+$OtherOperations = [ordered]@{
+    "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
+    "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
+    "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+}
+
 # Function definitions should be after the loading of utilities
 function CreateList {
     [OutputType([system.Windows.Forms.CheckedListBox])]
@@ -158,7 +173,7 @@ function CreateTable {
             [object]$sender,
             [System.EventArgs]$e
         )
-        Write-Host "Locking columns (this does not work yet)";
+        Write-Host "Locking the UI from modifications (this does not work yet)";
         # Write-Host $View.Columns;
         foreach($column in $View.Columns) {
             if ($column.Name -ne "Selected") {
@@ -221,12 +236,14 @@ $Layout.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.F
 # $Layout.AutoSize = $true;
 # $Layout.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowAndShrink;
 # $Layout.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D;
-$Layout.RowCount = 4;
+$Layout.RowCount = 6;
 $Form.Controls.Add($Layout);
 
 $ChocoProgramsView = CreateTable $Form $Layout "Centrally updated programs (Chocolatey)" $ChocoPrograms;
 $WingetProgramsView = CreateTable $Form $Layout "Centrally updated programs (Winget)" $WingetPrograms;
 $WingetProgramsView.Height = 50;
+$OtherOperationsView = CreateTable $Form $Layout "Other programs and operations. These you have to keep updated manually." $OtherOperations
+$OtherOperationsView.height = 150;
 
 # Disable Winget if it's not found
 if (!(Test-CommandExists "winget")) {
@@ -246,7 +263,7 @@ $Layout.Controls.Add($OKButton);
 function ResizeLayout {
     $Layout.Width = $Form.Width - 10;
     $Layout.Height = $Form.Height - 10;
-    $ChocoProgramsView.Height = $Form.Height - 200;
+    $ChocoProgramsView.Height = $Form.Height - 350;
 }
 $Form.Add_Resize($function:ResizeLayout);
 ResizeLayout;
@@ -273,6 +290,15 @@ if ($WingetSelected.Count) {
     }
 } else {
     Write-Host "No programs were selected to be installed with Winget."
+}
+
+# These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
+$OtherSelected = GetSelectedCommands $OtherOperationsView
+if ($OtherSelected.Count) {
+    Write-Host "Running other selected operations."
+    foreach($command in $OtherSelected) {
+        . $command
+    }
 }
 
 Write-Host -ForegroundColor Green "The installation script is ready. You can close this window now."
