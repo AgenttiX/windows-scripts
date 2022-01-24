@@ -35,6 +35,7 @@ $ChocoPrograms = [ordered]@{
     "Git" = "git", "Version control";
     "Inkscape" = "inkscape", "Vector graphics editor";
     "KeePassXC" = "keepassxc", "Password manager";
+    "Kingston SSD Manager" = "kingston-ssd-manager", "Management tool and firmware updater for Kingston SSDs";
     "LibreOffice" = "libreoffice-fresh", "Office suite";
     "Logitech Gaming Software" = "logitechgaming", "Driver for old Logitech input devices";
     "Logitech G Hub" = "lghub", "Driver for new Logitech input devices";

@@ -343,6 +343,16 @@ if (Test-Path $minecraft_path) {
 
 # Misc non-blocking tasks
 
+$kingston_ssd_manager_path = "${env:ProgramFiles(x86)}\Kingston_SSD_Manager\KSM.exe"
+if ($Reboot -or $Shutdown) {
+    Write-Host "Kingston SSD Manager will not be started, as automatic reboot or shutdown is enabled."
+} elseif (Test-Path $kingston_ssd_manager_path) {
+    Write-Host "Starting Kingston SSD Manager to check for updates. If there are any, reboot the computer before installing them to ensure that no other updates will interfere with them."
+    & $kingston_ssd_manager_path
+} else {
+    Write-Host "Kingston SSD Manager was not found."
+}
+
 if (Test-CommandExists "cleanmgr") {
     Write-Host "Running Windows disk cleanup."
     # This command is non-blocking
