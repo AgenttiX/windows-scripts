@@ -146,6 +146,41 @@ function Install-PTS {
     & "$PTS" openbenchmarking-refresh
 }
 
+function Show-Output {
+    <#
+    .SYNOPSIS
+        Show text or an object on the console
+    .DESCRIPTION
+        With color support but without using Write-Host
+    .LINK
+        https://stackoverflow.com/a/4647985/
+    #>
+    param(
+        [Parameter(Position=0, Mandatory=$true)]$InputObject,
+        [System.ConsoleColor]$ForegroundColor,
+        [System.ConsoleColor]$BackgroundColor
+    )
+    if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
+        $OldForegroundColor = [Console]::ForegroundColor
+        [Console]::ForegroundColor = $ForegroundColor
+    }
+    if ($PSBoundParameters.ContainsKey("BackgroundColor")) {
+        $OldBackgroundColor = [Console]::BackgroundColor
+        [Console]::BackgroundColor = $BackgroundColor
+    }
+    if ($args) {
+        Write-Output $InputObject $args
+    } else {
+        $InputObject | Write-Output
+    }
+    if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
+        [Console]::ForegroundColor = $OldForegroundColor
+    }
+    if ($PSBoundParameters.ContainsKey("BackgroundColor")) {
+        [Console]::BackgroundColor = $OldBackgroundColor
+    }
+}
+
 function Test-Admin {
     <#
     .SYNOPSIS

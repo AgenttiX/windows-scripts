@@ -17,7 +17,7 @@ Elevate($myinvocation.MyCommand.Definition)
 Start-Transcript -Path "${LogPath}\install-computer_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
-Write-Host "Starting Mika's computer installation script."
+Show-Output "Starting Mika's computer installation script."
 
 # Global variables
 $GlobalHeight = 500;
@@ -77,9 +77,9 @@ $WingetPrograms = [ordered]@{
 # Installer functions
 
 function Install-StarLab {
-    Write-Host "Downloading Ophir StarLab"
+    Show-Output "Downloading Ophir StarLab"
     Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/StarLab_Setup.exe" -OutFile "${Downloads}\StarLab_Setup.exe"
-    Write-Host "Installing Ophir StarLab"
+    Show-Output "Installing Ophir StarLab"
     Start-Process -NoNewWindow -Wait "${Downloads}\StarLab_Setup.exe"
 }
 
@@ -175,8 +175,8 @@ function CreateTable {
             [object]$sender,
             [System.EventArgs]$e
         )
-        Write-Host "Locking the UI from modifications (this does not work yet)";
-        # Write-Host $View.Columns;
+        Show-Output "Locking the UI from modifications (this does not work yet)";
+        # Show-Output $View.Columns;
         foreach($column in $View.Columns) {
             if ($column.Name -ne "Selected") {
                 $column.ReadOnly = $true;
@@ -209,14 +209,14 @@ function GetSelectedCommands {
 
 if (!(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller")) {
     if (Get-AppxPackage -Name "Microsoft.WindowsStore") {
-        Write-Host "App Installer apperas not to be installed. Please close this window and install it from the Windows Store. Then restart this script."
+        Show-Output "App Installer apperas not to be installed. Please close this window and install it from the Windows Store. Then restart this script."
         Start-Process -Path "https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1";
-        $confirmation = Write-Host "If you know what you're doing, you may also continue by writing `"force`", but some features may not work.".
+        $confirmation = Show-Output "If you know what you're doing, you may also continue by writing `"force`", but some features may not work.".
         while ($confirmation -ne "f") {
-            Write-Host "Close this window or write `"force`" to continue."
+            Show-Output "Close this window or write `"force`" to continue."
         }
     } else {
-        Write-Host "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget may not be available.";
+        Show-Output "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget may not be available.";
     }
 }
 
@@ -278,30 +278,30 @@ if (! $Form.Continue) {
 
 $ChocoSelected = GetSelectedCommands $ChocoProgramsView
 if ($ChocoSelected.Count) {
-    Write-Host "Installing programs with Chocolatey."
+    Show-Output "Installing programs with Chocolatey."
     choco upgrade -y $ChocoSelected
 } else {
-    Write-Host "No programs were selected to be installed with Chocolatey."
+    Show-Output "No programs were selected to be installed with Chocolatey."
 }
 
 $WingetSelected = GetSelectedCommands $WingetProgramsView
 if ($WingetSelected.Count) {
-    Write-Host "Installing programs with Winget. If asked to accept the license of the package repository, please select yes."
+    Show-Output "Installing programs with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($program in $WingetSelected) {
         winget install "${program}"
     }
 } else {
-    Write-Host "No programs were selected to be installed with Winget."
+    Show-Output "No programs were selected to be installed with Winget."
 }
 
 # These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
 $OtherSelected = GetSelectedCommands $OtherOperationsView
 if ($OtherSelected.Count) {
-    Write-Host "Running other selected operations."
+    Show-Output "Running other selected operations."
     foreach($command in $OtherSelected) {
         . $command
     }
 }
 
-Write-Host -ForegroundColor Green "The installation script is ready. You can now close this window."
+Show-Output -ForegroundColor Green "The installation script is ready. You can now close this window."
 Stop-Transcript

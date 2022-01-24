@@ -20,7 +20,7 @@ $Downloads = ".\downloads"
 $Reports = ".\reports"
 
 function Create-ReportArchive {
-    Write-Host "Creating the report archive"
+    Show-Output "Creating the report archive"
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
     Compress-Archive -Path "${Reports}" -DestinationPath ".\reports_${Timestamp}.zip" -CompressionLevel Optimal
 }
@@ -31,35 +31,35 @@ if ($OnlyArchive) {
 }
 
 
-Write-Host "Running Mika's reporting script"
+Show-Output "Running Mika's reporting script"
 New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force
 
-Write-Host "Removing old reports"
+Show-Output "Removing old reports"
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
 
-Write-Host "Checking Windows Experience Index"
+Show-Output "Checking Windows Experience Index"
 Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
 
-Write-Host "Creating DirectX reports"
+Show-Output "Creating DirectX reports"
 dxdiag /x "${Reports}\dxdiag.xml"
 dxdiag /t "${Reports}\dxdiag.txt"
 dxdiag /x "${Reports}\dxdiag-whql.xml" /whql:on
 dxdiag /t "${Reports}\dxdiag-whql.txt" /whql:on
 
-Write-Host "Creating battery report"
+Show-Output "Creating battery report"
 powercfg /batteryreport /output "${Reports}\battery.html"
 
-Write-Host "Creating WiFi report"
+Show-Output "Creating WiFi report"
 netsh wlan show wlanreport
 cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
 
-Write-Host "Creating report of installed Windows Store apps."
+Show-Output "Creating report of installed Windows Store apps."
 Get-AppxPackage > "${Reports}\appx_packages.txt"
 
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (Test-Path $PTS) {
-    Write-Host "Creating Phoronix Test Suite (PTS) reports"
+    Show-Output "Creating Phoronix Test Suite (PTS) reports"
     & "$PTS" diagnostics > "${Reports}\pts_diagnostics.txt"
     & "$PTS" system-info > "${Reports}\pts_system_info.txt"
     & "$PTS" system-properties > "${Reports}\pts_system_properties.txt"
@@ -69,8 +69,8 @@ if (Test-Path $PTS) {
 
 if (-not $NoArchive) {
     Create-ReportArchive
-    Write-Host "The reporting script is ready." -ForegroundColor Green
-    Write-Host 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
-    Write-Host "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
-    Write-Host "You can close this window now." -ForegroundColor Green
+    Show-Output "The reporting script is ready." -ForegroundColor Green
+    Show-Output 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
+    Show-Output "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
+    Show-Output "You can close this window now." -ForegroundColor Green
 }

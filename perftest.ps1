@@ -24,7 +24,7 @@ Elevate($MyInvocation.MyCommand.Definition)
 
 Start-Transcript -Path "${LogPath}\perftest_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 
-Write-Host "Running Mika's performance testing script"
+Show-Output "Running Mika's performance testing script"
 
 Install-PTS
 
@@ -34,17 +34,17 @@ Install-PTS
 $Reports = ".\reports"
 
 
-Write-Host "Installing dependencies"
+Show-Output "Installing dependencies"
 Install-Chocolatey
 
-Write-Host "Installing tests"
+Show-Output "Installing tests"
 choco upgrade -y speedtest
 if ($All -or $Unigine) {
     choco upgrade -y heaven-benchmark superposition-benchmark valley-benchmark
 }
 
 if (-not (Test-Path "${Downloads}\UserBenchMark.exe")) {
-    Write-Host "Downloading UserBenchMark"
+    Show-Output "Downloading UserBenchMark"
     Invoke-WebRequest -Uri "https://www.userbenchmark.com/resources/download/UserBenchMark.exe" -OutFile "${Downloads}\UserBenchMark.exe"
 }
 
@@ -57,11 +57,11 @@ if ($Geekbench -or $All) {
 }
 
 if ($DownloadOnly) {
-    Write-Host "-DownloadOnly was specified. Everything is downloaded, so exiting now."
+    Show-Output "-DownloadOnly was specified. Everything is downloaded, so exiting now."
     exit
 }
 
-Write-Host "Configuring PTS"
+Show-Output "Configuring PTS"
 $Env:MONITOR="all"
 $Env:PERFORMANCE_PER_WATT="1"
 & "$PTS" user-config-set AllowResultUploadsToOpenBenchmarking=TRUE
@@ -73,7 +73,7 @@ $Env:PERFORMANCE_PER_WATT="1"
 # & "$PTS" user-config-set PromptForTestDescription=FALSE
 & "$PTS" user-config-set PromptSaveName=FALSE
 
-Write-Host "Running PTS"
+Show-Output "Running PTS"
 & "$PTS" batch-benchmark `
     pts/av1 `
     pts/compiler `
@@ -94,20 +94,20 @@ Write-Host "Running PTS"
     pts/intel-mlc `
     pts/x264
 
-Write-Host "Running Speedtest"
+Show-Output "Running Speedtest"
 speedtest --accept-license --accept-gdpr --format=csv --output-header > "${Reports}\speedtest.csv"
 
-Write-Host "Running winsat disk test"
+Show-Output "Running winsat disk test"
 winsat disk -drive C > "${Reports}\winsat_disk.txt"
 
-Write-Host "Running Windows performance monitoring."
-Write-Host "If it gets stuck, you can close its window."
+Show-Output "Running Windows performance monitoring."
+Show-Output "If it gets stuck, you can close its window."
 Start-Process -NoNewWindow -Wait perfmon /report
 
 # furmark /log_temperature /log_score
 
 # Windows memory diagnostics
-Write-Host "Running Windows memory diagnostics"
+Show-Output "Running Windows memory diagnostics"
 Start-Process -NoNewWindow -Wait MdSched
 
 # Running manual tests from a script is rather pointless.
@@ -131,5 +131,5 @@ Start-Process -NoNewWindow -Wait MdSched
 #     Start-Process -NoNewWindow -Wait $PCMarkPath
 # }
 
-Write-Host "The performance test is ready. You can now close this window."
+Show-Output "The performance test is ready. You can now close this window."
 Stop-Transcript
