@@ -241,10 +241,10 @@ $Layout.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.F
 $Layout.RowCount = 6;
 $Form.Controls.Add($Layout);
 
-$ChocoProgramsView = CreateTable $Form $Layout "Centrally updated programs (Chocolatey)" $ChocoPrograms;
-$WingetProgramsView = CreateTable $Form $Layout "Centrally updated programs (Winget)" $WingetPrograms;
+$ChocoProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Chocolatey)" -Data $ChocoPrograms;
+$WingetProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Winget)" -Data $WingetPrograms;
 $WingetProgramsView.Height = 50;
-$OtherOperationsView = CreateTable $Form $Layout "Other programs and operations. These you have to keep updated manually." $OtherOperations
+$OtherOperationsView = CreateTable -Form $Form -Parent $Layout -Title "Other programs and operations. These you have to keep updated manually." -Data $OtherOperations
 $OtherOperationsView.height = 150;
 
 # Disable Winget if it's not found
