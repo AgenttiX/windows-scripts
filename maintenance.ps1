@@ -240,7 +240,7 @@ if (Test-CommandExists "gpupdate") {
 }
 
 if (Test-CommandExists "Install-Module") {
-    Write-Host "You may now be asked whether to install the NuGet package provider. Please select yes."
+    Write-Host "Installing PowerShell bindings for Windows Update. You may now be asked whether to install the NuGet package provider. Please select yes."
     Install-Module PSWindowsUpdate -Force
 } else {
     Write-Host "Windows Update PowerShell module could not be installed. Check Windows updates manually."
@@ -251,6 +251,8 @@ if (Test-CommandExists "Install-WindowsUpdate") {
     Write-Host "- Microsoft Silverlight"
     Write-Host "- Preview versions"
     Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
+} else {
+    Write-Host "Windows Update bindings were not found. You have to check for Windows updates manually."
 }
 
 Install-Chocolatey
