@@ -262,8 +262,8 @@ if (Test-CommandExists "winget") {
 }
 
 # BleachBit
-$bleachbit_path_native = "C:\Program Files\BleachBit\bleachbit_console.exe"
-$bleachbit_path_x86 = "C:\Program Files (x86)\BleachBit\bleachbit_console.exe"
+$bleachbit_path_native = "${env:ProgramFiles}\BleachBit\bleachbit_console.exe"
+$bleachbit_path_x86 = "${env:ProgramFiles(x86)}\BleachBit\bleachbit_console.exe"
 
 if ((-not ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86))) -and (Test-CommandExists "choco")) {
     choco install bleachbit -y
@@ -285,7 +285,10 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
 }
 
 # Game updates (non-blocking)
-$steam_path="C:\Program Files (x86)\Steam\Steam.exe"
+# Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
+# https://stackoverflow.com/a/19015642/
+
+$steam_path="${env:ProgramFiles(x86)}\Steam\Steam.exe"
 if (Test-Path $steam_path) {
     Write-Host "Starting Steam for updates."
     & $steam_path
@@ -293,7 +296,7 @@ if (Test-Path $steam_path) {
     Write-Host "Steam was not found."
 }
 
-$battle_net_path="C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe"
+$battle_net_path="${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe"
 if (Test-Path $battle_net_path) {
     Write-Host "Starting Battle.net for updates."
     & $battle_net_path
@@ -301,7 +304,7 @@ if (Test-Path $battle_net_path) {
     Write-Host "Battle.net was not found."
 }
 
-$epic_games_path="C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
+$epic_games_path="${env:ProgramFiles(x86)}\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
 if (Test-Path $epic_games_path) {
     Write-Host "Staring Epic Games Launcher for updates."
     & $epic_games_path
@@ -309,7 +312,7 @@ if (Test-Path $epic_games_path) {
     Write-Host "Epic Games Launcher was not found."
 }
 
-$origin_path="C:\Program Files (x86)\Origin\Origin.exe"
+$origin_path="${env:ProgramFiles(x86)}\Origin\Origin.exe"
 if (Test-Path $origin_path) {
     Write-Host "Starting Origin for updates."
     & $origin_path
@@ -317,7 +320,7 @@ if (Test-Path $origin_path) {
     Write-Host "Origin was not found."
 }
 
-$ubisoft_connect_path="C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
+$ubisoft_connect_path="${env:ProgramFiles(x86)}\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
 if (Test-Path $ubisoft_connect_path) {
     Write-Host "Starting Ubisoft Connect for updates."
     & $ubisoft_connect_path
@@ -333,7 +336,7 @@ if (Test-Path $riot_client_path) {
     Write-Host "Riot Games client was not found."
 }
 
-$minecraft_path="C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
+$minecraft_path="${env:ProgramFiles(x86)}\Minecraft Launcher\MinecraftLauncher.exe"
 if (Test-Path $minecraft_path) {
     Write-Host "Starting Minecraft for updates."
     & $minecraft_path
