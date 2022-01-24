@@ -22,6 +22,8 @@ param(
 . "./utils.ps1"
 Elevate($MyInvocation.MyCommand.Definition)
 
+Start-Transcript -Path "${LogPath}\perftest_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
+
 Write-Host "Running Mika's performance testing script"
 
 Install-PTS
@@ -128,3 +130,6 @@ Start-Process -NoNewWindow -Wait MdSched
 # if (Test-Path "$PCMarkPath") {
 #     Start-Process -NoNewWindow -Wait $PCMarkPath
 # }
+
+Write-Host "The performance test is ready. You can now close this window."
+Stop-Transcript

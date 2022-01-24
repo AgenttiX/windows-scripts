@@ -14,6 +14,8 @@ param(
 # This should be as early as possible to avoid loading the function definitions etc. twice.
 Elevate($myinvocation.MyCommand.Definition)
 
+Start-Transcript -Path "${LogPath}\install-computer_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
+
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Write-Host "Starting Mika's computer installation script."
 
@@ -301,4 +303,5 @@ if ($OtherSelected.Count) {
     }
 }
 
-Write-Host -ForegroundColor Green "The installation script is ready. You can close this window now."
+Write-Host -ForegroundColor Green "The installation script is ready. You can now close this window."
+Stop-Transcript

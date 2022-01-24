@@ -2,5 +2,6 @@
 *.zip
 .idea
 lib
+logs
 reports
 reports.zip

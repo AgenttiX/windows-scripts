@@ -40,6 +40,7 @@ if ($Reboot -and $Shutdown) {
 # GitPull
 
 Elevate($myinvocation.MyCommand.Definition)
+Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 
 $host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Write-Host "Starting Mika's maintenance script."
@@ -427,5 +428,7 @@ if ($Reboot) {
     Write-host "The computer will be shut down in 10 seconds."
     shutdown /s /t 10 /c "Mika's maintenance script is ready. Shutting down."
 } else {
-    Write-Host -ForegroundColor Green "You can close this window now."
+    Write-Host -ForegroundColor Green "You can now close this window."
 }
+
+Stop-Transcript

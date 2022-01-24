@@ -53,8 +53,10 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
 # $RepoPath = Split-Path $PSScriptRoot -Parent
 $RepoPath = $PSSCriptRoot
 $StartPath = Get-Location
-New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force
+New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force | Out-Null
+New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
 $Downloads = "${RepoPath}\downloads"
+$LogPath = "${RepoPath}\logs"
 
 function Elevate {
     <#
