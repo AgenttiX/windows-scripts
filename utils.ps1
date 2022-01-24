@@ -69,11 +69,11 @@ function Elevate {
     if ((Test-Admin) -eq $false)  {
         if ($elevated)
         {
-            Write-Host "Elevation did not work."
+            Show-Output "Elevation did not work."
         }
         else {
-            Write-Host "This script requires admin access. Elevating."
-            Write-Host "$command"
+            Show-Output "This script requires admin access. Elevating."
+            Show-Output "$command"
             # Use newer PowerShell if available.
             if (Test-CommandExists "pwsh") {$shell = "pwsh"} else {$shell = "powershell"}
             Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
@@ -94,7 +94,7 @@ function Install-Chocolatey {
         [switch]$Force
     )
     if($Force -Or (-Not (Test-CommandExists "choco"))) {
-        Write-Host "Installing the Chocolatey package manager."
+        Show-Output "Installing the Chocolatey package manager."
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -106,13 +106,13 @@ function Install-Geekbench {
         [string[]]$GeekbenchVersions = @("5.4.4", "4.4.4", "3.4.4", "2.4.3")
     )
     foreach ($Version in $GeekbenchVersions) {
-        Write-Host "Downloading Geekbench ${Version}"
+        Show-Output "Downloading Geekbench ${Version}"
         $Filename = "Geekbench-$Version-WindowsSetup.exe"
         $Url = "https://cdn.geekbench.com/$Filename"
         Invoke-WebRequest -Uri "$Url" -OutFile "${Downloads}\${Filename}"
     }
     foreach ($Version in $GeekbenchVersions) {
-        Write-Host "Installing Geekbench ${Version}"
+        Show-Output "Installing Geekbench ${Version}"
         Start-Process -NoNewWindow -Wait "${Downloads}\Geekbench-${Version}-WindowsSetup.exe"
     }
 }
@@ -123,24 +123,24 @@ function Install-PTS {
     )
     $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
     if (-Not (Test-Path "$PTS")) {
-        Write-Host "Downloading Phoronix Test Suite (PTS), as it seems not to be installed yet."
+        Show-Output "Downloading Phoronix Test Suite (PTS), as it seems not to be installed yet."
         Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
-        Write-Host "Extracting Phoronix Test Suite (PTS)"
+        Show-Output "Extracting Phoronix Test Suite (PTS)"
         Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
         # The installation script needs to be executed in its directory
         Set-Location "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}"
-        Write-Host "Installing Phoronix Test Suite (PTS)."
-        Write-Host "You may get prompts asking whether you accept the EULA and whether to send anonymous usage statistics."
-        Write-Host "Please select yes to the former and preferably to the latter as well."
+        Show-Output "Installing Phoronix Test Suite (PTS)."
+        Show-Output "You may get prompts asking whether you accept the EULA and whether to send anonymous usage statistics."
+        Show-Output "Please select yes to the former and preferably to the latter as well."
         & ".\install.bat"
         Set-Location "$StartPath"
         if (-Not (Test-Path "$PTS")) {
-            Write-Host -ForegroundColor Red "Phoronix Test Suite (PTS) installation failed."
+            Show-Output -ForegroundColor Red "Phoronix Test Suite (PTS) installation failed."
             exit 1
         }
-        Write-Host "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
+        Show-Output "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
         & "$PTS" openbenchmarking-login
-        Write-Host "You must now configure the batch mode according to your preferences. Some of the settings may get overwritten later by this script."
+        Show-Output "You must now configure the batch mode according to your preferences. Some of the settings may get overwritten later by this script."
         & "$PTS" batch-setup
     }
     & "$PTS" openbenchmarking-refresh
