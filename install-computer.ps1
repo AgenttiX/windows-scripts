@@ -66,7 +66,7 @@ $ChocoPrograms = [ordered]@{
     "Xournal++" = "xournalplusplus", "For taking handwritten notes with a drawing tablet";
 }
 $WingetPrograms = [ordered]@{
-    "PowerShell" = "Microsoft.PowerShell", "Update to the pre-installed PowerShell";
+    "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
     # The PowerToys version available from WinGet is a preview.
     # https://github.com/microsoft/PowerToys#via-winget-preview
     # "PowerToys" = "Microsoft.PowerToys";
