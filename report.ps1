@@ -30,9 +30,9 @@ if ($OnlyArchive) {
     exit
 }
 
-
+# Initialization
 Show-Output "Running Mika's reporting script"
-New-Item -Path "." -Name "reports" -ItemType "directory" -Force
+New-Item -Path "." -Name "reports" -ItemType "directory" -Force | Out-Null
 
 Show-Output "Removing old reports"
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
