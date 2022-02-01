@@ -32,7 +32,6 @@ if ($OnlyArchive) {
 
 
 Show-Output "Running Mika's reporting script"
-New-Item -Path "." -Name "downloads" -ItemType "directory" -Force
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force
 
 Show-Output "Removing old reports"
