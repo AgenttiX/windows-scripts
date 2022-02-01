@@ -80,17 +80,94 @@ $WingetPrograms = [ordered]@{
 
 # Installer functions
 
+function Install-IDSSoftwareSuite ([string]$Version = "4.95.1", [string]$Version2 = "49510") {
+    Show-Output "Downloading IDS Software Suite (µEye)"
+    $Folder = "ids-software-suite-win-${Version}"
+    $Filename = "${Folder}.zip"
+    Invoke-WebRequest -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Extracting IDS Software Suite (µEye)"
+    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
+    Show-Output "Installing IDS Software Suite (µEye)"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\uEye_${Version2}.exe"
+}
+
+function Install-NI4882 ([string]$Version = "21.5") {
+    Show-Output "Downloading NI 488.2 (GPIB) drivers"
+    $Filename = "ni-488.2_${Version}_online.exe"
+    Invoke-WebRequest -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing NI 488.2 (GPIB) drivers"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
 function Install-StarLab {
     Show-Output "Downloading Ophir StarLab"
-    Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/StarLab_Setup.exe" -OutFile "${Downloads}\StarLab_Setup.exe"
+    $Filename="StarLab_Setup.exe"
+    Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Ophir StarLab"
-    Start-Process -NoNewWindow -Wait "${Downloads}\StarLab_Setup.exe"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
+function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
+    Show-Output "Downloading Thorlabs Beam"
+    $Folder = "Thorlabs_Beam_${Version}"
+    $Filename = "Thorlabs_Beam_${Version}.zip"
+    # Invoke-WebRequest -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing Thorlabs Beam"
+    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
+}
+
+function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
+    Show-Output "Downloading Thorlabs Kinesis"
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        Show-Output "64-bit operating system detected. Installing 64-bit version."
+        $Arch = "x64"
+    } else {
+        Show-Output "32-bit operating system detected. Installing 32-bit version."
+        $Arch = "x86"
+    }
+    $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
+    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/KINESIS%20Install%20${Arch}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing Thorlabs Kinesis"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
+function Install-VeecoVision {
+    [OutputType([int])]
+    param()
+
+    Show-Output "Searching for Veeco (Wyko) Vision from the network drive."
+    $FilePath = "V:\Software\Veeco\VISION64_V5.51_Release.zip"
+    if (Test-Path "$FilePath") {
+        Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
+        Show-Output "Installing Veeco (Wyko) Vision"
+        Start-Process -NoNewWindow -Wait "${Downloads}\CD 775-425 SOFTWARE VISION64 V5.51\Install.exe"
+    } else {
+        Show-Output "Veeco (Wyko) Vision was not found. Is the network drive mounted?"
+        return 1
+    }
+    Show-Output "Searching for Veeco (Wyko) Vision update from the network drive."
+    $FilePath = "V:\Software\Veeco\Vision64 5.51 Update 3.zip"
+    if (Test-Path "$FilePath") {
+        Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
+        Show-Output "Installing Veeco (Wyko) Vision update"
+        Start-Process -NoNewWindow -Wait "${Downloads}\Vision64 5.51 Update 3\CD\Vision64_5.51_Update_3.EXE"
+    } else {
+        Show-Output "Veeco (Wyko) Vision update was not found. Has the file been moved?"
+        return 2
+    }
+    return 0
 }
 
 $OtherOperations = [ordered]@{
     "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
+    "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
+    "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+    "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
+    "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
+    "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers"; 
 }
 
 # Function definitions should be after the loading of utilities
