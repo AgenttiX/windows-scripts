@@ -385,6 +385,23 @@ if ($Reboot -or $Shutdown) {
 
 # Misc blocking tasks
 
+$NIPackageManagerUpdaterPath = "${env:ProgramFiles}\National Instruments\NI Package Manager\Updater\Install.exe"
+if (Test-Path "$NIPackageManagerUpdaterPath") {
+    Show-Output "Updating NI Package Manager. This will open a window where you have to install the update, if there is one available."
+    "Once this update is ready, the NI Package Manager itself may open. Please close it. This script will then continue automatically and reopen it with the correct options enabled."
+    Start-Process -NoNewWindow -Wait "$NIPackageManagerUpdaterPath"
+} else {
+    Show-Output "NI Package Manager updater was not found."
+}
+$NIPackageManagerPath = "${env:ProgramFiles}\National Instruments\NI Package Manager\NIPackageManager.exe"
+if (Test-Path $NIPackageManagerPath) {
+    Show-Output "Running NI Package Manager to check for updates."
+    Show-Output "Please install the suggested updates and then close the package manager. This script will then continue automatically."
+    Start-Process -NoNewWindow -Wait "$NIPackageManagerPath" -ArgumentList "--initial-view=Updates","--output-transactions","--prevent-reboot"
+} else {
+    Show-Output "NI Package Manager was not found."
+}
+
 if (Test-CommandExists "docker") {
     Show-Output "Cleaning Docker"
     if ($Docker) {docker system prune -f -a}
