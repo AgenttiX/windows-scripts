@@ -37,25 +37,42 @@ New-Item -Path "." -Name "reports" -ItemType "directory" -Force | Out-Null
 Show-Output "Removing old reports"
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
 
-Show-Output "Checking Windows Experience Index"
-Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
-
-Show-Output "Creating DirectX reports"
-dxdiag /x "${Reports}\dxdiag.xml"
-dxdiag /t "${Reports}\dxdiag.txt"
-dxdiag /x "${Reports}\dxdiag-whql.xml" /whql:on
-dxdiag /t "${Reports}\dxdiag-whql.txt" /whql:on
-
-Show-Output "Creating battery report"
-powercfg /batteryreport /output "${Reports}\battery.html"
-
-Show-Output "Creating WiFi report"
-netsh wlan show wlanreport
-cp "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
-
+# Getter commands
 Show-Output "Creating report of installed Windows Store apps."
 Get-AppxPackage > "${Reports}\appx_packages.txt"
 
+Show-Output "Checking Windows Experience Index"
+Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
+
+# External commands
+if (Test-CommandExists "choco") {
+    Show-Output "Creating report of installed Chocolatey apps."
+    choco --local > "${Reports}\choco.txt"
+} else {
+    Show-Output "The command `"choco`" was not found."
+}
+if (Test-CommandExists "dxdiag") {
+    Show-Output "Creating DirectX reports"
+    dxdiag /x "${Reports}\dxdiag.xml"
+    dxdiag /t "${Reports}\dxdiag.txt"
+    dxdiag /x "${Reports}\dxdiag-whql.xml" /whql:on
+    dxdiag /t "${Reports}\dxdiag-whql.txt" /whql:on
+} else {
+    Show-Output "The command `"dxdiag`" was not found."
+}
+if (Test-CommandExists "netsh") {
+    Show-Output "Creating WiFi report"
+    netsh wlan show wlanreport
+    Copy-Item "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
+}
+if (Test-CommandExists "powercfg") {
+    Show-Output "Creating battery report"
+    powercfg /batteryreport /output "${Reports}\battery.html"
+} else {
+    Show-Output "The command `"powercfg`" was not found."
+}
+
+# External programs
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (Test-Path $PTS) {
     Show-Output "Creating Phoronix Test Suite (PTS) reports"
