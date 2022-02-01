@@ -168,7 +168,7 @@ $OtherOperations = [ordered]@{
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
-    "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers"; 
+    "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
 }
 
 # Function definitions should be after the loading of utilities
