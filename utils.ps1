@@ -62,6 +62,8 @@ function Elevate {
     <#
     .SYNOPSIS
         Elevate the current process to admin privileges.
+    .LINK
+        https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-process?view=powershell-7.2#example-5--start-powershell-as-an-administrator
     #>
     param(
         [Parameter(Mandatory=$true)][string]$command
