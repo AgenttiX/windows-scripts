@@ -52,3 +52,25 @@ For programs installed with Chocolatey the command is `choco uninstall <name of 
 For programs installed with Winget the command is `winget uninstall --id <ID of program>`.
 Then press enter.
 You can find the names and IDs of the programs from the user interface of the installation script.
+
+## Recreating virtualenvs after a Python upgrade
+If Python is installed through Chocolatey or some other package manager, it will be updated automatically.
+Major version upgrades will break existing virtualenvs.
+To recreate the virtualenv of a Python project, first delete the `venv` folder from the project directory.
+Then in PyCharm go to "File -> Settings -> Project -> Python Interpreter" and click on the gear symbol at the top-right.
+There select "Show all", select the old virtualenv and click the minus sign.
+Now the old virtualenv shold be deleted.
+Then click the plus sign and select "Virtualenv Environment -> New environment".
+The path should be the same as for the `venv` directory you just deleted.
+Then click OK on all the settings windows to close them.
+Now we can reinstall the project dependencies.
+Select "Terminal" from the bottom of the PyCharm window.
+This should open a terminal.
+However, it may not yet have the new virtualenv activated.
+Therefore write `exit` in the terminal to close it.
+Now open it again.
+Then write `pip -V` and press enter.
+This should show a path to the `venv` we just created.
+Now if the project has a `requirements.txt` file we can write `pip install -r requirements.txt` to install the dependencies.
+Otherwise we can install the dependencies manually, for example with `pip install matplotlib numpy`.
+The project should now be ready to use again.
