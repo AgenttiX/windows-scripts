@@ -148,6 +148,15 @@ function Install-PTS {
     & "$PTS" openbenchmarking-refresh
 }
 
+function Request-DomainConnection {
+    [OutputType([bool])]
+    $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
+    if ($IsConnected) {
+        Show-Output "Your computer seems to be a domain member. Please connect it to the domain network now. A VPN is OK but a physical connection is better."
+    }
+    return $IsJoined
+}
+
 function Show-Output {
     <#
     .SYNOPSIS

@@ -44,7 +44,7 @@ Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH
 
 $host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Show-Output "Starting Mika's maintenance script."
-Show-Output "If your computer is part of a domain, please connect it to the domain network now. A VPN is OK but a physical connection is better."
+Request-DomainConnection
 
 # ---
 # Constants

@@ -18,6 +18,7 @@ Start-Transcript -Path "${LogPath}\install-computer_$(Get-Date -Format "yyyy-MM-
 
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Show-Output "Starting Mika's computer installation script."
+Request-DomainConnection
 
 # Global variables
 $GlobalHeight = 500;
