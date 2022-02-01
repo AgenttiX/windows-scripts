@@ -42,3 +42,13 @@ If you get any errors, please send me a screenshot.
 
 Once the script has run, it may provide you with additional instructions such as how to send the results.
 Please follow those.
+
+## Uninstalling managed software
+The installation script uses various package managers such as Chocolatey and Winget to manage the installed software.
+Therefore if you uninstall a managed program with its own uninstaller or from the list of installed applications in Windows settings, the program will be reinstalled with the next update.
+Therefore the program has to be uninstalled using the package manager.
+Please open an elevated PowerShell window as instructed above.
+For programs installed with Chocolatey the command is `choco uninstall <name of software>` (without the brackets).
+For programs installed with Winget the command is `winget uninstall --id <ID of program>`.
+Then press enter.
+You can find the names and IDs of the programs from the user interface of the installation script.
