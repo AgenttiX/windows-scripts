@@ -138,7 +138,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
     Show-Output "Downloading Thorlabs Beam"
     $Folder = "Thorlabs_Beam_${Version}"
     $Filename = "Thorlabs_Beam_${Version}.zip"
-    # Invoke-WebRequest -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequest -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Beam"
     Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
