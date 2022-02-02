@@ -185,6 +185,14 @@ function Install-VeecoVision {
     }
     return 0
 }
+function Install-WSL {
+    if (Test-CommandExists "wsl") {
+        Show-Output "Installing Windows Subsystem for Linux (WSL), version >= 2"
+        wsl --install
+    } else {
+        Show-Output "The installer command for Windows Subsystem for Linux (WSL) was not found. Are you running an old version of Windows?"
+    }
+}
 
 $OtherOperations = [ordered]@{
     "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
@@ -195,6 +203,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
+    "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
 }
 
 # Function definitions should be after the loading of utilities
