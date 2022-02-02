@@ -33,7 +33,7 @@ or if I've told you that there's a new version available,
 write `git pull` and press enter.
 This will download the latest updates to the scripts.
 
-Now in the command prompt you should write ".\" and the name of the script I have asked you to run.
+Now in the command prompt you should write `.\ ` and the name of the script I have asked you to run.
 For example, the reporting script is selected with `.\report.ps1`.
 Then press enter to run the script.
 Many of these scripts have to be run as an administrator, and therefore they will request those privileges
