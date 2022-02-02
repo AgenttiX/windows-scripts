@@ -431,6 +431,8 @@ if ($WindowsCapabilitiesSelected.Count) {
         Show-Output "Installing ${capability}"
         Add-WindowsCapability -Name "$capability" -Online
     }
+} else {
+    Show-Output "No Windows capabilities were selected to be installed."
 }
 
 $WindowsFeaturesSelected = GetSelectedCommands $WindowsFeaturesView
@@ -440,6 +442,8 @@ if ($WindowsFeaturesSelected.Count) {
         Show-Output "Installing ${feature}"
         Enable-WindowsOptionalFeature -Feature "$feature" -Online
     }
+} else {
+    Show-Output "No Windows features were selected to be installed."
 }
 
 # These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
@@ -449,6 +453,8 @@ if ($OtherSelected.Count) {
     foreach($command in $OtherSelected) {
         . $command
     }
+} else {
+    Show-Output "No other operations were selected."
 }
 
 Show-Output -ForegroundColor Green "The installation script is ready. You can now close this window."
