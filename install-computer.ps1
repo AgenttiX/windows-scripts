@@ -21,7 +21,7 @@ Show-Output "Starting Mika's computer installation script."
 Request-DomainConnection
 
 # Global variables
-$GlobalHeight = 500;
+$GlobalHeight = 800;
 $GlobalWidth = 700;
 
 $ChocoPrograms = [ordered]@{
@@ -84,6 +84,25 @@ $WingetPrograms = [ordered]@{
     # The PowerToys version available from WinGet is a preview.
     # https://github.com/microsoft/PowerToys#via-winget-preview
     # "PowerToys" = "Microsoft.PowerToys";
+}
+$WindowsCapabilities = [ordered]@{
+    "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "SSH client";
+    "RSAT AD LDS (Active Directory management tools)" = "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0", "Active Directory management tools";
+    "RSAT BitLocker tools" = "Rsat.BitLocker.Recovery.Tools~~~~0.0.1.0", "Active Directory BitLocker management tools";
+    "RSAT DHCP tools" = "Rsat.DHCP.Tools~~~~0.0.1.0", "Active Directory DHCP management tools";
+    "RSAT DNS tools" = "Rsat.Dns.Tools~~~~0.0.1.0", "Active Directory DNS management tools";
+    "RSAT cluster tools" = "Rsat.FailoverCluster.Management.Tools~~~~0.0.1.0", "Server cluster management tools";
+    "RSAT file server tools" = "Rsat.FileServices.Tools~~~~0.0.1.0", "Active Directory file server management tools";
+    "RSAT group policy tools" = "Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0", "Active Directory group policy management tools";
+    # "RSAT network controller tools" = "Rsat.NetworkController.Tools~~~~0.0.1.0", "RSAT network controller tools";
+    "RSAT Server Manager" = "Rsat.ServerManager.Tools~~~~0.0.1.0", "Remote server management tools";
+    "RSAT Shielded VM tools" = "Rsat.Shielded.VM.Tools~~~~0.0.1.0", "Management tools for shielded virtual machines";
+    "RSAT WSUS tools" = "Rsat.WSUS.Tools~~~~0.0.1.0", "Active Directory Windows Update management tools";
+    "SNMP client" = "SNMP.Client~~~~0.0.1.0", "SNMP remote monitoring client";
+}
+$WindowsFeatures = [ordered]@{
+    "Hyper-V (NOTE!)" = "Microsoft-Hyper-V-All", "Virtualization platform. NOTE! Cannot be installed on the same computer as VirtualBox. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
+    "Hyper-V management tools" = "Microsoft-Hyper-V-Tools-All", "Tools for managing Hyper-V servers, both local and remote";
 }
 
 # Installer functions
@@ -333,12 +352,25 @@ $Form.Controls.Add($Layout);
 $ChocoProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Chocolatey)" -Data $ChocoPrograms;
 $WingetProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Winget)" -Data $WingetPrograms;
 $WingetProgramsView.Height = 50;
+$WindowsCapabilitiesView = CreateTable -Form $Form -Parent $Layout -Title "Windows capabilities" -Data $WindowsCapabilities;
+$WindowsCapabilitiesView.Height = 150;
+$WindowsFeaturesView = CreateTable -Form $Form -Parent $Layout -Title "Windows features" -Data $WindowsFeatures;
+$WindowsFeaturesView.Height = 95;
 $OtherOperationsView = CreateTable -Form $Form -Parent $Layout -Title "Other programs and operations. These you have to keep updated manually." -Data $OtherOperations
 $OtherOperationsView.height = 150;
 
-# Disable Winget if it's not found
+# Disable unsupported features
+if (!(Test-CommandExists "choco")) {
+    $ChocoProgramsView.Enabled = "$false";
+}
 if (!(Test-CommandExists "winget")) {
-    $WingetProgramsListBox.Enabled = $false;
+    $WingetProgramsView.Enabled = $false;
+}
+if (!(Test-CommandExists "Add-WindowsCapability")) {
+    $WindowsCapabilitiesView.Enabled = $false;
+}
+if (!(Test-CommandExists "Enable-WindowsOptionalFeature")) {
+    $WindowsFeaturesView.Enabled = $false;
 }
 
 # Add OK button
@@ -354,7 +386,7 @@ $Layout.Controls.Add($OKButton);
 function ResizeLayout {
     $Layout.Width = $Form.Width - 10;
     $Layout.Height = $Form.Height - 10;
-    $ChocoProgramsView.Height = $Form.Height - 350;
+    $ChocoProgramsView.Height = $Form.Height - 660;
 }
 $Form.Add_Resize($function:ResizeLayout);
 ResizeLayout;
@@ -381,6 +413,24 @@ if ($WingetSelected.Count) {
     }
 } else {
     Show-Output "No programs were selected to be installed with Winget."
+}
+
+$WindowsCapabilitiesSelected = GetSelectedCommands $WindowsCapabilitiesView
+if ($WindowsCapabilitiesSelected.Count) {
+    Show-Output "Installing Windows capabilities."
+    foreach($capability in $WindowsCapabilitiesSelected) {
+        Show-Output "Installing ${capability}"
+        Add-WindowsCapability -Name "$capability" -Online
+    }
+}
+
+$WindowsFeaturesSelected = GetSelectedCommands $WindowsFeaturesView
+if ($WindowsFeaturesSelected.Count) {
+    Show-Output "Installing Windows features."
+    foreach($feature in $WindowsFeaturesSelected) {
+        Show-Output "Installing ${feature}"
+        Enable-WindowsOptionalFeature -Feature "$feature" -Online
+    }
 }
 
 # These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
