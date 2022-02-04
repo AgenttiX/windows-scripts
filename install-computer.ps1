@@ -19,6 +19,9 @@ Start-Transcript -Path "${LogPath}\install-computer_$(Get-Date -Format "yyyy-MM-
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Show-Output "Starting Mika's computer installation script."
 Request-DomainConnection
+Show-Output "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
+Show-Output "If it doesn't fit on your monitor, please reduce the display scaling at:"
+Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
 
 # Global variables
 $GlobalHeight = 800;
