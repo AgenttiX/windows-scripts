@@ -213,6 +213,12 @@ $OtherOperations = [ordered]@{
 
 # Function definitions should be after the loading of utilities
 function CreateList {
+    <#
+    .SYNOPSIS
+        Create a GUI element for selecting options from a list with checkboxes
+    .LINK
+        https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.checkedlistbox
+     #>
     [OutputType([system.Windows.Forms.CheckedListBox])]
     param(
         [Parameter(mandatory=$true)][System.Object]$Parent,
@@ -235,6 +241,12 @@ function CreateList {
     return $List;
 }
 function CreateTable {
+    <#
+    .SYNOPSIS
+        Create a GUI element for selecting items from a list with checboxes
+    .LINK
+        https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridview
+    #>
     [OutputType([system.Windows.Forms.DataGridView])]
     param(
         [Parameter(mandatory=$true)][System.Object]$Form,
@@ -297,7 +309,7 @@ function CreateTable {
             [object]$sender,
             [System.EventArgs]$e
         )
-        Show-Output "Locking the UI from modifications (this does not work yet)";
+        Show-Output "Locking the UI from modifications and hiding unnecessary columns. (This does not work yet.)";
         # Show-Output $View.Columns;
         foreach($column in $View.Columns) {
             if ($column.Name -ne "Selected") {
