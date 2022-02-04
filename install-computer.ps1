@@ -27,6 +27,7 @@ Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the s
 $GlobalHeight = 800;
 $GlobalWidth = 700;
 
+# TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
     "7-Zip" = "7zip", "File compression utility";
     "Adobe Acrobat Reader DC" = "adobereader", "PDF reader. Not usually needed, as web browsers have good integrated pdf readers.";
