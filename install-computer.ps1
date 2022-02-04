@@ -52,7 +52,9 @@ $ChocoPrograms = [ordered]@{
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
-    "OpenVPN" = "openvpn", "VPN client";
+    # The OpenVPN version available from the Chocolatey repositories is old
+    # and does not support all the config values in the the config packages created by pfSense
+    # "OpenVPN" = "openvpn", "VPN client";
     "Origin (game store)" = "origin", "Game store";
     "PowerToys" = "powertoys", "Various utilities for Windows";
     "PyCharm Community" = "pycharm-community", "Python IDE";
