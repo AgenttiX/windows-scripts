@@ -132,6 +132,14 @@ function Install-NI4882 ([string]$Version = "21.5") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
+function Install-OpenVPN ([string]$Version = "2.5.5") {
+    Show-Output "Downloading OpenVPN"
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
+    $Filename = "OpenVPN-${Version}-I602-${Arch}.msi"
+    Invoke-WebRequest -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -OutFile "${Downloads}\${Filename}"
+    Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
+}
+
 function Install-StarLab {
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
@@ -198,6 +206,7 @@ $OtherOperations = [ordered]@{
     "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
+    "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
