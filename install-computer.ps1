@@ -152,13 +152,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
 
 function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
     Show-Output "Downloading Thorlabs Kinesis"
-    if ([System.Environment]::Is64BitOperatingSystem) {
-        Show-Output "64-bit operating system detected. Installing 64-bit version."
-        $Arch = "x64"
-    } else {
-        Show-Output "32-bit operating system detected. Installing 32-bit version."
-        $Arch = "x86"
-    }
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
     Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/KINESIS%20Install%20${Arch}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"

@@ -84,6 +84,25 @@ function Elevate {
     }
 }
 
+function Get-InstallBitness {
+    [OutputType([string])]
+    param(
+        [string]$x86 = "x86",
+        [string]$x86_64 = "x86_64",
+        [switch]$Verbose = $true
+    )
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        if ($Verbose) {
+            Show-Information "64-bit operating system detected. Installing 64-bit version."
+        }
+        return $x86_64
+    }
+    if ($Verbose) {
+        Show-Information "32-bit operating system detected. Installing 32-bit version."
+    }
+    return $x86
+}
+
 function GitPull {
     # Git pull should be run before elevating
     if (-Not ($elevated)) {
