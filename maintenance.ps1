@@ -387,8 +387,9 @@ if ($Reboot -or $Shutdown) {
 
 $NIPackageManagerUpdaterPath = "${env:ProgramFiles}\National Instruments\NI Package Manager\Updater\Install.exe"
 if (Test-Path "$NIPackageManagerUpdaterPath") {
-    Show-Output "Updating NI Package Manager. This will open a window where you have to install the update, if there is one available."
-    "Once this update is ready, the NI Package Manager itself may open. Please close it. This script will then continue automatically and reopen it with the correct options enabled."
+    Show-Output "Updating NI Package Manager. This will open a window where you have to install the update. If you get a message saying that the program cannot be upgraded, it means you already have the latest version."
+    Show-Output "In this case please close the window so that the script may continue."
+    Show-Output "Once this update is ready, the NI Package Manager itself may open. Please close it. This script will then continue automatically and reopen it with the correct options enabled."
     Start-Process -NoNewWindow -Wait "$NIPackageManagerUpdaterPath"
 } else {
     Show-Output "NI Package Manager updater was not found."
