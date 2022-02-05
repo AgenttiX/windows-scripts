@@ -148,6 +148,29 @@ function Install-PTS {
     & "$PTS" openbenchmarking-refresh
 }
 
+function Install-Winget {
+    [OutputType([bool])]
+    param()
+    if (Test-CommandExists "winget") {
+        return $true
+    }
+    if (Get-AppxPackage -Name "Microsoft.DesktopAppInstaller") {
+        Show-Output "App Installer seems to be installed on your system, but Winget was not found."
+        return $false
+    }
+    if (Get-AppxPackage -Name "Microsoft.WindowsStore") {
+        Show-Output "App Installer appears not to be installed. Please close this window and install it from the Windows Store. Then restart this script."
+        Start-Process -Path "https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1"
+        $confirmation = Show-Output "If you know what you're doing, you may also continue by writing `"force`", but some features may be disabled.".
+        while ($confirmation -ne "force") {
+            $confirmation = Show-Output "Close this window or write `"force`" to continue."
+        }
+        return $false;
+    }
+    Show-Output "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget will not be available."
+    return $false
+}
+
 function Request-DomainConnection {
     [OutputType([bool])]
     $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
