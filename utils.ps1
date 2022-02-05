@@ -157,19 +157,56 @@ function Request-DomainConnection {
     return $IsJoined
 }
 
+function Show-Information {
+    <#
+    .SYNOPSIS
+        Write-Information with colors. Use this instead of Write-Host.
+    #>
+    param(
+        [Parameter(Position=0, Mandatory=$true)]$MessageData,
+        [System.ConsoleColor]$ForegroundColor,
+        [System.ConsoleColor]$BackgroundColor
+        # This is set globally
+        # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.2#-informationaction
+        # [string]$InformationAction = "Continue"
+    )
+    if ($InformationPreference -eq "SilentlyContinue") {
+        $CustomInformationPreference = "Continue"
+    } else {
+        $CustomInformationPreference = $InformationPreference
+    }
+    Show-Stream @PSBoundParameters -Stream "Write-Information" -InformationAction $CustomInformationPreference
+}
+
 function Show-Output {
     <#
     .SYNOPSIS
-        Show text or an object on the console
-    .DESCRIPTION
-        With color support but without using Write-Host
-    .LINK
-        https://stackoverflow.com/a/4647985/
+        Write-Output with colors.
     #>
     param(
         [Parameter(Position=0, Mandatory=$true)]$InputObject,
         [System.ConsoleColor]$ForegroundColor,
         [System.ConsoleColor]$BackgroundColor
+    )
+    Show-Stream @PSBoundParameters -Stream "Write-Output"
+}
+
+function Show-Stream {
+     <#
+    .SYNOPSIS
+        Show text or an object on the console.
+    .DESCRIPTION
+        With color support but without using Write-Host.
+    .LINK
+        https://stackoverflow.com/a/4647985/
+    #>
+    # Argument passing
+    # https://stackoverflow.com/a/62861781/
+    param(
+        [Parameter(Position=0, Mandatory=$true)][Alias("MessageData")]$InputObject,
+        [System.ConsoleColor]$ForegroundColor,
+        [System.ConsoleColor]$BackgroundColor,
+        [string]$Stream = "Write-Output"
     )
     if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
         $OldForegroundColor = [Console]::ForegroundColor
@@ -180,9 +217,12 @@ function Show-Output {
         [Console]::BackgroundColor = $BackgroundColor
     }
     if ($args) {
-        Write-Output $InputObject $args
+        & $Stream $InputObject $args
+    } elseif ($Stream -eq "Write-Information") {
+        # Write-Information does not support piping
+        & $Stream $InputObject
     } else {
-        $InputObject | Write-Output
+        $InputObject | & "${Stream}"
     }
     if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
         [Console]::ForegroundColor = $OldForegroundColor
