@@ -1,5 +1,5 @@
 # Windows XP scripts
-These scripts are for Windows XP -based systems.
+These scripts and instructions are for Windows XP -based systems.
 
 ## Latest compatible software versions
 - FileZilla: [3.9.0.1](https://download.filezilla-project.org/client/)
