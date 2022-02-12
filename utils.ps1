@@ -84,6 +84,25 @@ function Elevate {
     }
 }
 
+function Get-InstallBitness {
+    [OutputType([string])]
+    param(
+        [string]$x86 = "x86",
+        [string]$x86_64 = "x86_64",
+        [switch]$Verbose = $true
+    )
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        if ($Verbose) {
+            Show-Information "64-bit operating system detected. Installing 64-bit version."
+        }
+        return $x86_64
+    }
+    if ($Verbose) {
+        Show-Information "32-bit operating system detected. Installing 32-bit version."
+    }
+    return $x86
+}
+
 function GitPull {
     # Git pull should be run before elevating
     if (-Not ($elevated)) {
@@ -148,6 +167,29 @@ function Install-PTS {
     & "$PTS" openbenchmarking-refresh
 }
 
+function Install-Winget {
+    [OutputType([bool])]
+    param()
+    if (Test-CommandExists "winget") {
+        return $true
+    }
+    if (Get-AppxPackage -Name "Microsoft.DesktopAppInstaller") {
+        Show-Output "App Installer seems to be installed on your system, but Winget was not found."
+        return $false
+    }
+    if (Get-AppxPackage -Name "Microsoft.WindowsStore") {
+        Show-Output "App Installer appears not to be installed. Please close this window and install it from the Windows Store. Then restart this script."
+        Start-Process -Path "https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1"
+        $confirmation = Show-Output "If you know what you're doing, you may also continue by writing `"force`", but some features may be disabled.".
+        while ($confirmation -ne "force") {
+            $confirmation = Show-Output "Close this window or write `"force`" to continue."
+        }
+        return $false;
+    }
+    Show-Output "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget will not be available."
+    return $false
+}
+
 function Request-DomainConnection {
     [OutputType([bool])]
     $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
@@ -157,19 +199,56 @@ function Request-DomainConnection {
     return $IsJoined
 }
 
+function Show-Information {
+    <#
+    .SYNOPSIS
+        Write-Information with colors. Use this instead of Write-Host.
+    #>
+    param(
+        [Parameter(Position=0, Mandatory=$true)]$MessageData,
+        [System.ConsoleColor]$ForegroundColor,
+        [System.ConsoleColor]$BackgroundColor
+        # This is set globally
+        # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.2#-informationaction
+        # [string]$InformationAction = "Continue"
+    )
+    if ($InformationPreference -eq "SilentlyContinue") {
+        $CustomInformationPreference = "Continue"
+    } else {
+        $CustomInformationPreference = $InformationPreference
+    }
+    Show-Stream @PSBoundParameters -Stream "Write-Information" -InformationAction $CustomInformationPreference
+}
+
 function Show-Output {
     <#
     .SYNOPSIS
-        Show text or an object on the console
-    .DESCRIPTION
-        With color support but without using Write-Host
-    .LINK
-        https://stackoverflow.com/a/4647985/
+        Write-Output with colors.
     #>
     param(
         [Parameter(Position=0, Mandatory=$true)]$InputObject,
         [System.ConsoleColor]$ForegroundColor,
         [System.ConsoleColor]$BackgroundColor
+    )
+    Show-Stream @PSBoundParameters -Stream "Write-Output"
+}
+
+function Show-Stream {
+     <#
+    .SYNOPSIS
+        Show text or an object on the console.
+    .DESCRIPTION
+        With color support but without using Write-Host.
+    .LINK
+        https://stackoverflow.com/a/4647985/
+    #>
+    # Argument passing
+    # https://stackoverflow.com/a/62861781/
+    param(
+        [Parameter(Position=0, Mandatory=$true)][Alias("MessageData")]$InputObject,
+        [System.ConsoleColor]$ForegroundColor,
+        [System.ConsoleColor]$BackgroundColor,
+        [string]$Stream = "Write-Output"
     )
     if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
         $OldForegroundColor = [Console]::ForegroundColor
@@ -180,9 +259,12 @@ function Show-Output {
         [Console]::BackgroundColor = $BackgroundColor
     }
     if ($args) {
-        Write-Output $InputObject $args
+        & $Stream $InputObject $args
+    } elseif ($Stream -eq "Write-Information") {
+        # Write-Information does not support piping
+        & $Stream $InputObject
     } else {
-        $InputObject | Write-Output
+        $InputObject | & "${Stream}"
     }
     if ($PSBoundParameters.ContainsKey("ForegroundColor")) {
         [Console]::ForegroundColor = $OldForegroundColor

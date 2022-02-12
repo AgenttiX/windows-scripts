@@ -132,6 +132,14 @@ function Install-NI4882 ([string]$Version = "21.5") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
+function Install-OpenVPN ([string]$Version = "2.5.5") {
+    Show-Output "Downloading OpenVPN"
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
+    $Filename = "OpenVPN-${Version}-I602-${Arch}.msi"
+    Invoke-WebRequest -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -OutFile "${Downloads}\${Filename}"
+    Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
+}
+
 function Install-StarLab {
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
@@ -152,13 +160,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
 
 function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
     Show-Output "Downloading Thorlabs Kinesis"
-    if ([System.Environment]::Is64BitOperatingSystem) {
-        Show-Output "64-bit operating system detected. Installing 64-bit version."
-        $Arch = "x64"
-    } else {
-        Show-Output "32-bit operating system detected. Installing 32-bit version."
-        $Arch = "x86"
-    }
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
     Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/KINESIS%20Install%20${Arch}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"
@@ -204,6 +206,7 @@ $OtherOperations = [ordered]@{
     "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
+    "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
@@ -342,24 +345,8 @@ function GetSelectedCommands {
 
 # Script starts here
 
-if (!(Test-CommandExists "winget")) {
-    if (Get-AppxPackage -Name "Microsoft.DesktopAppInstaller") {
-        Show-Output "App Installer seems to be installed on your system, but Winget was not found. "
-    } else {
-        if (Get-AppxPackage -Name "Microsoft.WindowsStore") {
-            Show-Output "App Installer appears not to be installed. Please close this window and install it from the Windows Store. Then restart this script."
-            Start-Process -Path "https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1"
-            $confirmation = Show-Output "If you know what you're doing, you may also continue by writing `"force`", but some features may be disabled.".
-            while ($confirmation -ne "force") {
-                $confirmation = Show-Output "Close this window or write `"force`" to continue."
-            }
-        } else {
-            Show-Output "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget will not be available."
-        }
-    }
-}
-
 Install-Chocolatey
+Install-Winget
 
 # Import Windows Forms Assembly
 Add-Type -AssemblyName System.Windows.Forms;

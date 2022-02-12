@@ -9,6 +9,8 @@ IF %ERRORLEVEL% EQU 0 (
 ) ELSE (
     echo Installing Chocolatey
     powershell -command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+    REM Load Chocolatey command
+    CALL %PROGRAMDATA%\chocolatey\bin\RefreshEnv.cmd
 )
 WHERE git
 IF %ERRORLEVEL% EQU 0 (
@@ -16,6 +18,8 @@ IF %ERRORLEVEL% EQU 0 (
 ) ELSE (
     echo Installing Git
     choco upgrade git -y
+    REM Load Git command
+    CALL %PROGRAMDATA%\chocolatey\bin\RefreshEnv.cmd
 )
 
 IF exist %USERPROFILE%\Git (
