@@ -190,6 +190,23 @@ function Install-Winget {
     return $false
 }
 
+function New-Shortcut {
+    param(
+        [string]$SourceExe,
+        [string]$DestinationPath
+    )
+    if (! (Test-Path "${SourceExe}" -PathType Leaf)) {
+        throw [System.IO.FileNotFoundException] "Could not find ${SourceExe}"
+    }
+    # if (! (Test-Path "${DestinationPath}" -PathType Container)) {
+    #     throw [System.IO.DirectoryNotFoundException] "Could not find ${DestinationPath}"
+    # }
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($DestinationPath)
+    $Shortcut.TargetPath = $SourceExe
+    $Shortcut.Save()
+}
+
 function Request-DomainConnection {
     [OutputType([bool])]
     $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain

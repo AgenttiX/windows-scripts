@@ -140,6 +140,31 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
     Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
 }
 
+function Install-Rezonator1([string]$Version = "1.7.116.375") {
+    $Filename = "rezonator-${Version}.exe"
+    Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
+function Install-Rezonator2([string]$Version = "2.0.10-beta6") {
+    [OutputType([bool])]
+    $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
+    $Filename = "rezonator-${Version}-win-${Bitness}.zip"
+    Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    $DestinationPath = "${Home}\Downloads\reZonator"
+    if (Test-Path "${DestinationPath}") {
+        $Decision = $Host.UI.PromptForChoice("The path `"${DestinationPath}`" already exists.", "Shall I overwrite it?", ("y", "n"), 0)
+        if ($Decision -eq 0) {
+            Remove-Item -Path "${DestinationPath}" -Recurse
+        } else {
+            return $false;
+        }
+    }
+    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
+    New-Shortcut -SourceExe "${DestinationPath}\rezonator.exe" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk"
+    return $true
+}
+
 function Install-StarLab {
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
@@ -209,6 +234,8 @@ $OtherOperations = [ordered]@{
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+    "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
+    "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
