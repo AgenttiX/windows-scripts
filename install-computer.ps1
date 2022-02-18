@@ -165,6 +165,12 @@ function Install-Rezonator2([string]$Version = "2.0.10-beta6") {
     return $true
 }
 
+function Install-SNLO([string]$Version = "77") {
+    $Filename = "SNLO-v${Version}.exe"
+    Invoke-WebRequest -Uri "https://as-photonics.com/snlo_files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
 function Install-StarLab {
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
@@ -236,6 +242,7 @@ $OtherOperations = [ordered]@{
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
+    "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
