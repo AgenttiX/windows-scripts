@@ -51,7 +51,7 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
 
 # These have to be after the compatibility section so that $PSScriptRoot is defined
 # $RepoPath = Split-Path $PSScriptRoot -Parent
-$RepoPath = $PSSCriptRoot
+$RepoPath = $PSScriptRoot
 $StartPath = Get-Location
 New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force | Out-Null
 New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
@@ -68,7 +68,7 @@ function Elevate {
     param(
         [Parameter(Mandatory=$true)][string]$command
     )
-    if ((Test-Admin) -eq $false)  {
+    if (! (Test-Admin))  {
         if ($elevated)
         {
             Show-Output "Elevation did not work."
@@ -105,7 +105,7 @@ function Get-InstallBitness {
 
 function GitPull {
     # Git pull should be run before elevating
-    if (-Not ($elevated)) {
+    if (! ($elevated)) {
         git pull
     }
 }
