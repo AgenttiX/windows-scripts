@@ -1,5 +1,5 @@
 # windows-scripts
-A collection of Windows scripts I've found userful
+A collection of Windows scripts I've found useful
 
 ## Installation instructions
 These installation instructions are for users that have not used command line before.
@@ -17,6 +17,11 @@ To download it, right-click
 and select "Save link as..." to save the file to a directory of your choice.
 Then right-click the downloaded file and select "Run as administrator".
 This should open a command-line window and setup the scripts and their dependencies for you.
+If you get a Windows SmartScreen error saying that the file is blocked,
+you have to unblock it by right-clicking the downloaded file and selecting Properties,
+and then checking the checkbox named Unblock at the bottom of the window.
+Then click OK and run the script again.
+Due to various settings and configurations, you may have to run the script up to three times for it to work properly.
 Once the setup is complete, you can find the scripts in the directory `Git\windows-scripts` within your user folder (usually `C:\Users\<username>`).
 
 ## Usage instructions
