@@ -36,6 +36,7 @@ $ChocoPrograms = [ordered]@{
     "Android Debug Bridge" = "adb", "For developing Android applications";
     "BleachBit" = "bleachbit", "Utility for freeing disk space";
     "BOINC" = "boinc", "Distributed computing platform";
+    "Chocolatey GUI (RECOMMENDED!)" = "chocolateygui", "Graphical user interface for managing packages installed with this script and for installing additional software.";
     "CMake" = "cmake", "C/C++ make utility";
     "Discord" = "discord", "Chat and group call platform";
     "DisplayCal" = "displaycal", "Display calibration utility";
