@@ -60,6 +60,7 @@ $ChocoPrograms = [ordered]@{
     # and does not support all the config values in the the config packages created by pfSense
     # "OpenVPN" = "openvpn", "VPN client";
     "Origin (game store)" = "origin", "Game store";
+    "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "PowerToys" = "powertoys", "Various utilities for Windows";
     "PyCharm Community" = "pycharm-community", "Python IDE";
     "PyCharm Professional" = "pycharm", "Professional Python IDE, requires a license";
