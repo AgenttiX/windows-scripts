@@ -229,11 +229,12 @@ Show-Output "After a moment you may be asked about Windows Updates, and writing 
 
 # Resynchronize time with domain controllers or other NTP server.
 # This may be needed for gpupdate if the internal clock is out of sync with the domain.
-Show-Output "Synchronizing system clock. If your computer is part of a domain but not connected to the domain network, this may fail."
+Show-Output "Synchronizing system clock. If your computer is part of a domain but not connected to the domain network (e.g. with a VPN), this may fail."
 w32tm /resync
 
 if (Test-CommandExists "gpupdate") {
-    Show-Output "Updating group policies. If your computer is part of a domain but not connected to the domain network, this will fail."
+    Show-Output "Updating group policies. If your computer is part of a domain but not connected to the domain network (e.g. with a VPN), this will fail."
+    Show-Output "`"Failed to apply`" error messages are also quite common, and may be caused by reasons unrelated to your computer (synchronization problems for domain controller SYSVOL etc.)."
     gpupdate /force
 } else {
     Show-Output "Group policy updates are not supported on this system."
@@ -247,9 +248,9 @@ if (Test-CommandExists "Install-Module") {
 }
 if (Test-CommandExists "Install-WindowsUpdate") {
     Show-Output "You may now be asked whether to install some Windows Updates."
-    Show-Output "It's recommended to answer yes EXCEPT for the following:"
-    Show-Output "- Microsoft Silverlight"
-    Show-Output "- Preview versions"
+    Show-Output "It's recommended to answer yes EXCEPT for the following:" -ForegroundColor Cyan
+    Show-Output "- Microsoft Silverlight" -ForegroundColor Cyan
+    Show-Output "- Preview versions" -ForegroundColor Cyan
     Install-WindowsUpdate -MicrosoftUpdate -IgnoreReboot
 } else {
     Show-Output "Windows Update bindings were not found. You have to check for Windows updates manually."
@@ -290,6 +291,8 @@ if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
 # Game updates (non-blocking)
 # Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
 # https://stackoverflow.com/a/19015642/
+
+Show-Output "Installing game updates. (If this is a work computer, probably no games will be found.)"
 
 $steam_path="${env:ProgramFiles(x86)}\Steam\Steam.exe"
 if (Test-Path $steam_path) {
@@ -353,14 +356,14 @@ $kingston_ssd_manager_path = "${env:ProgramFiles(x86)}\Kingston_SSD_Manager\KSM.
 if ($Reboot -or $Shutdown) {
     Show-Output "Kingston SSD Manager will not be started, as automatic reboot or shutdown is enabled."
 } elseif (Test-Path $kingston_ssd_manager_path) {
-    Show-Output "Starting Kingston SSD Manager to check for updates. If there are any, reboot the computer before installing them to ensure that no other updates will interfere with them."
+    Show-Output "Starting Kingston SSD Manager to check for updates. If there are any, plase wait that the maintenance script is ready before installing them to ensure that no other updates will interfere with them."
     & $kingston_ssd_manager_path
 } else {
     Show-Output "Kingston SSD Manager was not found."
 }
 
 if (Test-CommandExists "cleanmgr") {
-    Show-Output "Running Windows disk cleanup."
+    Show-Output "Running Windows disk cleanup. This will open some windows about `"low disk space condition`". You can close them when they are ready."
     # This command is non-blocking
     cleanmgr /verylowdisk
 } else {
@@ -412,13 +415,13 @@ if (Test-CommandExists "docker") {
 }
 
 if (Test-CommandExists "Update-Help") {
-    Show-Output "Updating PowerShell help"
+    Show-Output "Updating PowerShell help. All modules don't have help info, and therefore this may produce errors, which is OK."
     Update-Help
 } else {
     Show-Output "Help updates are not supported by this PowerShell version."
 }
 
-Show-Output "Optimizing drives"
+Show-Output "Optimizing drives. SSDs will be trimmed and HDDs defragmented. If some of the connected drives (e.g. USB flash sticks and SD cards) don't support optimization, this will produce errors, which is OK."
 Get-Volume | ForEach-Object {
     if ($_.DriveLetter) {
         Optimize-Volume -DriveLetter $_.DriveLetter -Verbose
@@ -427,13 +430,13 @@ Get-Volume | ForEach-Object {
 
 # Antivirus
 if (Test-CommandExists "Update-MpSignature") {
-    Show-Output "Updating Windows Defender definitions."
+    Show-Output "Updating Windows Defender definitions. If you have another antivirus program installed, Windows Defender may be disabled, causing this to fail."
     Update-MpSignature
 } else {
     Show-Output "Virus definition updates are not supported. Check them manually."
 }
 if (Test-CommandExists "Start-MpScan") {
-    Show-Output "Running Windows Defender full scan."
+    Show-Output "Running Windows Defender full scan. If you have another antivirus program installed, this may fail, Windows Defender may be disabled, causing this to fail."
     Start-MpScan -ScanType "FullScan"
 } else {
     Show-Output "Virus scan is not supported. Run it manually."
