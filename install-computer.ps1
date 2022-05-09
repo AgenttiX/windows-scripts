@@ -115,7 +115,7 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
-function Install-IDSSoftwareSuite ([string]$Version = "4.95.1", [string]$Version2 = "49510") {
+function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
     Show-Output "Downloading IDS Software Suite (µEye)"
     $Folder = "ids-software-suite-win-${Version}"
     $Filename = "${Folder}.zip"
@@ -237,7 +237,7 @@ function Install-StarLab {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
-function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
+function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     <#
     .SYNOPSIS
         Install Thorlabs Beam
@@ -253,7 +253,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
 }
 
-function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
+function Install-ThorlabsKinesis ([string]$Version = "1.14.32", [string]$Version2 = "19300") {
     <#
     .SYNOPSIS
         Install Thorlabs Kinesis
@@ -263,7 +263,7 @@ function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version
     Show-Output "Downloading Thorlabs Kinesis"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
-    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/KINESIS%20Install%20${Arch}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
