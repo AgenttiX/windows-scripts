@@ -165,13 +165,19 @@ function Install-OriginViewer {
 }
 
 function Install-Rezonator1([string]$Version = "1.7.116.375") {
+    Show-Output "Downloading reZonator 1"
     $Filename = "rezonator-${Version}.exe"
     Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing reZonator 1"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
-function Install-Rezonator2([string]$Version = "2.0.10-beta6") {
+function Install-Rezonator2 {
     [OutputType([bool])]
+    param(
+        [string]$Version = "2.0.10-beta6"
+    )
+    Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
     $Filename = "rezonator-${Version}-win-${Bitness}.zip"
     Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -179,14 +185,17 @@ function Install-Rezonator2([string]$Version = "2.0.10-beta6") {
     if(-Not (Clear-Path "${DestinationPath}")) {
         return $false
     }
+    Show-Output "Extracting reZonator 2"
     Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
     New-Shortcut -SourceExe "${DestinationPath}\rezonator.exe" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk"
     return $true
 }
 
 function Install-SNLO([string]$Version = "77") {
+    Show-Output "Downloading SNLO"
     $Filename = "SNLO-v${Version}.exe"
     Invoke-WebRequest -Uri "https://as-photonics.com/snlo_files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing SNLO"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
