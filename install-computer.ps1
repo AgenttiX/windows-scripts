@@ -135,6 +135,12 @@ function Install-NI4882 ([string]$Version = "21.5") {
 }
 
 function Install-OpenVPN ([string]$Version = "2.5.5") {
+    <#
+    .SYNOPSIS
+        Install OpenVPN Community
+    .LINK
+        https://openvpn.net/community-downloads/
+    #>
     Show-Output "Downloading OpenVPN"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
     $Filename = "OpenVPN-${Version}-I602-${Arch}.msi"
@@ -143,6 +149,12 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
 }
 
 function Install-OriginViewer {
+    <#
+    .SYNOPSIS
+        Install Origin Viewer, the free viewer for Origin data visualization and analysis files
+    .LINK
+        https://www.originlab.com/viewer/
+    #>
     [OutputType([bool])]
     param()
     Show-Output "Downloading Origin Viewer"
@@ -165,6 +177,12 @@ function Install-OriginViewer {
 }
 
 function Install-Rezonator1([string]$Version = "1.7.116.375") {
+    <#
+    .SYNOPSIS
+        Install the reZonator laser cavity simulator
+    .LINK
+        http://rezonator.orion-project.org/?page=dload
+    #>
     Show-Output "Downloading reZonator 1"
     $Filename = "rezonator-${Version}.exe"
     Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -173,6 +191,12 @@ function Install-Rezonator1([string]$Version = "1.7.116.375") {
 }
 
 function Install-Rezonator2 {
+    <#
+    .SYNOPSIS
+        Install the reZonator 2 laser cavity simulator
+    .LINK
+        http://rezonator.orion-project.org/?page=dload
+    #>
     [OutputType([bool])]
     param(
         [string]$Version = "2.0.10-beta6"
@@ -200,6 +224,12 @@ function Install-SNLO([string]$Version = "77") {
 }
 
 function Install-StarLab {
+    <#
+    .SYNOPSIS
+        Install Ophir StarLab
+    .LINK
+        https://www.ophiropt.com/laser--measurement/software/starlab-for-usb
+    #>
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
     Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -208,6 +238,12 @@ function Install-StarLab {
 }
 
 function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
+    <#
+    .SYNOPSIS
+        Install Thorlabs Beam
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Beam
+    #>
     Show-Output "Downloading Thorlabs Beam"
     $Folder = "Thorlabs_Beam_${Version}"
     $Filename = "Thorlabs_Beam_${Version}.zip"
@@ -218,6 +254,12 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
 }
 
 function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
+    <#
+    .SYNOPSIS
+        Install Thorlabs Kinesis
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
+    #>
     Show-Output "Downloading Thorlabs Kinesis"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
