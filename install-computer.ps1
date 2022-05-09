@@ -142,6 +142,28 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
     Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
 }
 
+function Install-OriginViewer {
+    [OutputType([bool])]
+    param()
+    Show-Output "Downloading Origin Viewer"
+    $Arch = Get-InstallBitness -x86 "" -x86_64 "_64"
+    $Filename = "OriginViewer${Arch}.zip"
+    Invoke-WebRequest -Uri "https://www.originlab.com/ftp/${Filename}" -OutFile "${Downloads}\${Filename}"
+    $DestinationPath = "${Home}\Downloads\Origin Viewer"
+    if(-Not (Clear-Path "${DestinationPath}")) {
+        return $false
+    }
+    Show-Output "Extracting Origin Viewer"
+    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
+    $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
+    if ($ExePath -eq $null) {
+        Show-Information "No exe file was found in the extracted directory." -ForegroundColor Red
+        return $false
+    }
+    New-Shortcut -SourceExe "${ExePath}" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk"
+    return $true
+}
+
 function Install-Rezonator1([string]$Version = "1.7.116.375") {
     $Filename = "rezonator-${Version}.exe"
     Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -154,13 +176,8 @@ function Install-Rezonator2([string]$Version = "2.0.10-beta6") {
     $Filename = "rezonator-${Version}-win-${Bitness}.zip"
     Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     $DestinationPath = "${Home}\Downloads\reZonator"
-    if (Test-Path "${DestinationPath}") {
-        $Decision = $Host.UI.PromptForChoice("The path `"${DestinationPath}`" already exists.", "Shall I overwrite it?", ("y", "n"), 0)
-        if ($Decision -eq 0) {
-            Remove-Item -Path "${DestinationPath}" -Recurse
-        } else {
-            return $false;
-        }
+    if(-Not (Clear-Path "${DestinationPath}")) {
+        return $false
     }
     Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
     New-Shortcut -SourceExe "${DestinationPath}\rezonator.exe" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk"
@@ -241,6 +258,7 @@ $OtherOperations = [ordered]@{
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
+    "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for Origin data graphing and analysis files";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";

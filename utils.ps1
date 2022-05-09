@@ -58,6 +58,29 @@ New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
 $Downloads = "${RepoPath}\downloads"
 $LogPath = "${RepoPath}\logs"
 
+function Clear-Path {
+    <#
+    .SYNOPSIS
+        Clear the path for e.g. unpacking a program.
+    .DESCRIPTION
+        Return values: 0 not cleared, 1 cleared, 2 no need
+    #>
+    # [Parameter(Mandatory=$true)]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory=$true)][string]$Path
+    )
+    if (Test-Path "${Path}") {
+        $Decision = $Host.UI.PromptForChoice("The path `"${Path}`" already exists.", "Shall I clear and overwrite it?", ("y", "n"), 0)
+        if ($Decision -eq 0) {
+            Remove-Item -Path "${Path}" -Recurse
+            return 1
+        }
+        return 0
+    }
+    return 2
+}
+
 function Elevate {
     <#
     .SYNOPSIS
@@ -83,6 +106,21 @@ function Elevate {
         }
     exit
     }
+}
+
+function Find-First {
+    <#
+    .SYNOPSIS
+        Find the first file that matches the given filter
+    .LINK
+        https://stackoverflow.com/a/1500148/
+    #>
+    [OutputType([System.IO.FileInfo])]
+    param(
+        [string]$Filter,
+        [string]$Path
+    )
+    return @(Get-ChildItem -Filter "${Filter}" -Path "${Path}")[0]
 }
 
 function Get-InstallBitness {
