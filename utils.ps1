@@ -249,7 +249,7 @@ function New-Shortcut {
 function Request-DomainConnection {
     [OutputType([bool])]
     $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
-    if ($IsConnected) {
+    if ($IsJoined) {
         Show-Output "Your computer seems to be a domain member. Please connect it to the domain network now. A VPN is OK but a physical connection is better."
     }
     return $IsJoined
