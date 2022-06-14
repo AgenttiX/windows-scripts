@@ -276,7 +276,7 @@ if (Test-CommandExists "choco") {
 }
 
 if (Test-CommandExists "winget") {
-    Show-Output -ForegroundColor Cyan "Installing updates with Winget"
+    Show-Output -ForegroundColor Cyan "Installing updates with Winget. If you are asked to agree to source agreements terms, please select yes."
     winget upgrade --all
 }
 
