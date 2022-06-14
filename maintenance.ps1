@@ -203,10 +203,15 @@ $bleachbit_features_thunderbird = @(
 # ---
 
 # If a Lenovo computer does not have Lenovo Vantage installed
-if (((Get-ComputerInfo -Property "BiosManufacturer").BiosManufacturer.ToLower() -eq "lenovo") -and (! (Get-AppxPackage -Name "E046963F.LenovoCompanion"))) {
-    Show-Output -ForegroundColor Red "It appears that you have a Lenovo computer but don't have Lenovo Vantage installed."
-    Show-Output -ForegroundColor Red "Please install Lenovo Vantage from Microsoft Store to get driver and firmware updates."
-    Start-Process "https://apps.microsoft.com/store/detail/lenovo-vantage/9WZDNCRFJ4MV"
+if (((Get-ComputerInfo -Property "BiosManufacturer").BiosManufacturer.ToLower() -eq "lenovo") -and (! ((Get-AppxPackage -Name "E046963F.LenovoCompanion") -or (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise")))) {
+    Show-Output -ForegroundColor Red "It appears that you have a Lenovo computer but don't have Lenovo Vantage or Lenovo Commercial Vantage installed."
+    if (Get-IsDomainJoined) {
+        Show-Output -ForegroundColor Red "Your computer appears to be part of a domain. Please install Lenovo Commercial Vantage to get driver and firmware updates."
+        Start-Process "https://apps.microsoft.com/store/detail/lenovo-commercial-vantage/9NR5B8GVVM13"
+    } else {
+        Show-Output -ForegroundColor Red "Please install Lenovo Vantage from Microsoft Store to get driver and firmware updates."
+        Start-Process "https://apps.microsoft.com/store/detail/lenovo-vantage/9WZDNCRFJ4MV"
+    }
 }
 
 if ($Reboot) {
@@ -389,6 +394,9 @@ Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseMode
 # Lenovo Vantage (non-blocking)
 if ($Reboot -or $Shutdown) {
     Show-Output -ForegroundColor Cyan "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
+} elseif (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise") {
+    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates."
+    start shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
 } elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
     Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates."
     start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App

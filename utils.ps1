@@ -142,6 +142,12 @@ function Get-InstallBitness {
     return $x86
 }
 
+function Get-IsDomainJoined {
+    [OutputType([bool])]
+    param()
+    return (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
+}
+
 function GitPull {
     # Git pull should be run before elevating
     if (! ($elevated)) {
@@ -248,7 +254,7 @@ function New-Shortcut {
 
 function Request-DomainConnection {
     [OutputType([bool])]
-    $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
+    $IsJoined = Get-IsDomainJoined
     if ($IsJoined) {
         Show-Output "Your computer seems to be a domain member. Please connect it to the domain network now. A VPN is OK but a physical connection is better."
     }
