@@ -456,7 +456,7 @@ if (Test-CommandExists "Update-MpSignature") {
     Show-Output -ForegroundColor Red "Virus definition updates are not supported. Check them manually."
 }
 if (Test-CommandExists "Start-MpScan") {
-    Show-Output -ForegroundColor Cyan "Running Windows Defender full scan. If you have another antivirus program installed, this may fail, Windows Defender may be disabled, causing this to fail."
+    Show-Output -ForegroundColor Cyan "Running Windows Defender full scan. If you have another antivirus program installed, Windows Defender may be disabled, causing this to fail."
     Start-MpScan -ScanType "FullScan"
 } else {
     Show-Output -ForegroundColor Red "Virus scan is not supported. Run it manually."
