@@ -201,6 +201,14 @@ $bleachbit_features_thunderbird = @(
 # ---
 # Script starts here
 # ---
+
+# If a Lenovo computer does not have Lenovo Vantage installed
+if (((Get-ComputerInfo -Property "BiosManufacturer").BiosManufacturer.ToLower() -eq "lenovo") -and (! (Get-AppxPackage -Name "E046963F.LenovoCompanion"))) {
+    Show-Output -ForegroundColor Red "It appears that you have a Lenovo computer but don't have Lenovo Vantage installed."
+    Show-Output -ForegroundColor Red "Please install Lenovo Vantage from Microsoft Store to get driver and firmware updates."
+    Start-Process "https://apps.microsoft.com/store/detail/lenovo-vantage/9WZDNCRFJ4MV"
+}
+
 if ($Reboot) {
     Show-Output "The computer will be rebooted automatically after the script is complete due to a command-line argument."
 } elseif ($Shutdown) {
