@@ -304,7 +304,7 @@ function Install-WSL {
 }
 
 $OtherOperations = [ordered]@{
-    "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
+    "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
