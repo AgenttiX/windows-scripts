@@ -51,12 +51,35 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
 
 # These have to be after the compatibility section so that $PSScriptRoot is defined
 # $RepoPath = Split-Path $PSScriptRoot -Parent
-$RepoPath = $PSSCriptRoot
+$RepoPath = $PSScriptRoot
 $StartPath = Get-Location
 New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force | Out-Null
 New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
 $Downloads = "${RepoPath}\downloads"
 $LogPath = "${RepoPath}\logs"
+
+function Clear-Path {
+    <#
+    .SYNOPSIS
+        Clear the path for e.g. unpacking a program.
+    .DESCRIPTION
+        Return values: 0 not cleared, 1 cleared, 2 no need
+    #>
+    # [Parameter(Mandatory=$true)]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory=$true)][string]$Path
+    )
+    if (Test-Path "${Path}") {
+        $Decision = $Host.UI.PromptForChoice("The path `"${Path}`" already exists.", "Shall I clear and overwrite it?", ("y", "n"), 0)
+        if ($Decision -eq 0) {
+            Remove-Item -Path "${Path}" -Recurse
+            return 1
+        }
+        return 0
+    }
+    return 2
+}
 
 function Elevate {
     <#
@@ -68,7 +91,7 @@ function Elevate {
     param(
         [Parameter(Mandatory=$true)][string]$command
     )
-    if ((Test-Admin) -eq $false)  {
+    if (! (Test-Admin))  {
         if ($elevated)
         {
             Show-Output "Elevation did not work."
@@ -79,9 +102,25 @@ function Elevate {
             # Use newer PowerShell if available.
             if (Test-CommandExists "pwsh") {$shell = "pwsh"} else {$shell = "powershell"}
             Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
+            Show-Output "The script has been started in another window. You can close this window now." -ForegroundColor Green
         }
     exit
     }
+}
+
+function Find-First {
+    <#
+    .SYNOPSIS
+        Find the first file that matches the given filter
+    .LINK
+        https://stackoverflow.com/a/1500148/
+    #>
+    [OutputType([System.IO.FileInfo])]
+    param(
+        [string]$Filter,
+        [string]$Path
+    )
+    return @(Get-ChildItem -Filter "${Filter}" -Path "${Path}")[0]
 }
 
 function Get-InstallBitness {
@@ -103,9 +142,15 @@ function Get-InstallBitness {
     return $x86
 }
 
+function Get-IsDomainJoined {
+    [OutputType([bool])]
+    param()
+    return (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
+}
+
 function GitPull {
     # Git pull should be run before elevating
-    if (-Not ($elevated)) {
+    if (! ($elevated)) {
         git pull
     }
 }
@@ -190,10 +235,27 @@ function Install-Winget {
     return $false
 }
 
+function New-Shortcut {
+    param(
+        [string]$SourceExe,
+        [string]$DestinationPath
+    )
+    if (! (Test-Path "${SourceExe}" -PathType Leaf)) {
+        throw [System.IO.FileNotFoundException] "Could not find ${SourceExe}"
+    }
+    # if (! (Test-Path "${DestinationPath}" -PathType Container)) {
+    #     throw [System.IO.DirectoryNotFoundException] "Could not find ${DestinationPath}"
+    # }
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($DestinationPath)
+    $Shortcut.TargetPath = $SourceExe
+    $Shortcut.Save()
+}
+
 function Request-DomainConnection {
     [OutputType([bool])]
-    $IsJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
-    if ($IsConnected) {
+    $IsJoined = Get-IsDomainJoined
+    if ($IsJoined) {
         Show-Output "Your computer seems to be a domain member. Please connect it to the domain network now. A VPN is OK but a physical connection is better."
     }
     return $IsJoined

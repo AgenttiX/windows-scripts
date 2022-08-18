@@ -36,6 +36,7 @@ $ChocoPrograms = [ordered]@{
     "Android Debug Bridge" = "adb", "For developing Android applications";
     "BleachBit" = "bleachbit", "Utility for freeing disk space";
     "BOINC" = "boinc", "Distributed computing platform";
+    "Chocolatey GUI (RECOMMENDED!)" = "chocolateygui", "Graphical user interface for managing packages installed with this script and for installing additional software.";
     "CMake" = "cmake", "C/C++ make utility";
     "Discord" = "discord", "Chat and group call platform";
     "DisplayCal" = "displaycal", "Display calibration utility";
@@ -60,6 +61,7 @@ $ChocoPrograms = [ordered]@{
     # and does not support all the config values in the the config packages created by pfSense
     # "OpenVPN" = "openvpn", "VPN client";
     "Origin (game store)" = "origin", "Game store";
+    "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "PowerToys" = "powertoys", "Various utilities for Windows";
     "PyCharm Community" = "pycharm-community", "Python IDE";
     "PyCharm Professional" = "pycharm", "Professional Python IDE, requires a license";
@@ -113,7 +115,7 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
-function Install-IDSSoftwareSuite ([string]$Version = "4.95.1", [string]$Version2 = "49510") {
+function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
     Show-Output "Downloading IDS Software Suite (µEye)"
     $Folder = "ids-software-suite-win-${Version}"
     $Filename = "${Folder}.zip"
@@ -133,6 +135,12 @@ function Install-NI4882 ([string]$Version = "21.5") {
 }
 
 function Install-OpenVPN ([string]$Version = "2.5.5") {
+    <#
+    .SYNOPSIS
+        Install OpenVPN Community
+    .LINK
+        https://openvpn.net/community-downloads/
+    #>
     Show-Output "Downloading OpenVPN"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
     $Filename = "OpenVPN-${Version}-I602-${Arch}.msi"
@@ -140,7 +148,88 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
     Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
 }
 
+function Install-OriginViewer {
+    <#
+    .SYNOPSIS
+        Install Origin Viewer, the free viewer for Origin data visualization and analysis files
+    .LINK
+        https://www.originlab.com/viewer/
+    #>
+    [OutputType([bool])]
+    param()
+    Show-Output "Downloading Origin Viewer"
+    $Arch = Get-InstallBitness -x86 "" -x86_64 "_64"
+    $Filename = "OriginViewer${Arch}.zip"
+    Invoke-WebRequest -Uri "https://www.originlab.com/ftp/${Filename}" -OutFile "${Downloads}\${Filename}"
+    $DestinationPath = "${Home}\Downloads\Origin Viewer"
+    if(-Not (Clear-Path "${DestinationPath}")) {
+        return $false
+    }
+    Show-Output "Extracting Origin Viewer"
+    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
+    $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
+    if ($ExePath -eq $null) {
+        Show-Information "No exe file was found in the extracted directory." -ForegroundColor Red
+        return $false
+    }
+    New-Shortcut -SourceExe "${ExePath}" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk"
+    return $true
+}
+
+function Install-Rezonator1([string]$Version = "1.7.116.375") {
+    <#
+    .SYNOPSIS
+        Install the reZonator laser cavity simulator
+    .LINK
+        http://rezonator.orion-project.org/?page=dload
+    #>
+    Show-Output "Downloading reZonator 1"
+    $Filename = "rezonator-${Version}.exe"
+    Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing reZonator 1"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
+function Install-Rezonator2 {
+    <#
+    .SYNOPSIS
+        Install the reZonator 2 laser cavity simulator
+    .LINK
+        http://rezonator.orion-project.org/?page=dload
+    #>
+    [OutputType([bool])]
+    param(
+        [string]$Version = "2.0.10-beta6"
+    )
+    Show-Output "Downloading reZonator 2"
+    $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
+    $Filename = "rezonator-${Version}-win-${Bitness}.zip"
+    Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    $DestinationPath = "${Home}\Downloads\reZonator"
+    if(-Not (Clear-Path "${DestinationPath}")) {
+        return $false
+    }
+    Show-Output "Extracting reZonator 2"
+    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
+    New-Shortcut -SourceExe "${DestinationPath}\rezonator.exe" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk"
+    return $true
+}
+
+function Install-SNLO([string]$Version = "77") {
+    Show-Output "Downloading SNLO"
+    $Filename = "SNLO-v${Version}.exe"
+    Invoke-WebRequest -Uri "https://as-photonics.com/snlo_files/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing SNLO"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
 function Install-StarLab {
+    <#
+    .SYNOPSIS
+        Install Ophir StarLab
+    .LINK
+        https://www.ophiropt.com/laser--measurement/software/starlab-for-usb
+    #>
     Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
     Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -148,7 +237,13 @@ function Install-StarLab {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
-function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
+function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
+    <#
+    .SYNOPSIS
+        Install Thorlabs Beam
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Beam
+    #>
     Show-Output "Downloading Thorlabs Beam"
     $Folder = "Thorlabs_Beam_${Version}"
     $Filename = "Thorlabs_Beam_${Version}.zip"
@@ -158,11 +253,17 @@ function Install-ThorlabsBeam ([string]$Version = "8.0.5157.366") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
 }
 
-function Install-ThorlabsKinesis ([string]$Version = "1.14.30", [string]$Version2 = "18480") {
+function Install-ThorlabsKinesis ([string]$Version = "1.14.32", [string]$Version2 = "19300") {
+    <#
+    .SYNOPSIS
+        Install Thorlabs Kinesis
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
+    #>
     Show-Output "Downloading Thorlabs Kinesis"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
-    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/KINESIS%20Install%20${Arch}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
@@ -203,12 +304,16 @@ function Install-WSL {
 }
 
 $OtherOperations = [ordered]@{
-    "Geekbench" = ${function: Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
+    "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
+    "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for Origin data graphing and analysis files";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+    "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
+    "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
+    "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
