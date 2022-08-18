@@ -18,6 +18,8 @@ param(
     [Parameter(Mandatory=$true)][string]$TrustedNetwork
 )
 
+. "${PSScriptRoot}\SecuritySettings.ps1"
+
 # The $env:USERPROFILE does not work if OneDrive sync is enabled for the user folder
 # https://stackoverflow.com/a/64256803
 $DesktopPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop)
@@ -34,19 +36,27 @@ $EAPSettings= $Connection.EapConfigXmlStream.InnerXml
 
 $ProfileXML = @("
 <VPNProfile>
-  <DnsSuffix>$DNSSuffix</DnsSuffix>
+  <DnsSuffix>${DNSSuffix}</DnsSuffix>
   <NativeProfile>
-<Servers>$Servers</Servers>
-<NativeProtocolType>IKEv2</NativeProtocolType>
-<Authentication>
-  <UserMethod>Eap</UserMethod>
-  <Eap>
-   <Configuration>
-    $EAPSettings
-   </Configuration>
-  </Eap>
-</Authentication>
-<RoutingPolicyType>SplitTunnel</RoutingPolicyType>
+    <Servers>${Servers}</Servers>
+    <NativeProtocolType>IKEv2</NativeProtocolType>
+    <Authentication>
+      <UserMethod>Eap</UserMethod>
+      <Eap>
+        <Configuration>
+          ${EAPSettings}
+        </Configuration>
+      </Eap>
+    </Authentication>
+    <RoutingPolicyType>SplitTunnel</RoutingPolicyType>
+    <CryptographySuite>
+      <AuthenticationTransformConstants>${AuthenticationTransformConstants}</AuthenticationTransformConstants>
+      <CipherTransformConstants>${CipherTransformConstants}</CipherTransformConstants>
+      <EncryptionMethod>${EncryptionMethod}</EncryptionMethod>
+      <IntegrityCheckMethod>${IntegrityCheckMethod}</IntegrityCheckMethod>
+      <DHGroup>${DHGroup}</DHGroup>
+      <PfsGroup>${PfsGroup}</PfsGroup>
+    </CryptographySuite>
   </NativeProfile>
 <AlwaysOn>true</AlwaysOn>
 <RememberCredentials>true</RememberCredentials>
@@ -60,6 +70,13 @@ $ProfileXML = @("
 
 $ProfileXML | Out-File -FilePath "${DesktopPath}\VPN_Profile.xml"
 $Script = @("
+<#
+.SYNOPSIS
+    This is an automatically generated VPN configuration file.
+.LINK
+    https://docs.microsoft.com/en-us/windows-server/remote/remote-access/vpn/always-on-vpn/deploy/vpn-deploy-client-vpn-connections
+#>
+
 `$ProfileName = '$ProfileName'
 `$ProfileNameEscaped = `$ProfileName -replace ' ', '%20'
 
@@ -145,7 +162,7 @@ Write-Host `"`$Message`"
 
 $ScriptPath = "${DesktopPath}\VPN_Profile.ps1"
 $Script | Out-File -FilePath "${ScriptPath}"
-. ".\Sign-Script.ps1" -FilePath "${ScriptPath}"
+. "$(Split-Path -Parent ${PSScriptRoot})\Sign-Script.ps1" -FilePath "${ScriptPath}"
 
 $Message = "Successfully created VPN_Profile.xml and VPN_Profile.ps1 on the desktop."
 Write-Host "$Message"
