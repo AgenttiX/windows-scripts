@@ -24,7 +24,7 @@ if ($PSBoundParameters.ContainsKey("CertPath")) {
     $Certificate = Get-ChildItem "Cert:\CurrentUser\My" | Where-Object {$_.EnhancedKeyUsageList.FriendlyName -eq "Code Signing"}
 }
 if ($null -eq $Certificate) {
-    Write-Information "Could not sign, as no signing certificate was found."
+    Write-Output "Could not sign, as no signing certificate was found."
     return
 }
 
