@@ -1,6 +1,8 @@
 <#
 .SYNOPSIS
     Maintenance script for Windows-based computers
+.PARAMETER Clean
+    Clean the system by removing old temporary files etc.
 .PARAMETER Deep
     Run a deep cleanup. This will take longer.
 .PARAMETER Docker
@@ -18,6 +20,7 @@
 #>
 
 param(
+    [switch]$Clean,
     [switch]$Deep,
     [switch]$Docker,
     [switch]$Elevated,
@@ -284,23 +287,27 @@ if (Test-CommandExists "winget") {
 $bleachbit_path_native = "${env:ProgramFiles}\BleachBit\bleachbit_console.exe"
 $bleachbit_path_x86 = "${env:ProgramFiles(x86)}\BleachBit\bleachbit_console.exe"
 
-if ((-not ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86))) -and (Test-CommandExists "choco")) {
-    choco install bleachbit -y
-}
-if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
-    $bleachbit_cleaners = $bleachbit_features
-    if ($Deep) {$bleachbit_cleaners += $bleachbit_features_deep}
-    if ($Firefox) {$bleachbit_cleaners += $bleachbit_features_firefox}
-    if ($Thunderbird) {$bleachbit_cleaners += $bleachbit_features_thunderbird}
-    Show-Output -ForegroundColor Cyan "Running Bleachbit with the following cleaners:"
-    Show-Output $bleachbit_cleaners
-    if (Test-Path $bleachbit_path_native) {
-        & $bleachbit_path_native --clean $bleachbit_cleaners
+if ($Clean -or $Deep) {
+    if ((-not ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86))) -and (Test-CommandExists "choco")) {
+        choco install bleachbit -y
+    }
+    if ((Test-Path $bleachbit_path_native) -or (Test-Path $bleachbit_path_x86)) {
+        $bleachbit_cleaners = $bleachbit_features
+        if ($Deep) {$bleachbit_cleaners += $bleachbit_features_deep}
+        if ($Firefox) {$bleachbit_cleaners += $bleachbit_features_firefox}
+        if ($Thunderbird) {$bleachbit_cleaners += $bleachbit_features_thunderbird}
+        Show-Output -ForegroundColor Cyan "Running Bleachbit with the following cleaners:"
+        Show-Output $bleachbit_cleaners
+        if (Test-Path $bleachbit_path_native) {
+            & $bleachbit_path_native --clean $bleachbit_cleaners
+        } else {
+            & $bleachbit_path_x86 --clean $bleachbit_cleaners
+        }
     } else {
-        & $bleachbit_path_x86 --clean $bleachbit_cleaners
+        Show-Output -ForegroundColor Red "BleachBit could not be installed."
     }
 } else {
-    Show-Output -ForegroundColor Red "BleachBit could not be installed."
+    Show-Output "Skipping BleachBit, as the parameters -Clean or -Deep have not been given."
 }
 
 # Game updates (non-blocking)
@@ -377,13 +384,17 @@ if ($Reboot -or $Shutdown) {
     Show-Output "Kingston SSD Manager was not found."
 }
 
-if (Test-CommandExists "cleanmgr") {
-    Show-Output -ForegroundColor Cyan "Running Windows disk cleanup. This will open some windows about `"low disk space condition`". You can close them when they are ready."
-    # This command is non-blocking
-    cleanmgr /verylowdisk
+if ($Clean -or $Deep) {
+    if (Test-CommandExists "cleanmgr") {
+        Show-Output -ForegroundColor Cyan "Running Windows disk cleanup. This will open some windows about `"low disk space condition`". You can close them when they are ready."
+        # This command is non-blocking
+        cleanmgr /verylowdisk
+    } else {
+        # Cleanmgr is not installed on Hyper-V Server
+        Show-Output "Windows disk cleanup was not found."
+    }
 } else {
-    # Cleanmgr is not installed on Hyper-V Server
-    Show-Output "Windows disk cleanup was not found."
+    Show-Output "Skipping Windows disk cleanup, as the parameters -Clean or -Deep has not been specified."
 }
 
 # Windows Store app updates (partially blocking)
