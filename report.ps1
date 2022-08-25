@@ -44,6 +44,11 @@ Get-AppxPackage > "${Reports}\appx_packages.txt"
 Show-Output "Checking Windows Experience Index"
 Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
 
+Show-Output "Creating report of basic computer info."
+Get-ComputerInfo > "${Reports}\computer_info.txt"
+
+Show-Output "Creating report of Plug and Play devices."
+Get-PnPDevice > "${Reports}\pnp_devices.txt"
 # External commands
 if (Test-CommandExists "choco") {
     Show-Output "Creating report of installed Chocolatey apps."
@@ -59,6 +64,13 @@ if (Test-CommandExists "dxdiag") {
     dxdiag /t "${Reports}\dxdiag-whql.txt" /whql:on
 } else {
     Show-Output "The command `"dxdiag`" was not found."
+}
+
+if (Test-CommandExists "gpresult") {
+    Show-Output "Creating report of group policies."
+    gpresult /h "${Reports}\gpresult.html" /f
+} else {
+    Show-Output "The command `"gpresult`" was not found."
 }
 if (Test-CommandExists "netsh") {
     Show-Output "Creating WiFi report"
