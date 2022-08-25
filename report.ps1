@@ -30,14 +30,18 @@ if ($OnlyArchive) {
     exit
 }
 
+# -----
 # Initialization
+# -----
 Show-Output "Running Mika's reporting script"
 New-Item -Path "." -Name "reports" -ItemType "directory" -Force | Out-Null
 
 Show-Output "Removing old reports"
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
 
-# Getter commands
+# -----
+# Getter commands (in alphabetical order)
+# -----
 Show-Output "Creating report of installed Windows Store apps."
 Get-AppxPackage > "${Reports}\appx_packages.txt"
 
@@ -49,13 +53,17 @@ Get-ComputerInfo > "${Reports}\computer_info.txt"
 
 Show-Output "Creating report of Plug and Play devices."
 Get-PnPDevice > "${Reports}\pnp_devices.txt"
-# External commands
+
+# -----
+# External commands (in alphabetical order)
+# -----
 if (Test-CommandExists "choco") {
     Show-Output "Creating report of installed Chocolatey apps."
     choco --local > "${Reports}\choco.txt"
 } else {
     Show-Output "The command `"choco`" was not found."
 }
+
 if (Test-CommandExists "dxdiag") {
     Show-Output "Creating DirectX reports"
     dxdiag /x "${Reports}\dxdiag.xml"
@@ -72,11 +80,13 @@ if (Test-CommandExists "gpresult") {
 } else {
     Show-Output "The command `"gpresult`" was not found."
 }
+
 if (Test-CommandExists "netsh") {
     Show-Output "Creating WiFi report"
     netsh wlan show wlanreport
     Copy-Item "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
 }
+
 if (Test-CommandExists "powercfg") {
     Show-Output "Creating battery report"
     powercfg /batteryreport /output "${Reports}\battery.html"
@@ -84,7 +94,9 @@ if (Test-CommandExists "powercfg") {
     Show-Output "The command `"powercfg`" was not found."
 }
 
-# External programs
+# -----
+# Complex external programs
+# -----
 $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 if (Test-Path $PTS) {
     Show-Output "Creating Phoronix Test Suite (PTS) reports"
@@ -93,8 +105,13 @@ if (Test-Path $PTS) {
     & "$PTS" system-properties > "${Reports}\pts_system_properties.txt"
     & "$PTS" system-sensors > "${Reports}\pts_system_sensors.txt"
     & "$PTS" network-info > "${Reports}\pts_network_info.txt"
+} else {
+    Show-Output "Phoronix Test Suite (PTS) was not found."
 }
 
+# -----
+# Packaging
+# -----
 if (-not $NoArchive) {
     Compress-ReportArchive
     Show-Output "The reporting script is ready." -ForegroundColor Green
