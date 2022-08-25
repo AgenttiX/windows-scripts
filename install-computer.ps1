@@ -44,7 +44,7 @@ $ChocoPrograms = [ordered]@{
     "Epic Games Launcher" = "epicgameslauncher", "Game store";
     "Firefox" = "firefox", "Web browser";
     "GIMP" = "gimp", "Image editor";
-    "Git" = "git", "Version control";
+    # "Git" = "git", "Version control";
     "Inkscape" = "inkscape", "Vector graphics editor";
     "KeePassXC" = "keepassxc", "Password manager";
     "Kingston SSD Manager" = "kingston-ssd-manager", "Management tool and firmware updater for Kingston SSDs";
@@ -94,7 +94,7 @@ $WingetPrograms = [ordered]@{
     # "PowerToys" = "Microsoft.PowerToys";
 }
 $WindowsCapabilities = [ordered]@{
-    "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "SSH client";
+    # "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "NOTE! This is an old version that does not support FIDO2. Install SSH from the other programs menu instead.";
     "RSAT AD LDS (Active Directory management tools)" = "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0", "Active Directory management tools";
     "RSAT BitLocker tools" = "Rsat.BitLocker.Recovery.Tools~~~~0.0.1.0", "Active Directory BitLocker management tools";
     "RSAT DHCP tools" = "Rsat.DHCP.Tools~~~~0.0.1.0", "Active Directory DHCP management tools";
@@ -114,6 +114,21 @@ $WindowsFeatures = [ordered]@{
 }
 
 # Installer functions
+
+function Install-Git {
+    <#
+    .SYNOPSIS
+        Install Git with Chocolatey and custom parameters
+    .LINK
+        https://github.com/chocolatey-community/chocolatey-packages/blob/master/automatic/git.install/ARGUMENTS.md
+    #>
+    # if (Get-WindowsCapability -Online -Name "OpenSSH.Client~~~~0.0.1.0") {
+    #     Show-Output "Found Windows integrated OpenSSH client, which the SSH included in Git for Windows should override. Removing."
+    Remove-WindowsCapability -Online -Name "OpenSSH.Client~~~~0.0.1.0"
+    # }
+    Show-Output "Installing Git with Chocolatey and custom parameters"
+    choco upgrade git.install -y --force --params "/GitAndUnixToolsOnPath /WindowsTerminalProfile"
+}
 
 function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
     Show-Output "Downloading IDS Software Suite (µEye)"
@@ -305,6 +320,7 @@ function Install-WSL {
 
 $OtherOperations = [ordered]@{
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
+    "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
