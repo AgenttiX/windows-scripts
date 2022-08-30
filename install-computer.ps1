@@ -163,6 +163,25 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
     Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
 }
 
+function Install-OriginLab {
+    <#
+        Install the full version of OriginLab
+    #>
+    [OutputType([bool])]
+    param(
+        [string]$Version = "Origin2022bSr1No_H"
+    )
+    Show-Output "Searching for OriginLab from the network drive."
+    $FilePath = "V:\Software\Origin\${Version}\setup.exe"
+    if (-not (Test-Path "$FilePath")) {
+        Show-Output "The OriginLab installer was not found. Do you have the network drive mounted?"
+        return $false
+    }
+    Show-Output "OriginLab installer found. Installing."
+    # Start-Process -NoNewWindow -Wait "$FilePath"
+    return $true
+}
+
 function Install-OriginViewer {
     <#
     .SYNOPSIS
@@ -325,7 +344,8 @@ $OtherOperations = [ordered]@{
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
-    "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for Origin data graphing and analysis files";
+    "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
+    "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
