@@ -39,6 +39,9 @@ IF exist %USERPROFILE%\Git\windows-scripts (
     git clone "https://github.com/AgenttiX/windows-scripts"
 )
 
+echo Configuring the repository directory to be safe.
+git config --global --add safe.directory %USERPROFILE%\Git\windows-scripts
+
 echo Opening the scripts folder in File Explorer.
 %SYSTEMROOT%\explorer.exe %USERPROFILE%\Git\windows-scripts
 echo The setup is ready. You can close this window now.
