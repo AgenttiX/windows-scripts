@@ -310,6 +310,7 @@ if ($Clean -or $Deep) {
     Show-Output "Skipping BleachBit, as the parameters -Clean or -Deep have not been given."
 }
 
+
 # Game updates (non-blocking)
 # Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
 # https://stackoverflow.com/a/19015642/
@@ -372,6 +373,7 @@ if (Test-Path $minecraft_path) {
     Show-Output "Minecraft was not found."
 }
 
+
 # Misc non-blocking tasks
 
 $kingston_ssd_manager_path = "${env:ProgramFiles(x86)}\Kingston_SSD_Manager\KSM.exe"
@@ -402,18 +404,6 @@ if ($Clean -or $Deep) {
 Show-Output -ForegroundColor Cyan "Updating Windows Store apps."
 Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | Invoke-CimMethod -MethodName UpdateScanMethod
 
-# Lenovo Vantage (non-blocking)
-if ($Reboot -or $Shutdown) {
-    Show-Output -ForegroundColor Cyan "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
-} elseif (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates."
-    start shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
-} elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates."
-    start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
-} else {
-    Show-Output "Lenovo Vantage was not found."
-}
 
 # Misc blocking tasks
 
@@ -471,6 +461,20 @@ if (Test-CommandExists "Start-MpScan") {
     Start-MpScan -ScanType "FullScan"
 } else {
     Show-Output -ForegroundColor Red "Virus scan is not supported. Run it manually."
+}
+
+# Lenovo Vantage (non-blocking)
+# This should be the last step in the script so that its updates are not installed during other updates.
+if ($Reboot -or $Shutdown) {
+    Show-Output -ForegroundColor Cyan "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
+} elseif (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise") {
+    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates."
+    start shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
+} elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
+    Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates."
+    start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
+} else {
+    Show-Output "Lenovo Vantage was not found."
 }
 
 Show-Output -ForegroundColor Green "The maintenance script is ready."
