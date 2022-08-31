@@ -178,7 +178,7 @@ function Install-OriginLab {
         return $false
     }
     Show-Output "OriginLab installer found. Installing."
-    # Start-Process -NoNewWindow -Wait "$FilePath"
+    Start-Process -NoNewWindow -Wait "$FilePath"
     return $true
 }
 
