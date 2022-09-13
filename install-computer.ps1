@@ -175,6 +175,8 @@ function Install-OriginLab {
     $FilePath = "V:\Software\Origin\${Version}\setup.exe"
     if (-not (Test-Path "$FilePath")) {
         Show-Output "The OriginLab installer was not found. Do you have the network drive mounted?"
+        Show-Output "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
+        gpupdate /force
         return $false
     }
     Show-Output "OriginLab installer found. Installing."
@@ -314,6 +316,8 @@ function Install-VeecoVision {
         Start-Process -NoNewWindow -Wait "${Downloads}\CD 775-425 SOFTWARE VISION64 V5.51\Install.exe"
     } else {
         Show-Output "Veeco (Wyko) Vision was not found. Is the network drive mounted?"
+        Show-Output "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
+        gpupdate /force
         return 1
     }
     Show-Output "Searching for Veeco (Wyko) Vision update from the network drive."
