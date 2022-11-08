@@ -468,10 +468,10 @@ if (Test-CommandExists "Start-MpScan") {
 if ($Reboot -or $Shutdown) {
     Show-Output -ForegroundColor Cyan "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
 } elseif (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates."
+    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
     start shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
 } elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates."
+    Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
     start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
 } else {
     Show-Output "Lenovo Vantage was not found."
