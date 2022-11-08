@@ -9,6 +9,8 @@
     https://directaccess.richardhicks.com/2018/12/10/always-on-vpn-ikev2-security-configuration/
 .LINK
     https://weakdh.org/
+.LINK
+    https://docs.strongswan.org/docs/5.9/interop/windowsClients.html#strong_ke
 #>
 param(
     [string]$ConnectionName = $null,
