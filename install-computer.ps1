@@ -149,7 +149,7 @@ function Install-NI4882 ([string]$Version = "21.5") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
-function Install-OpenVPN ([string]$Version = "2.5.5") {
+function Install-OpenVPN ([string]$Version = "2.5.8", [string]$Version2 = "I603") {
     <#
     .SYNOPSIS
         Install OpenVPN Community
@@ -158,7 +158,7 @@ function Install-OpenVPN ([string]$Version = "2.5.5") {
     #>
     Show-Output "Downloading OpenVPN"
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
-    $Filename = "OpenVPN-${Version}-I602-${Arch}.msi"
+    $Filename = "OpenVPN-${Version}-${Version2}-${Arch}.msi"
     Invoke-WebRequest -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -OutFile "${Downloads}\${Filename}"
     Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
 }
