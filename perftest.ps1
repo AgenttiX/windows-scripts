@@ -106,10 +106,6 @@ Start-Process -NoNewWindow -Wait perfmon /report
 
 # furmark /log_temperature /log_score
 
-# Windows memory diagnostics
-Show-Output "Running Windows memory diagnostics"
-Start-Process -NoNewWindow -Wait MdSched
-
 # Running manual tests from a script is rather pointless.
 #
 # Waiting for a GUI program to finish
