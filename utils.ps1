@@ -201,11 +201,12 @@ function Install-Geekbench {
 
 function Install-PTS {
     param(
-        [string]$PTS_version = "10.8.1"
+        [string]$PTS_version = "10.8.4",
+        [bool]$Force = $False
     )
     $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
-    if (-Not (Test-Path "$PTS")) {
-        Show-Output "Downloading Phoronix Test Suite (PTS), as it seems not to be installed yet."
+    if ((-not (Test-Path "$PTS")) -or $Force) {
+        Show-Output "Downloading Phoronix Test Suite (PTS)."
         Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
         Show-Output "Extracting Phoronix Test Suite (PTS)"
         Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
