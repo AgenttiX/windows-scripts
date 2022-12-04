@@ -51,6 +51,9 @@ Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
 Show-Output "Creating report of basic computer info."
 Get-ComputerInfo > "${Reports}\computer_info.txt"
 
+Show-Output "Creating report of SSD/HDD SMART data."
+Get-Disk | Get-StorageReliabilityCounter | Select-Object -Property "*" > "${Reports}\smart.txt"
+
 Show-Output "Creating report of Plug and Play devices."
 Get-PnPDevice > "${Reports}\pnp_devices.txt"
 
