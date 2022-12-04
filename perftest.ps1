@@ -64,6 +64,7 @@ if ($DownloadOnly) {
 Show-Output "Configuring PTS"
 $Env:MONITOR="all"
 $Env:PERFORMANCE_PER_WATT="1"
+$PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
 & "$PTS" user-config-set AllowResultUploadsToOpenBenchmarking=TRUE
 & "$PTS" user-config-set AlwaysUploadSystemLogs=TRUE
 & "$PTS" user-config-set AlwaysUploadResultsToOpenBenchmarking=TRUE
