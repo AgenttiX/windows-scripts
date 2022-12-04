@@ -148,6 +148,22 @@ function Get-IsDomainJoined {
     return (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
 }
 
+function Get-YesNo {
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory=$true)][string]$Question
+    )
+    while ($true) {
+        $Confirmation = Read-Host "${Question} [y/n]"
+        if ($Confirmation -eq "y") {
+            return $True
+        }
+        if ($Confirmation -eq "n") {
+            return $False
+        }
+    }
+}
+
 function GitPull {
     # Git pull should be run before elevating
     if (! ($elevated)) {

@@ -27,7 +27,8 @@ param(
     [switch]$Firefox,
     [switch]$Reboot,
     [switch]$Shutdown,
-    [switch]$Thunderbird
+    [switch]$Thunderbird,
+    [switch]$Zerofree
 )
 
 if ($Reboot -and $Shutdown) {
@@ -204,6 +205,14 @@ $bleachbit_features_thunderbird = @(
 # ---
 # Script starts here
 # ---
+
+if ((-not $Zerofree) -and (Test-Path "${env:ProgramFiles}\Oracle\VirtualBox Guest Additions")) {
+    Show-Output -ForegroundColor Cyan "This seems to be a VirtualBox machine."
+    $Zerofree = Get-YesNo "Do you want to zero free space at the end of this script?"
+}
+if ($Zerofree) {
+    Show-Output -ForegroundColor Cyan "Free space will be zeroed at the end of this script."
+}
 
 # If a Lenovo computer does not have Lenovo Vantage installed
 if (((Get-ComputerInfo -Property "BiosManufacturer").BiosManufacturer.ToLower() -eq "lenovo") -and (! ((Get-AppxPackage -Name "E046963F.LenovoCompanion") -or (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise")))) {
@@ -475,6 +484,10 @@ if ($Reboot -or $Shutdown) {
     start shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
 } else {
     Show-Output "Lenovo Vantage was not found."
+}
+
+if ($Zerofree) {
+    .\zero-free-space.ps1 -DriveLetter "C"
 }
 
 Show-Output -ForegroundColor Green "The maintenance script is ready."
