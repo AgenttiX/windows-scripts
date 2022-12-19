@@ -284,6 +284,28 @@ function Install-StarLab {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
+function Install-ThorCam ([string]$Version = "3.7.0.6") {
+    <#
+    .SYNOPSIS
+        Install ThorLabs ThorCam
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam
+    #>
+    Show-Output "Downloading Thorlabs ThorCam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
+    $FilenameRemote = "Thorlabs%20Scientific%20Imaging%20Software%20${Arch}.exe"
+    $FilenameLocal = "Thorlabs Scientific Imaging Software ${Arch}.exe"
+    # The "FireFox" typo is by Microsoft itself.
+    # $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
+    Invoke-WebRequest -Uri "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}" -OutFile "${Downloads}\${FilenameLocal}" # -UserAgent $UserAgent
+    Show-Output "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}"
+    Show-Output "Installing Thorlabs ThorCam"
+    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${FilenameLocal}"
+    if ($Process.ExitCode -ne 0) {
+        Show-Output -ForegroundColor Red "ThorCam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+    }
+}
+
 function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     <#
     .SYNOPSIS
@@ -366,6 +388,7 @@ $OtherOperations = [ordered]@{
     "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
     "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
+    "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
