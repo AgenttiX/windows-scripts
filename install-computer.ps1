@@ -130,6 +130,17 @@ function Install-Git {
     choco upgrade git.install -y --force --params "/GitAndUnixToolsOnPath /WindowsTerminalProfile"
 }
 
+function Install-IDSPeak ([string]$Version = "2.3.0.0") {
+    Show-Output "Downloading IDS Peak"
+    $Folder = "ids-peak-win-${Version}"
+    $Filename = "${Folder}.zip"
+    Invoke-WebRequest -uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Extracting IDS Peak"
+    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
+    Show-Output "Installing IDS Peak"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\ids_peak_${Version}.exe"
+}
+
 function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
     Show-Output "Downloading IDS Software Suite (µEye)"
     $Folder = "ids-software-suite-win-${Version}"
@@ -344,7 +355,8 @@ function Install-WSL {
 $OtherOperations = [ordered]@{
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
-    "IDS Software Suite (µEye)" = ${function:Install-IDSSoftwareSuite}, "Driver for IDS/Thorlabs cameras";
+    "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
+    "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
