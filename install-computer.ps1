@@ -166,7 +166,7 @@ function Install-NI4882 ([string]$Version = "22.8") {
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
 
-function Install-OpenVPN ([string]$Version = "2.5.8", [string]$Version2 = "I603") {
+function Install-OpenVPN ([string]$Version = "2.5.8", [string]$Version2 = "I604") {
     <#
     .SYNOPSIS
         Install OpenVPN Community
