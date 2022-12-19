@@ -152,7 +152,13 @@ function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version
     Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\uEye_${Version2}.exe"
 }
 
-function Install-NI4882 ([string]$Version = "21.5") {
+function Install-NI4882 ([string]$Version = "22.8") {
+    <#
+    .SYNOPSIS
+        Install National Instruments NI-488.2
+    .LINK
+        https://www.ni.com/fi-fi/support/downloads/drivers/download.ni-488-2.html#467646
+    #>
     Show-Output "Downloading NI 488.2 (GPIB) drivers"
     $Filename = "ni-488.2_${Version}_online.exe"
     Invoke-WebRequest -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -262,7 +268,7 @@ function Install-Rezonator2 {
     return $true
 }
 
-function Install-SNLO([string]$Version = "77") {
+function Install-SNLO ([string]$Version = "78") {
     Show-Output "Downloading SNLO"
     $Filename = "SNLO-v${Version}.exe"
     Invoke-WebRequest -Uri "https://as-photonics.com/snlo_files/${Filename}" -OutFile "${Downloads}\${Filename}"
@@ -313,28 +319,34 @@ function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     .LINK
         https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Beam
     #>
-    Show-Output "Downloading Thorlabs Beam"
+    Show-Output "Downloading Thorlabs Beam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Folder = "Thorlabs_Beam_${Version}"
     $Filename = "Thorlabs_Beam_${Version}.zip"
     Invoke-WebRequest -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Beam"
     Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
+    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
+    if ($Process.ExitCode -ne 0) {
+        Show-Output -ForegroundColor Red "Thorlabs Beam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+    }
 }
 
-function Install-ThorlabsKinesis ([string]$Version = "1.14.32", [string]$Version2 = "19300") {
+function Install-ThorlabsKinesis ([string]$Version = "1.14.36", [string]$Version2 = "20973") {
     <#
     .SYNOPSIS
         Install Thorlabs Kinesis
     .LINK
         https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
     #>
-    Show-Output "Downloading Thorlabs Kinesis"
+    Show-Output "Downloading Thorlabs Kinesis. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
     Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
+    if ($Process.ExitCode -ne 0) {
+        Show-Output -ForegroundColor Red "Thorlabs Kinesis installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+    }
 }
 
 function Install-VeecoVision {
