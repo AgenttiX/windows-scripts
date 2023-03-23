@@ -65,6 +65,7 @@ $ChocoPrograms = [ordered]@{
     "Origin (game store)" = "origin", "Game store";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "Plex" = "plex", "Plex client for playing media";
+    "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
     "PyCharm Community" = "pycharm-community", "Python IDE";
     "PyCharm Professional" = "pycharm", "Professional Python IDE, requires a license";
