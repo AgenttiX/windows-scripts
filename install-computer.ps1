@@ -26,6 +26,7 @@ Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the s
 # Global variables
 $GlobalHeight = 800;
 $GlobalWidth = 700;
+$SoftwareRepoPath = "V:\IT\Software"
 
 # TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
@@ -191,7 +192,7 @@ function Install-OriginLab {
         [string]$Version = "Origin2022bSr1No_H"
     )
     Show-Output "Searching for OriginLab from the network drive."
-    $FilePath = "V:\Software\Origin\${Version}\setup.exe"
+    $FilePath = "${SoftwareRepoPath}\Origin\${Version}\setup.exe"
     if (-not (Test-Path "$FilePath")) {
         Show-Output "The OriginLab installer was not found. Do you have the network drive mounted?"
         Show-Output "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
@@ -356,7 +357,7 @@ function Install-VeecoVision {
     param()
 
     Show-Output "Searching for Veeco (Wyko) Vision from the network drive."
-    $FilePath = "V:\Software\Veeco\VISION64_V5.51_Release.zip"
+    $FilePath = "${SoftwareRepoPath}\Veeco\VISION64_V5.51_Release.zip"
     if (Test-Path "$FilePath") {
         Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
         Show-Output "Installing Veeco (Wyko) Vision"
@@ -368,7 +369,7 @@ function Install-VeecoVision {
         return 1
     }
     Show-Output "Searching for Veeco (Wyko) Vision update from the network drive."
-    $FilePath = "V:\Software\Veeco\Vision64 5.51 Update 3.zip"
+    $FilePath = "${SoftwareRepoPath}\Veeco\Vision64 5.51 Update 3.zip"
     if (Test-Path "$FilePath") {
         Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
         Show-Output "Installing Veeco (Wyko) Vision update"
