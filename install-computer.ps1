@@ -47,6 +47,7 @@ $ChocoPrograms = [ordered]@{
     "GIMP" = "gimp", "Image editor";
     # "Git" = "git", "Version control";
     "Inkscape" = "inkscape", "Vector graphics editor";
+    "Intel Driver & Support Assistant" = "intel-dsa", "Intel driver updater";
     "Jellyfin" = "jellyfin-media-player", "Jellyfin client for playing media";
     "KeePassXC" = "keepassxc", "Password manager";
     "Kingston SSD Manager" = "kingston-ssd-manager", "Management tool and firmware updater for Kingston SSDs";
@@ -58,6 +59,7 @@ $ChocoPrograms = [ordered]@{
     "Miniconda 3 (NOTE!)" = "miniconda3", "Anaconda package manager and Python 3 without the pre-installed libraries. NOTE! Installation with Chocolatey does not work with PyCharm without custom symlinks.";
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
+    "NVM" = "nvm", "Node.js Version Manager";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
     # The OpenVPN version available from the Chocolatey repositories is old
     # and does not support all the config values in the the config packages created by pfSense
