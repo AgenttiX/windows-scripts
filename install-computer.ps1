@@ -121,6 +121,13 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
+function Install-CorelDRAW {
+    Show-Output "Downloading CorelDRAW"
+    Invoke-WebRequest -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -OutFile "${Downloads}\CDGS.exe"
+    Show-Output "Installing CorelDRAW"
+    Start-Process -NoNewWindow -Wait "${Downloads}\CDGS.exe"
+}
+
 function Install-Git {
     <#
     .SYNOPSIS
@@ -140,7 +147,7 @@ function Install-IDSPeak ([string]$Version = "2.3.0.0") {
     Show-Output "Downloading IDS Peak"
     $Folder = "ids-peak-win-${Version}"
     $Filename = "${Folder}.zip"
-    Invoke-WebRequest -uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequest -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Extracting IDS Peak"
     Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
     Show-Output "Installing IDS Peak"
@@ -393,6 +400,7 @@ function Install-WSL {
 }
 
 $OtherOperations = [ordered]@{
+    "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
