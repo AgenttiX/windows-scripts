@@ -91,6 +91,7 @@ $ChocoPrograms = [ordered]@{
     "Visual Studio Code" = "vscode", "Text editor / IDE";
     "Wacom drivers" = "wacom-drivers", "Drivers for Wacom drawing tablets";
     "Xournal++" = "xournalplusplus", "For taking handwritten notes with a drawing tablet";
+    "YubiKey Manager" = "yubikey-manager", "Management software for the YubiKey hardware security keys";
     "Zoom" = "zoom", "Video conferencing";
 }
 $WingetPrograms = [ordered]@{
