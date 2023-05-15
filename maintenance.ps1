@@ -214,10 +214,17 @@ if ($Zerofree) {
     Show-Output -ForegroundColor Cyan "Free space will be zeroed at the end of this script."
 }
 
+# Loaded globally, since these are slow
+$ComputerInfo = Get-ComputerInfo
+$IsDomainJoined = Get-IsDomainJoined
+
 # If a Lenovo computer does not have Lenovo Vantage installed
-if (((Get-ComputerInfo -Property "BiosManufacturer").BiosManufacturer.ToLower() -eq "lenovo") -and (! ((Get-AppxPackage -Name "E046963F.LenovoCompanion") -or (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise")))) {
+$IsLenovoComputer = $ComputerInfo.BiosManufacturer.ToLower() -eq "lenovo"
+$LenovoVantageInstalled = Get-AppxPackage -Name "E046963F.LenovoCompanion"
+$LenovoCommercialVantageInstalled = Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise"
+if ($IsLenovoComputer -and (! ($LenovoVantageInstalled -or $LenovoCommercialVantageInstalled))) {
     Show-Output -ForegroundColor Red "It appears that you have a Lenovo computer but don't have Lenovo Vantage or Lenovo Commercial Vantage installed."
-    if (Get-IsDomainJoined) {
+    if ($IsDomainJoined) {
         Show-Output -ForegroundColor Red "Your computer appears to be part of a domain. Please install Lenovo Commercial Vantage to get driver and firmware updates."
         Start-Process "https://apps.microsoft.com/store/detail/lenovo-commercial-vantage/9NR5B8GVVM13"
     } else {
@@ -317,6 +324,15 @@ if ($Clean -or $Deep) {
     }
 } else {
     Show-Output "Skipping BleachBit, as the parameters -Clean or -Deep have not been given."
+}
+
+# If an Intel computer does not have Intel DSA installed
+$HasIntelCPU = $ComputerInfo.CsProcessors[0].Manufacturer.ToLower() -contains "intel"
+$IntelDSAPath = "${env:ProgramFiles(x86)}\Intel\Driver and Support Assistant\DSATray.exe"
+$IntelDSAInstalled = Test-Path "${IntelDSAPath}"
+if ($HasIntelCPU -and (-not $IntelDSAInstalled)) {
+    Show-Output -ForegroundColor Cyan "Detected an Intel CPU. Installing Intel Driver & Support Assistant."
+    choco install intel-dsa -y
 }
 
 
@@ -443,6 +459,34 @@ if (Test-CommandExists "docker") {
     Show-Output "Docker was not found."
 }
 
+# Driver updates
+# This should be the last step in the script so that its updates are not installed during other updates.
+if ($Reboot -or $Shutdown) {
+    Show-Output -ForegroundColor Cyan "Driver updates will not be started, as automatic reboot or shutdown is enabled."
+} elseif (Test-RebootPending) {
+    Show-Output -ForegroundColor Cyan "Driver updates will not be started, as the computer is pending a reboot."
+} else {
+    # Lenovo Vantage (non-blocking)
+    if ($LenovoCommercialVantageInstalled) {
+        Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
+        Start-Process shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
+    } elseif ($LenovoVantageInstalled) {
+        Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
+        Start-Process shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
+    } else {
+        Show-Output "Lenovo Vantage was not found."
+    }
+
+    # Intel Driver & Support Assistant (non-blocking)
+    $IntelDSAPath = "${env:ProgramFiles(x86)}\Intel\Driver and Support Assistant\DSATray.exe"
+    if (Test-Path "${IntelDSAPath}") {
+        Start-Process -NoNewWindow "${IntelDSAPath}"
+        Start-Process "https://www.intel.com/content/www/us/en/support/intel-driver-support-assistant.html"
+    } else {
+        Show-Output "Intel Driver & Support Assistant was not found."
+    }
+}
+
 if (Test-CommandExists "Update-Help") {
     Show-Output -ForegroundColor Cyan "Updating PowerShell help. All modules don't have help info, and therefore this may produce errors, which is OK."
     Update-Help
@@ -470,20 +514,6 @@ if (Test-CommandExists "Start-MpScan") {
     Start-MpScan -ScanType "FullScan"
 } else {
     Show-Output -ForegroundColor Red "Virus scan is not supported. Run it manually."
-}
-
-# Lenovo Vantage (non-blocking)
-# This should be the last step in the script so that its updates are not installed during other updates.
-if ($Reboot -or $Shutdown) {
-    Show-Output -ForegroundColor Cyan "Lenovo Vantage will not be started, as automatic reboot or shutdown is enabled."
-} elseif (Get-AppxPackage -Name "E046963F.LenovoSettingsforEnterprise") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
-    Start-Process shell:appsFolder\E046963F.LenovoSettingsforEnterprise_k1h2ywk1493x8!App
-} elseif (Get-AppxPackage -Name "E046963F.LenovoCompanion") {
-    Show-Output -ForegroundColor Cyan "Starting Lenovo Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
-    Start-Process shell:appsFolder\E046963F.LenovoCompanion_k1h2ywk1493x8!App
-} else {
-    Show-Output "Lenovo Vantage was not found."
 }
 
 if ($Zerofree) {

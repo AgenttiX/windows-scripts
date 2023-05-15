@@ -378,3 +378,40 @@ Function Test-CommandExists {
     catch {RETURN $false}
     finally {$ErrorActionPreference=$oldPreference}
 }
+
+function Test-RebootPending {
+    <#
+    .SYNOPSIS
+        Test whether the computer has a reboot pending.
+    .LINK
+        https://4sysops.com/archives/use-powershell-to-test-if-a-windows-server-is-pending-a-reboot/
+    #>
+    [OutputType([bool])]
+    $pendingRebootTests = @(
+        @{
+            Name = "RebootPending"
+            Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing" -Name "RebootPending" -ErrorAction Ignore }
+            TestType = "ValueExists"
+        }
+        @{
+            Name = "RebootRequired"
+            Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" -Name "RebootRequired" -ErrorAction Ignore }
+            TestType = "ValueExists"
+        }
+        @{
+            Name = "PendingFileRenameOperations"
+            Test = { Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "PendingFileRenameOperations" -ErrorAction Ignore }
+            TestType = "NonNullValue"
+        }
+    )
+    foreach ($test in $pendingRebootTests) {
+        $result = Invoke-Command -ScriptBlock $test.Test
+        if ($test.TestType -eq "ValueExists" -and $result) {
+            return $true
+        } elseif ($test.TestType -eq "NonNullValue" -and $result -and $result.($test.Name)) {
+            return $true
+        } else {
+            return $false
+        }
+    }
+}
