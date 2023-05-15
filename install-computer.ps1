@@ -65,6 +65,7 @@ $ChocoPrograms = [ordered]@{
     # and does not support all the config values in the the config packages created by pfSense
     # "OpenVPN" = "openvpn", "VPN client";
     "Origin (game store)" = "origin", "Game store";
+    "PDFsam" = "pdfsam", "PDF Split & Merge utility";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "Plex" = "plex", "Plex client for playing media";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
