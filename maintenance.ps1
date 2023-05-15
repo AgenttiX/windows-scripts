@@ -206,7 +206,7 @@ $bleachbit_features_thunderbird = @(
 # Script starts here
 # ---
 
-if ((-not $Zerofree) -and (Test-Path "${env:ProgramFiles}\Oracle\VirtualBox Guest Additions")) {
+if ((-not $Zerofree) -and (Get-IsVirtualBoxMachine)) {
     Show-Output -ForegroundColor Cyan "This seems to be a VirtualBox machine."
     $Zerofree = Get-YesNo "Do you want to zero free space at the end of this script?"
 }
@@ -327,14 +327,15 @@ if ($Clean -or $Deep) {
 }
 
 # If an Intel computer does not have Intel DSA installed
-$HasIntelCPU = $ComputerInfo.CsProcessors[0].Manufacturer.ToLower() -contains "intel"
 $IntelDSAPath = "${env:ProgramFiles(x86)}\Intel\Driver and Support Assistant\DSATray.exe"
 $IntelDSAInstalled = Test-Path "${IntelDSAPath}"
-if ($HasIntelCPU -and (-not $IntelDSAInstalled)) {
+if (Get-IsVirtualMachine) {
+    Show-Output "Skipping Intel DSA installation on a virtual machine."
+} elseif ((-not $IntelDSAInstalled) -and ($ComputerInfo.CsProcessors[0].Manufacturer.ToLower() -contains "intel")) {
     Show-Output -ForegroundColor Cyan "Detected an Intel CPU. Installing Intel Driver & Support Assistant."
     choco install intel-dsa -y
+    $IntelDSAInstalled = Test-Path "${IntelDSAPath}"
 }
-
 
 # Game updates (non-blocking)
 # Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
@@ -480,8 +481,7 @@ if ($Reboot -or $Shutdown) {
     }
 
     # Intel Driver & Support Assistant (non-blocking)
-    $IntelDSAPath = "${env:ProgramFiles(x86)}\Intel\Driver and Support Assistant\DSATray.exe"
-    if (Test-Path "${IntelDSAPath}") {
+    if ($IntelDSAInstalled) {
         Start-Process -NoNewWindow "${IntelDSAPath}"
         Start-Process "https://www.intel.com/content/www/us/en/support/intel-driver-support-assistant.html"
     } else {

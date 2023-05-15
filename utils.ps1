@@ -148,6 +148,40 @@ function Get-IsDomainJoined {
     return (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
 }
 
+function Get-IsHeadlessServer {
+    <#
+    .SYNOPSIS
+        Test whether the computer is a headless server (e.g. Windows Server Core or Hyper-V Server)
+    .LINK
+        https://serverfault.com/a/529131
+     #>
+    [OutputType([bool])]
+    param()
+    # return Get-IsServer -and (-not (Get-WindowsFeature -Name 'Server-Gui-Shell').InstallState -eq 2)
+    return Test-Path "${env:windir}\explorer.exe"
+}
+
+function Get-IsServer {
+    [OutputType([bool])]
+    param()
+    return (Get-WmiObject -Class Win32_OperatingSystem).ProductType -ne 1
+}
+
+function Get-IsVirtualMachine {
+    [OutputType([bool])]
+    param()
+    return Get-IsVirtualBoxMachine -or ((Get-CimInstance Win32_ComputerSystem).Model -contains "Virtual")
+}
+
+function Get-IsVirtualBoxMachine {
+    [OutputType([bool])]
+    param()
+    return (
+        (Test-Path "${env:ProgramFiles}\Oracle\VirtualBox Guest Additions") -or
+        ((Get-CimInstance Win32_ComputerSystem).Model -eq "VirtualBox")
+    )
+}
+
 function Get-YesNo {
     [OutputType([bool])]
     param(
