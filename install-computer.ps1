@@ -73,6 +73,7 @@ $ChocoPrograms = [ordered]@{
     "PyCharm Community" = "pycharm-community", "Python IDE";
     "PyCharm Professional" = "pycharm", "Professional Python IDE, requires a license";
     "Python (NOTE!)" = "python", "NOTE! This will be updated automatically in the future, which may break installed libraries and virtualenvs.";
+    "qBittorrent" = "qbittorrent", "Torrent client";
     "RescueTime" = "rescuetime", "Time management utility, requires a license";
     "Rufus" = "rufus", "Creates USB installers for operating systems";
     "Signal" = "signal", "Secure instant messenger";
