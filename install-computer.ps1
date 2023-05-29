@@ -60,6 +60,7 @@ $ChocoPrograms = [ordered]@{
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
     "NVM" = "nvm", "Node.js Version Manager";
+    "Obsidian" = "obsidian", "A note-taking app";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
     # The OpenVPN version available from the Chocolatey repositories is old
     # and does not support all the config values in the the config packages created by pfSense
@@ -93,6 +94,7 @@ $ChocoPrograms = [ordered]@{
     "Visual Studio Code" = "vscode", "Text editor / IDE";
     "Wacom drivers" = "wacom-drivers", "Drivers for Wacom drawing tablets";
     "Xournal++" = "xournalplusplus", "For taking handwritten notes with a drawing tablet";
+    "yt-dlp" = "yt-dlp", "Video downloader for e.g. YouTube";
     "YubiKey Manager" = "yubikey-manager", "Management software for the YubiKey hardware security keys";
     "Zoom" = "zoom", "Video conferencing";
 }
