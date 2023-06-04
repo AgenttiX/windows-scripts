@@ -42,6 +42,7 @@ $ChocoPrograms = [ordered]@{
     "Discord" = "discord", "Chat and group call platform";
     "DisplayCal" = "displaycal", "Display calibration utility";
     "Docker Desktop (NOTE!)" = "docker-desktop", "Container platform. NOTE! Windows Subsystem for Linux 2 (WSL 2) has to be installed before installing this";
+    "EA App" = "ea-app", "Game store";
     "Epic Games Launcher" = "epicgameslauncher", "Game store";
     "Firefox" = "firefox", "Web browser";
     "GIMP" = "gimp", "Image editor";
@@ -65,7 +66,6 @@ $ChocoPrograms = [ordered]@{
     # The OpenVPN version available from the Chocolatey repositories is old
     # and does not support all the config values in the the config packages created by pfSense
     # "OpenVPN" = "openvpn", "VPN client";
-    "Origin (game store)" = "origin", "Game store";
     "PDFsam" = "pdfsam", "PDF Split & Merge utility";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "Plex" = "plex", "Plex client for playing media";
