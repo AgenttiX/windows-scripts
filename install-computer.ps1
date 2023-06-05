@@ -172,6 +172,22 @@ function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version
     Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\uEye_${Version2}.exe"
 }
 
+function Install-MeerstetterTEC() {
+    <#
+    .SYNOPSIS
+        Install Meerstetter TEC Software
+    .LINK
+        https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software
+    #>
+    Show-Output "Downloading Meerstetter TEC software"
+    # Spaces are not allowed in msiexec filenames. Please also see this issue:
+    # https://stackoverflow.com/questions/10108517/what-can-cause-msiexec-error-1619-this-installation-package-could-not-be-opened
+    $Filename = "TEC_Software.msi"
+    Invoke-WebRequest -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -OutFile "${Downloads}\${Filename}"
+    Show-Output "Installing Meerstetter TEC software"
+    Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
+}
+
 function Install-NI4882 ([string]$Version = "22.8") {
     <#
     .SYNOPSIS
@@ -412,6 +428,7 @@ $OtherOperations = [ordered]@{
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
+    "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
