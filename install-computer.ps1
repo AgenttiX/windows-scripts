@@ -68,6 +68,7 @@ $ChocoPrograms = [ordered]@{
     # "OpenVPN" = "openvpn", "VPN client";
     "PDFsam" = "pdfsam", "PDF Split & Merge utility";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
+    "PDF Arranger" = "pdfarranger", "PDF split & merge utility";
     "Plex" = "plex", "Plex client for playing media";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
