@@ -63,9 +63,7 @@ $ChocoPrograms = [ordered]@{
     "NVM" = "nvm", "Node.js Version Manager";
     "Obsidian" = "obsidian", "A note-taking app";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
-    # The OpenVPN version available from the Chocolatey repositories is old
-    # and does not support all the config values in the the config packages created by pfSense
-    # "OpenVPN" = "openvpn", "VPN client";
+    "OpenVPN" = "openvpn", "VPN client";
     "PDFsam" = "pdfsam", "PDF Split & Merge utility";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "PDF Arranger" = "pdfarranger", "PDF split & merge utility";
@@ -431,7 +429,9 @@ $OtherOperations = [ordered]@{
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
-    "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
+    # OpenVPN is also available from Chocolatey.
+    # Use this manual version only when the package version in Chocolatey is too old.
+    # "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
     "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
