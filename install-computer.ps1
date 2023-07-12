@@ -68,6 +68,7 @@ $ChocoPrograms = [ordered]@{
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";
     "PDF Arranger" = "pdfarranger", "PDF split & merge utility";
     "Plex" = "plex", "Plex client for playing media";
+    "Plexamp" = "plexamp", "Plex client for music";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
     "PyCharm Community" = "pycharm-community", "Python IDE";
