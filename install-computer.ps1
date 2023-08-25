@@ -128,6 +128,14 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
+function Install-BaslerPylon([string]$Version = "7.3.0.27189") {
+    Show-Output "Downloading Basler Pylon Camera Software Suite"
+    $Filename = "Basler_pylon_${Version}.exe"
+    Invoke-WebRequest "https://www.baslerweb.com/fp-1682511107/media/downloads/software/pylon_software/${Filename}" -outFile "${Downloads}\${Filename}"
+    Show-Output "Installing Basler Pylon Camera Software Suite"
+    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+}
+
 function Install-CorelDRAW {
     Show-Output "Downloading CorelDRAW"
     Invoke-WebRequest -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -OutFile "${Downloads}\CDGS.exe"
@@ -423,6 +431,7 @@ function Install-WSL {
 }
 
 $OtherOperations = [ordered]@{
+    "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
     "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
