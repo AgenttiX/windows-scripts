@@ -39,7 +39,7 @@ write `git pull` and press enter.
 This will download the latest updates to the scripts.
 
 Now in the command prompt you should write `.\ ` and the name of the script I have asked you to run.
-For example, the reporting script is selected with `.\report.ps1`, the software installation script with `.\install-computer.ps1` and the maintenance script with `.\maintenance.ps1`.
+For example, the reporting script is selected with `.\Report.ps1`, the software installation script with `.\Install-Software.ps1` and the maintenance script with `.\Maintenance.ps1`.
 Then press enter to run the script.
 Many of these scripts have to be run as an administrator, and therefore they will request those privileges
 and then another window that operates with those privileges will open.

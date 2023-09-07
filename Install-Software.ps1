@@ -9,7 +9,7 @@ param(
     [switch]$Elevated
 )
 
-. ".\utils.ps1"
+. ".\Utils.ps1"
 
 # This should be as early as possible to avoid loading the function definitions etc. twice.
 Elevate($myinvocation.MyCommand.Definition)

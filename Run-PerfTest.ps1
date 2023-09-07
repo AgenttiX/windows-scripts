@@ -19,7 +19,7 @@ param(
     [switch]$Unigine
 )
 
-. "./utils.ps1"
+. "./Utils.ps1"
 Elevate($MyInvocation.MyCommand.Definition)
 
 Start-Transcript -Path "${LogPath}\perftest_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
@@ -29,7 +29,7 @@ Show-Output "Running Mika's performance testing script"
 Install-PTS
 
 # The reporting has to be after PTS installation to be able to generate the PTS reports
-& ".\report.ps1"
+& ".\Report.ps1"
 # This folder is created by the reporting script
 $Reports = ".\reports"
 

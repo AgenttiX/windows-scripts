@@ -3,7 +3,7 @@
     Fix various issues with Windows
 #>
 
-. "./utils.ps1"
+. "./Utils.ps1"
 Elevate($MyInvocation.MyCommand.Definition)
 
 Start-Transcript -Path "${LogPath}\Repair-Computer_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"

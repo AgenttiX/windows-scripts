@@ -11,7 +11,7 @@ param(
     [switch]$NoArchive
 )
 
-. ".\utils.ps1"
+. ".\Utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
