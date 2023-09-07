@@ -49,14 +49,20 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
     }
 }
 
-# These have to be after the compatibility section so that $PSScriptRoot is defined
+# This has to be after the compatibility section so that $PSScriptRoot is defined
 # $RepoPath = Split-Path $PSScriptRoot -Parent
 $RepoPath = $PSScriptRoot
-$StartPath = Get-Location
+
+# Create sub-directories of the repo so that the scripts don't have to create them.
 New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force | Out-Null
 New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
 $Downloads = "${RepoPath}\downloads"
 $LogPath = "${RepoPath}\logs"
+
+# Define some useful paths
+$DesktopPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop)
+$StartPath = Get-Location
+
 
 function Clear-Path {
     <#
@@ -79,6 +85,37 @@ function Clear-Path {
         return 0
     }
     return 2
+}
+
+function Create-Shortcut {
+    param(
+        [Parameter(Mandatory=$true)][string]$Path,
+        [Parameter(Mandatory=$true)][string]$TargetPath,
+        [string]$Arguments,
+        [string]$WorkingDirectory = "$RepoPath",
+        [string]$IconLocation = "shell32.dll,7"
+    )
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($Path)
+    $Shortcut.TargetPath = $TargetPath
+    $Shortcut.WorkingDirectory = $WorkingDirectory
+    $Shortcut.IconLocation = $IconLocation
+    if($Arguments -ne $null) {
+        $Shortcut.Arguments = $Arguments
+    }
+    $Shortcut.Save()
+    return $Shortcut
+}
+
+function Create-ScriptShortcuts {
+    $InstallShortcutPath = "${DesktopPath}\Installer.lnk"
+    $MaintenanceShortcutPath = "${DesktopPath}\Maintenance.lnk"
+    # if(!(Test-Path $InstallShortcutPath)) {
+    Create-Shortcut -Path $InstallShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Install-Software.ps1" | Out-Null
+    # }
+    # if(!(Test-Path $MaintenanceShortcutPath)) {
+    Create-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\maintenance.ps1" | Out-Null
+    # }
 }
 
 function Elevate {

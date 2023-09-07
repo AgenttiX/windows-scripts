@@ -49,6 +49,7 @@ Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH
 $host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Request-DomainConnection
+Create-ScriptShortcuts
 
 # ---
 # Constants
