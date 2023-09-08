@@ -27,7 +27,7 @@ param(
     [switch]$Firefox,
     [switch]$Reboot,
     [switch]$Scheduled,
-    [switch]$ScheduledTaskOnly,
+    [switch]$SetupOnly,
     [switch]$Shutdown,
     [switch]$Thunderbird,
     [switch]$Zerofree
@@ -52,10 +52,14 @@ if ($Scheduled) {
         Show-Output "Skipping maintenance, as a sufficient time has not passed since the previous run, which was on ${PreviousRunDate}"
         Exit
     }
+    if (! (Get-YesNo "Do you want to run maintenance? Previous maintenance was run on ${PreviousRunDate}, which was ${TimeDifference} ago.")) {
+        Exit
+    }
 }
 
+Add-ScriptShortcuts
 if ($RepoInUserDir) {
-    if ($ScheduledTaskOnly) {
+    if ($SetupOnly) {
         Show-Output "Cannot create scheduled task, since the repo is within the user directory."
         Exit 1
     }
@@ -77,7 +81,7 @@ if ($RepoInUserDir) {
 
     # Unregister-ScheduledTask -Taskname "Maintenance"
 
-    if ($ScheduledTaskOnly) {
+    if ($SetupOnly) {
         Show-Output "Scheduled maintenance task created."
         Exit
     }
@@ -90,7 +94,6 @@ Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH
 
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Request-DomainConnection
-Add-ScriptShortcuts
 Import-Module Appx
 
 # ---

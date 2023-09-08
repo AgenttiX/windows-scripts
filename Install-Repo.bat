@@ -67,8 +67,8 @@ IF "%GLOBALINSTALL%"=="0" (
 	git config --global --add safe.directory %USERPROFILE%\Git\windows-scripts
 )
 
-powershell -File %BASEPATH%\Git\windows-scripts\Maintenance.ps1 -ScheduledTaskOnly
 echo Creating shortcuts and scheduled task
+powershell -File %BASEPATH%\Git\windows-scripts\Maintenance.ps1 -SetupOnly
 
 echo Opening the scripts folder in File Explorer.
 %SYSTEMROOT%\explorer.exe %BASEPATH%\Git\windows-scripts
