@@ -60,9 +60,34 @@ $Downloads = "${RepoPath}\downloads"
 $LogPath = "${RepoPath}\logs"
 
 # Define some useful paths
+$CommonDesktopPath = [Environment]::GetFolderPath("CommonDesktopDirectory")
 $DesktopPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop)
 $StartPath = Get-Location
 
+# Define some useful variables
+$RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith(([System.IO.DirectoryInfo]"${env:UserProfile}").FullName)
+
+
+function Add-ScriptShortcuts {
+    if ($RepoInUserDir) {
+        $BasePath = $DesktopPath
+    } else {
+        $BasePath = $CommonDesktopPath
+    }
+    $InstallShortcutPath = "${BasePath}\Installer.lnk"
+    $MaintenanceShortcutPath = "${BasePath}\Maintenance.lnk"
+    $WindowsUpdateShortcutPath = "${BasePath}\Windows Update.lnk"
+    $RepoShortcutPath = "${BasePath}\windows-scripts.lnk"
+
+    # if(!(Test-Path $InstallShortcutPath)) {
+    New-Shortcut -Path $InstallShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Install-Software.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,21" | Out-Null
+    # }
+    # if(!(Test-Path $MaintenanceShortcutPath)) {
+    New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
+    # }
+    New-Shortcut -Path $WindowsUpdateShortcutPath -TargetPath "${env:windir}\explorer.exe" -Arguments "ms-settings:windowsupdate-action" -IconLocation "shell32.dll,46" | Out-Null
+    New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
+}
 
 function Clear-Path {
     <#
@@ -87,43 +112,6 @@ function Clear-Path {
     return 2
 }
 
-function Create-Shortcut {
-    <#
-    .SYNOPSIS
-        Create a .lnk shortcut
-    .LINK
-        https://stackoverflow.com/a/9701907
-    #>
-    param(
-        [Parameter(Mandatory=$true)][string]$Path,
-        [Parameter(Mandatory=$true)][string]$TargetPath,
-        [string]$Arguments,
-        [string]$WorkingDirectory = "$RepoPath",
-        [string]$IconLocation = "shell32.dll,7"
-    )
-    $WshShell = New-Object -ComObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($Path)
-    $Shortcut.TargetPath = $TargetPath
-    $Shortcut.WorkingDirectory = $WorkingDirectory
-    $Shortcut.IconLocation = $IconLocation
-    if($Arguments -ne $null) {
-        $Shortcut.Arguments = $Arguments
-    }
-    $Shortcut.Save()
-    return $Shortcut
-}
-
-function Create-ScriptShortcuts {
-    $InstallShortcutPath = "${DesktopPath}\Installer.lnk"
-    $MaintenanceShortcutPath = "${DesktopPath}\Maintenance.lnk"
-    # if(!(Test-Path $InstallShortcutPath)) {
-    Create-Shortcut -Path $InstallShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Install-Software.ps1" | Out-Null
-    # }
-    # if(!(Test-Path $MaintenanceShortcutPath)) {
-    Create-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\maintenance.ps1" | Out-Null
-    # }
-}
-
 function Elevate {
     <#
     .SYNOPSIS
@@ -135,7 +123,7 @@ function Elevate {
         [Parameter(Mandatory=$true)][string]$command
     )
     if (! (Test-Admin))  {
-        if ($elevated)
+        if ($Elevated)
         {
             Show-Output "Elevation did not work."
         }
@@ -144,10 +132,10 @@ function Elevate {
             Show-Output "$command"
             # Use newer PowerShell if available.
             if (Test-CommandExists "pwsh") {$shell = "pwsh"} else {$shell = "powershell"}
-            Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -elevated' -f ($pwd, $command))
+            Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -Elevated' -f ($pwd, $command))
             Show-Output "The script has been started in another window. You can close this window now." -ForegroundColor Green
         }
-    exit
+    Exit
     }
 }
 
@@ -330,20 +318,38 @@ function Install-Winget {
 }
 
 function New-Shortcut {
+    <#
+    .SYNOPSIS
+        Create a .lnk shortcut
+    .LINK
+        https://stackoverflow.com/a/9701907
+    #>
     param(
-        [string]$SourceExe,
-        [string]$DestinationPath
+        [Parameter(Mandatory=$true)][string]$Path,
+        [Parameter(Mandatory=$true)][string]$TargetPath,
+        [string]$Arguments,
+        [string]$IconLocation,
+        [string]$WorkingDirectory
     )
-    if (! (Test-Path "${SourceExe}" -PathType Leaf)) {
-        throw [System.IO.FileNotFoundException] "Could not find ${SourceExe}"
-    }
-    # if (! (Test-Path "${DestinationPath}" -PathType Container)) {
-    #     throw [System.IO.DirectoryNotFoundException] "Could not find ${DestinationPath}"
+    # This does not work, as it throws an error for bare program names, e.g. "powershell"
+    # if (!(Test-Path "${TargetPath}")) {
+    #     throw [System.IO.FileNotFoundException] "Could not find shortcut target ${TargetPath}"
     # }
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($DestinationPath)
-    $Shortcut.TargetPath = $SourceExe
+
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($Path)
+    $Shortcut.TargetPath = $TargetPath
+    if ($WorkingDirectory -ne $null) {
+        $Shortcut.WorkingDirectory = $WorkingDirectory
+    }
+    if($Arguments -ne $null) {
+        $Shortcut.Arguments = $Arguments
+    }
+    if ($IconLocation -ne $null) {
+        $Shortcut.IconLocation = $IconLocation
+    }
     $Shortcut.Save()
+    return $Shortcut
 }
 
 function Request-DomainConnection {
@@ -509,6 +515,14 @@ function Update-Repo {
         # return $false
     } else {
         Show-Output "Previous `"git pull`" was run on ${LastPullTime}. Updating."
+        if ($RepoInUserDir -and (! $Elevated)) {
+            $GitConfigPath = "${env:UserProfile}\.gitconfig"
+            $RepoName = Split-Path "${RepoPath}" -Leaf
+            if ((! (Test-Path "${GitConfigPath}")) -or (! (Select-String "${GitConfigPath}" -Pattern "${RepoName}" -SimpleMatch))) {
+                Show-Output "Git config was not found, or it did not contain the repository path. Adding ${RepoPath} as a safe directory."
+                git config --global --add safe.directory "${RepoPath}"
+            }
+        }
         git pull
         # return $true
     }

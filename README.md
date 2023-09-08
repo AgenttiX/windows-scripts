@@ -13,7 +13,7 @@ If it does not exist, please continue these installation instructions.
 
 To ease the setting up of these scripts on your computer, I have created an installation script.
 To download it, right-click
-[this link](https://raw.githubusercontent.com/AgenttiX/windows-scripts/master/repo-installer.bat)
+[this link](https://raw.githubusercontent.com/AgenttiX/windows-scripts/master/Install-Repo.bat)
 and select "Save link as..." to save the file to a directory of your choice.
 Then right-click the downloaded file and select "Run as administrator".
 This should open a command-line window and setup the scripts and their dependencies for you.

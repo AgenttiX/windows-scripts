@@ -271,7 +271,7 @@ function Install-OriginViewer {
         Show-Information "No exe file was found in the extracted directory." -ForegroundColor Red
         return $false
     }
-    New-Shortcut -SourceExe "${ExePath}" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk"
+    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" -TargetPath "${ExePath}"
     return $true
 }
 
@@ -310,7 +310,7 @@ function Install-Rezonator2 {
     }
     Show-Output "Extracting reZonator 2"
     Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
-    New-Shortcut -SourceExe "${DestinationPath}\rezonator.exe" -DestinationPath "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk"
+    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk" -TargetPath "${DestinationPath}\rezonator.exe"
     return $true
 }
 

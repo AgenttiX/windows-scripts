@@ -26,27 +26,72 @@ param(
     [switch]$Elevated,
     [switch]$Firefox,
     [switch]$Reboot,
+    [switch]$Scheduled,
+    [switch]$ScheduledTaskOnly,
     [switch]$Shutdown,
     [switch]$Thunderbird,
     [switch]$Zerofree
 )
 
+# Load utility functions from another file.
+Set-Location "${PSScriptRoot}"
+. ".\Utils.ps1"
+
 if ($Reboot -and $Shutdown) {
+    # The Show-Output function is defined in Utils.ps1
     Show-Output -ForegroundColor Red "Both reboot and shutdown switches cannot be enabled at the same time."
     Exit 1
 }
 
-# Load utility functions from another file.
-. ".\Utils.ps1"
+$TimestampPath = "${LogPath}\previous_maintenance_timestamp.txt"
+if ($Scheduled) {
+    $PreviousRunDate = [Datetime](Get-Content $TimestampPath)
+    $TimeDifference = New-TimeSpan -Start $PreviousRunDate -End (Get-Date)
+    $MaxTimeSpan = New-TimeSpan -Days 30
+    if ($TimeDifference -lt $MaxTimeSpan) {
+        Show-Output "Skipping maintenance, as a sufficient time has not passed since the previous run, which was on ${PreviousRunDate}"
+        Exit
+    }
+}
 
+if ($RepoInUserDir) {
+    if ($ScheduledTaskOnly) {
+        Show-Output "Cannot create scheduled task, since the repo is within the user directory."
+        Exit 1
+    }
+    Show-Output "The repo is within the user directory. Skipping scheduled task creation."
+} else {
+    # Scheduled task setup
+    $TaskName = "Maintenance"
+    # $Description = "Mika's maintenance script"
+    $Action = New-ScheduledTaskAction -Execute "powershell" -Argument "-File ${PSCommandPath} -Scheduled"
+    $Trigger = New-ScheduledTaskTrigger -Daily -At 10am -RandomDelay (New-TimeSpan -Hours 4)
+    $TaskExists = Get-ScheduledTask | Where-Object {$_.TaskName -like $TaskName }
+    if ($TaskExists) {
+        $Task = Get-ScheduledTask -TaskName $TaskName
+        Set-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger | Out-Null
+    } else {
+        $Task = New-ScheduledTask -Action $Action -Trigger $Trigger
+        Register-ScheduledTask -TaskName "Maintenance" -InputObject $Task | Out-Null
+    }
+
+    # Unregister-ScheduledTask -Taskname "Maintenance"
+
+    if ($ScheduledTaskOnly) {
+        Show-Output "Scheduled maintenance task created."
+        Exit
+    }
+}
+
+$host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Update-Repo
 Elevate($myinvocation.MyCommand.Definition)
 Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 
-$host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Request-DomainConnection
-Create-ScriptShortcuts
+Add-ScriptShortcuts
+Import-Module Appx
 
 # ---
 # Constants
@@ -204,6 +249,8 @@ $bleachbit_features_thunderbird = @(
 # Script starts here
 # ---
 
+# Interactive prompts
+
 if ((-not $Zerofree) -and (Get-IsVirtualBoxMachine)) {
     Show-Output -ForegroundColor Cyan "This seems to be a VirtualBox machine."
     $Zerofree = Get-YesNo "Do you want to zero free space at the end of this script?"
@@ -253,6 +300,10 @@ if ($Reboot) {
 #     }
 # }
 
+# ---
+# Actual operations start here
+# ---
+
 Show-Output -ForegroundColor Cyan "Performing initial steps that have to be performed before Windows Update."
 Show-Output -ForegroundColor Red "Do not write in the console or press enter unless requested."
 Show-Output -ForegroundColor Cyan "After a moment you may be asked about Windows Updates, and writing in the console now may cause in the selection of updates you don't want."
@@ -276,6 +327,7 @@ if (Test-CommandExists "Install-Module") {
 } else {
     Show-Output -ForegroundColor Red "Windows Update PowerShell module could not be installed. Check Windows updates manually."
 }
+Import-Module PSWindowsUpdate
 if (Test-CommandExists "Install-WindowsUpdate") {
     Show-Output -ForegroundColor Cyan "You may now be asked whether to install some Windows Updates."
     Show-Output -ForegroundColor Cyan "It's recommended to answer yes EXCEPT for the following:"
@@ -520,6 +572,8 @@ if ($Zerofree) {
     .\zero-free-space.ps1 -DriveLetter "C"
 }
 
+Get-Date -Format "o" | Out-File $TimestampPath
+
 Show-Output -ForegroundColor Green "The maintenance script is ready."
 if ($Reboot) {
     Show-Output "The computer will be rebooted in 10 seconds."
@@ -533,3 +587,8 @@ if ($Reboot) {
 }
 
 Stop-Transcript
+
+if ($Scheduled) {
+    Read-Host -Prompt "Press any key to continue"
+    Exit
+}
