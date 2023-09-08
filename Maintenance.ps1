@@ -39,10 +39,7 @@ if ($Reboot -and $Shutdown) {
 # Load utility functions from another file.
 . ".\Utils.ps1"
 
-# This git pull may cause the GitHub rate limits to be reached in an enterprise network.
-# It may also cause problems if the script is already elevated, as the script file would be modified while executing.
-# GitPull
-
+Update-Repo
 Elevate($myinvocation.MyCommand.Definition)
 Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 

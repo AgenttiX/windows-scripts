@@ -88,6 +88,12 @@ function Clear-Path {
 }
 
 function Create-Shortcut {
+    <#
+    .SYNOPSIS
+        Create a .lnk shortcut
+    .LINK
+        https://stackoverflow.com/a/9701907
+    #>
     param(
         [Parameter(Mandatory=$true)][string]$Path,
         [Parameter(Mandatory=$true)][string]$TargetPath,
@@ -484,5 +490,26 @@ function Test-RebootPending {
         } else {
             return $false
         }
+    }
+}
+
+function Update-Repo {
+    <#
+    .SYNOPSIS
+        Update the repository if enough time has passed since the previous "git pull"
+    #>
+    [OutputType([bool])]
+    param(
+        [TimeSpan]$MaxTimeSpan = (New-TimeSpan -Days 1)
+    )
+    $LastPullTime = (Get-Item "${RepoPath}\.git\FETCH_HEAD").LastWriteTime
+    $TimeDifference = New-TimeSpan -Start $LastPullTime -End (Get-Date)
+    if ($TimeDifference -lt $MaxTimeSpan) {
+        Show-Output "Previous `"git pull`" was run on ${LastPullTime}. No need to update."
+        # return $false
+    } else {
+        Show-Output "Previous `"git pull`" was run on ${LastPullTime}. Updating."
+        git pull
+        # return $true
     }
 }

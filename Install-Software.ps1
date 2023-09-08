@@ -11,6 +11,7 @@ param(
 
 . ".\Utils.ps1"
 
+Update-Repo
 # This should be as early as possible to avoid loading the function definitions etc. twice.
 Elevate($myinvocation.MyCommand.Definition)
 
