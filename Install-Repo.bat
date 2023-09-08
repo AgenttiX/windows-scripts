@@ -9,9 +9,11 @@ IF %ERRORLEVEL% NEQ 0 (
 
 SET /P GLOBALYESNO=Do you want to install globally for all users? [y/n] (Write "y" and press enter, unless you are developing the scripts yourself.)
 IF /I "%GLOBALYESNO%" EQU "y" (
+    SET /A GLOBALINSTALL=1
     SET BASEPATH=%SYSTEMDRIVE%
 )ELSE (
 	IF /I "%GLOBALYESNO%" EQU "n" (
+        SET /A GLOBALINSTALL=0
 		SET BASEPATH=%USERPROFILE%
 	) ELSE (
 		echo Invalid selection: %GLOBALYESNO%
@@ -60,11 +62,13 @@ IF exist %BASEPATH%\Git\windows-scripts (
     git clone "https://github.com/AgenttiX/windows-scripts"
 )
 
-REM echo Configuring the repository directory to be safe.
-REM git config --global --add safe.directory %USERPROFILE%\Git\windows-scripts
+IF "%GLOBALINSTALL%"=="0" (
+	echo Marking the repository directory to be safe for Git.
+	git config --global --add safe.directory %USERPROFILE%\Git\windows-scripts
+)
 
-echo "Creating shortcuts"
 powershell -File %BASEPATH%\Git\windows-scripts\Maintenance.ps1 -ScheduledTaskOnly
+echo Creating shortcuts and scheduled task
 
 echo Opening the scripts folder in File Explorer.
 %SYSTEMROOT%\explorer.exe %BASEPATH%\Git\windows-scripts
