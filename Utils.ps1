@@ -72,6 +72,10 @@ function Add-ScriptShortcuts {
     if ($RepoInUserDir) {
         $BasePath = $DesktopPath
     } else {
+        if (! (Test-Admin)) {
+            Show-Output "Cannot create script shortcuts for all users, as the script is not elevated (yet)."
+            return
+        }
         $BasePath = $CommonDesktopPath
     }
     $InstallShortcutPath = "${BasePath}\Installer.lnk"
@@ -444,8 +448,8 @@ function Test-Admin {
         https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
     #>
     [OutputType([bool])]
-    $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-    return $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+    return $CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
 Function Test-CommandExists {
