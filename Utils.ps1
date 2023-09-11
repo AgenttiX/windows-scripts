@@ -512,7 +512,14 @@ function Update-Repo {
     param(
         [TimeSpan]$MaxTimeSpan = (New-TimeSpan -Days 1)
     )
-    $LastPullTime = (Get-Item "${RepoPath}\.git\FETCH_HEAD").LastWriteTime
+    $FetchHeadPath = "${RepoPath}\.git\FETCH_HEAD"
+    if (! "${FetchHeadPath}") {
+        Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
+        git pull
+        # return $true
+        return
+    }
+    $LastPullTime = (Get-Item "${FetchHeadPath}").LastWriteTime
     $TimeDifference = New-TimeSpan -Start $LastPullTime -End (Get-Date)
     if ($TimeDifference -lt $MaxTimeSpan) {
         Show-Output "Previous `"git pull`" was run on ${LastPullTime}. No need to update."
