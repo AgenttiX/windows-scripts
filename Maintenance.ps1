@@ -57,15 +57,16 @@ if ($Scheduled) {
     }
 }
 
-Add-ScriptShortcuts
-if ($RepoInUserDir) {
+# Scheduled task setup
+# (Should be run before elevation to ensure, that the task starts with lower permissions)
+if ($Elevated) {
+    Show-Output "Already elevated, skipping scheduled task setup."
+} elseif ($RepoInUserDir) {
     if ($SetupOnly) {
         Show-Output "Cannot create scheduled task, since the repo is within the user directory."
-        Exit 1
     }
     Show-Output "The repo is within the user directory. Skipping scheduled task creation."
 } else {
-    # Scheduled task setup
     $TaskName = "Maintenance"
     # $Description = "Mika's maintenance script"
     $Action = New-ScheduledTaskAction -Execute "powershell" -Argument "-File ${PSCommandPath} -Scheduled"
@@ -83,15 +84,31 @@ if ($RepoInUserDir) {
 
     if ($SetupOnly) {
         Show-Output "Scheduled maintenance task created."
-        Exit
     }
 }
 
-$host.ui.RawUI.WindowTitle = "Mika's maintenance script"
-Update-Repo
+if ($RepoInUserDir) {
+    Update-Repo
+}
 Elevate($myinvocation.MyCommand.Definition)
+# The window title should be set after elevation so that the original launching window doesn't get the title.
+$host.ui.RawUI.WindowTitle = "Mika's maintenance script"
+
 # If the log path is not writable without elevation, this has to be after the elevation.
 Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
+
+if (! $RepoInUserDir) {
+    Update-Repo
+}
+
+# These have to be run after elevation
+if ($SetupOnly) {
+    Add-ScriptShortcuts
+    Set-RepoPermissions
+
+    Stop-Transcript
+    Exit
+}
 
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Request-DomainConnection
@@ -487,7 +504,13 @@ Import-Module Appx
 Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | Invoke-CimMethod -MethodName UpdateScanMethod
 
 
+# ---
 # Misc blocking tasks
+# ---
+
+# Operations that are delayed, unless running first-time setup
+Add-ScriptShortcuts
+Set-RepoPermissions
 
 $NIPackageManagerUpdaterPath = "${env:ProgramFiles}\National Instruments\NI Package Manager\Updater\Install.exe"
 if (Test-Path "$NIPackageManagerUpdaterPath") {

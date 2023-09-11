@@ -92,7 +92,6 @@ function Add-ScriptShortcuts {
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
 
     $WindowsVersion = [System.Environment]::OSVersion.Version.Major
-    Show-Output $WindowsVersion
     if ($WindowsVersion -ge 8) {
         if ((Get-WmiObject Win32_OperatingSystem).Caption -Match "Windows 10") {
             $WindowsUpdateTargetPath = "ms-settings:windowsupdate-action"
@@ -373,6 +372,32 @@ function Request-DomainConnection {
         Show-Output "Your computer seems to be a domain member. Please connect it to the domain network now. A VPN is OK but a physical connection is better."
     }
     return $IsJoined
+}
+
+function Set-RepoPermissions {
+    if ($RepoInUserDir) {
+        Show-Output "The repo is installed within the user folder. Ensuring that it's owned by the user."
+        $ACL = Get-Acl -Path "${RepoPath}"
+        # This does not include the domain part
+        # $User = New-Object System.Security.Principal.Ntaccount([Environment]::UserName)
+        $User = whoami
+        $CurrentOwner = $ACL.Owner
+        if ($CurrentOwner -ne $User) {
+            Show-Output "The repo is owned by `"${CurrentOwner}`". Changing it to: `"${User}`""
+            $ACL.SetOwner($User)
+            $ACL | Set-Acl -Path "${RepoPath}"
+        }
+    } else {
+        Show-Output "The repo is installed globally. Ensuring that it's protected."
+        $ACL = Get-Acl -Path "${env:ProgramFiles}"
+        $ACL | Set-Acl -Path "${RepoPath}"
+        $RepoPathObj = (Get-Item $RepoPath)
+        if (($RepoPathObj.Parent.FullName -eq "Git") -and ($RepoPathObj.Parent.Parent.FullName -eq $env:SystemDrive)) {
+            Show-Output "The repo is located in the Git folder at the root of the system drive. Protecting the Git folder."
+            $ACL = Get-Acl -Path $env:SystemDrive
+            $ACL | Set-Acl -Path $RepoPathObj.Parent
+        }
+    }
 }
 
 function Show-Information {

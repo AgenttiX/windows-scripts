@@ -11,11 +11,16 @@ param(
 
 . ".\Utils.ps1"
 
-Update-Repo
+if ($RepoInUserDir) {
+    Update-Repo
+}
 # This should be as early as possible to avoid loading the function definitions etc. twice.
 Elevate($myinvocation.MyCommand.Definition)
 
 Start-Transcript -Path "${LogPath}\install-software_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
+if (! $RepoInUserDir) {
+    Update-Repo
+}
 
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Show-Output "Starting Mika's computer installation script."
@@ -24,6 +29,7 @@ Show-Output "The graphical user interface (GUI) is a very preliminary version an
 Show-Output "If it doesn't fit on your monitor, please reduce the display scaling at:"
 Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
 Add-ScriptShortcuts
+Set-RepoPermissions
 
 # Global variables
 $GlobalHeight = 800;
