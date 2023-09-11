@@ -90,11 +90,11 @@ if ($RepoInUserDir) {
 $host.ui.RawUI.WindowTitle = "Mika's maintenance script"
 Update-Repo
 Elevate($myinvocation.MyCommand.Definition)
+# If the log path is not writable without elevation, this has to be after the elevation.
 Start-Transcript -Path "${LogPath}\maintenance_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"
 
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Request-DomainConnection
-Import-Module Appx
 
 # ---
 # Constants
@@ -483,6 +483,7 @@ if ($Clean -or $Deep) {
 # Windows Store app updates (partially blocking)
 # May update Lenovo Vantage, and therefore needs to be before it.
 Show-Output -ForegroundColor Cyan "Updating Windows Store apps."
+Import-Module Appx
 Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | Invoke-CimMethod -MethodName UpdateScanMethod
 
 
