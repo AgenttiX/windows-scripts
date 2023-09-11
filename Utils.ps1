@@ -375,6 +375,7 @@ function Request-DomainConnection {
 }
 
 function Set-RepoPermissions {
+    Import-Module Microsoft.PowerShell.Security
     if ($RepoInUserDir) {
         Show-Output "The repo is installed within the user folder. Ensuring that it's owned by the user."
         $ACL = Get-Acl -Path "${RepoPath}"
