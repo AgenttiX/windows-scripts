@@ -514,6 +514,7 @@ function Update-Repo {
     )
     if (! ($RepoInUserDir -or (Test-Admin))) {
         Show-Output "Cannot update the repo, as the script is not elevated (yet)."
+        return
     }
     $FetchHeadPath = "${RepoPath}\.git\FETCH_HEAD"
     if (! "${FetchHeadPath}") {
