@@ -512,6 +512,9 @@ function Update-Repo {
     param(
         [TimeSpan]$MaxTimeSpan = (New-TimeSpan -Days 1)
     )
+    if (! ($RepoInUserDir -or (Test-Admin))) {
+        Show-Output "Cannot update the repo, as the script is not elevated (yet)."
+    }
     $FetchHeadPath = "${RepoPath}\.git\FETCH_HEAD"
     if (! "${FetchHeadPath}") {
         Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
