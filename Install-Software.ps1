@@ -23,7 +23,7 @@ Request-DomainConnection
 Show-Output "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
 Show-Output "If it doesn't fit on your monitor, please reduce the display scaling at:"
 Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
-Create-ScriptShortcuts
+Add-ScriptShortcuts
 
 # Global variables
 $GlobalHeight = 800;

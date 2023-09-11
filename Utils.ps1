@@ -89,8 +89,18 @@ function Add-ScriptShortcuts {
     # if(!(Test-Path $MaintenanceShortcutPath)) {
     New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
     # }
-    New-Shortcut -Path $WindowsUpdateShortcutPath -TargetPath "${env:windir}\explorer.exe" -Arguments "ms-settings:windowsupdate-action" -IconLocation "shell32.dll,46" | Out-Null
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
+
+    $WindowsVersion = [System.Environment]::OSVersion.Version.Major
+    Show-Output $WindowsVersion
+    if ($WindowsVersion -ge 8) {
+        if ((Get-WmiObject Win32_OperatingSystem).Caption -Match "Windows 10") {
+            $WindowsUpdateTargetPath = "ms-settings:windowsupdate-action"
+        } else {
+            $WindowsUpdateTargetPath = "ms-settings:windowsupdate"
+        }
+        New-Shortcut -Path $WindowsUpdateShortcutPath -TargetPath "${env:windir}\explorer.exe" -Arguments "${WindowsUpdateTargetPath}" -IconLocation "shell32.dll,46" | Out-Null
+    }
 }
 
 function Clear-Path {
