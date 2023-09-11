@@ -553,7 +553,7 @@ function Update-Repo {
         return
     }
     $FetchHeadPath = "${RepoPath}\.git\FETCH_HEAD"
-    if (! "${FetchHeadPath}") {
+    if (!(Test-Path "${FetchHeadPath}")) {
         Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
         git pull
         # return $true
