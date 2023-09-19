@@ -4,6 +4,7 @@ echo This script is for setting up Mika's Windows scripts.
 NET SESSION >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (
 	echo This script should be run as administrator. Please right-click this script and select "Run as administrator".
+	pause
 	exit 1
 )
 
