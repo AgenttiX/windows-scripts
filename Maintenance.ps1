@@ -111,6 +111,7 @@ if ($SetupOnly) {
 }
 
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
+Show-Output -ForegroundColor Cyan "If some updater requests a reboot, select no, and only reboot the computer when the installation script is ready."
 Request-DomainConnection
 
 # ---

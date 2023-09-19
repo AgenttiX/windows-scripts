@@ -556,6 +556,7 @@ function Update-Repo {
     if (!(Test-Path "${FetchHeadPath}")) {
         Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
         git pull
+        Show-Output "You may have to restart the script to use the new version."
         # return $true
         return
     }
@@ -575,6 +576,7 @@ function Update-Repo {
             }
         }
         git pull
+        Show-Output "You may have to restart the script to use the new version."
         # return $true
     }
 }

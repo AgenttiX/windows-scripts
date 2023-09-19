@@ -23,11 +23,12 @@ if (! $RepoInUserDir) {
 }
 
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
-Show-Output "Starting Mika's computer installation script."
+Show-Output -ForegroundColor Cyan "Starting Mika's computer installation script."
+Show-Output -ForegroundColor Cyan "If some installer requests a reboot, select no, and only reboot the computer when the installation script is ready."
 Request-DomainConnection
-Show-Output "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
-Show-Output "If it doesn't fit on your monitor, please reduce the display scaling at:"
-Show-Output "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
+Show-Output -ForegroundColor Cyan "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
+Show-Output -ForegroundColor Cyan "If it doesn't fit on your monitor, please reduce the display scaling at:"
+Show-Output -ForegroundColor Cyan "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
 Add-ScriptShortcuts
 Set-RepoPermissions
 
