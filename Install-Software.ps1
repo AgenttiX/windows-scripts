@@ -22,6 +22,7 @@ if (! $RepoInUserDir) {
     Update-Repo
 }
 
+# Startup info
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Show-Output -ForegroundColor Cyan "Starting Mika's computer installation script."
 Show-Output -ForegroundColor Cyan "If some installer requests a reboot, select no, and only reboot the computer when the installation script is ready."
@@ -29,8 +30,11 @@ Request-DomainConnection
 Show-Output -ForegroundColor Cyan "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
 Show-Output -ForegroundColor Cyan "If it doesn't fit on your monitor, please reduce the display scaling at:"
 Show-Output -ForegroundColor Cyan "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
+
+# Startup tasks
 Add-ScriptShortcuts
 Set-RepoPermissions
+Test-PendingRebootAndExit
 
 # Global variables
 $GlobalHeight = 800;
@@ -717,5 +721,8 @@ if ($OtherSelected.Count) {
     Show-Output "No other operations were selected."
 }
 
+if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck).IsRebootPending) {
+    Show-Output -ForegroundColor Cyan "The computer is pending a reboot. Please reboot the computer."
+}
 Show-Output -ForegroundColor Green "The installation script is ready. You can now close this window."
 Stop-Transcript

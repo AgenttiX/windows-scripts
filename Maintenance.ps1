@@ -110,6 +110,7 @@ if ($SetupOnly) {
     Exit
 }
 
+# Startup info
 Show-Output -ForegroundColor Cyan "Starting Mika's maintenance script."
 Show-Output -ForegroundColor Cyan "If some updater requests a reboot, select no, and only reboot the computer when the installation script is ready."
 Request-DomainConnection
@@ -270,7 +271,7 @@ $bleachbit_features_thunderbird = @(
 # Script starts here
 # ---
 
-# Interactive prompts
+Test-PendingRebootAndExit
 
 if ((-not $Zerofree) -and (Get-IsVirtualBoxMachine)) {
     Show-Output -ForegroundColor Cyan "This seems to be a VirtualBox machine."
@@ -544,7 +545,7 @@ if (Test-CommandExists "docker") {
 # This should be the last step in the script so that its updates are not installed during other updates.
 if ($Reboot -or $Shutdown) {
     Show-Output -ForegroundColor Cyan "Driver updates will not be started, as automatic reboot or shutdown is enabled."
-} elseif (Test-RebootPending) {
+} elseif ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck).IsRebootPending) {
     Show-Output -ForegroundColor Cyan "Driver updates will not be started, as the computer is pending a reboot."
 } else {
     # Lenovo Vantage (non-blocking)
@@ -604,13 +605,16 @@ Get-Date -Format "o" | Out-File $TimestampPath
 
 Show-Output -ForegroundColor Green "The maintenance script is ready."
 if ($Reboot) {
-    Show-Output "The computer will be rebooted in 10 seconds."
+    Show-Output -ForegroundColor Cyan "The computer will be rebooted in 10 seconds."
     # The /g switch will automatically login and lock the current user, if this feature is enabled in Windows settings."
     shutdown /g /t 10 /c "Mika's maintenance script is ready. Rebooting."
 } elseif ($Shutdown) {
-    Show-Output "The computer will be shut down in 10 seconds."
+    Show-Output -ForegroundColor Cyan "The computer will be shut down in 10 seconds."
     shutdown /s /t 10 /c "Mika's maintenance script is ready. Shutting down."
 } else {
+    if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck).IsRebootPending) {
+        Show-Output -ForegroundColor -Cyan "The computer is pending a reboot. Please reboot the computer, once all the updater windows that are open say that they are ready."
+    }
     Show-Output -ForegroundColor Green "You can now close this window."
 }
 
