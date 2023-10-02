@@ -44,6 +44,7 @@ $SoftwareRepoPath = "V:\IT\Software"
 # TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
     "7-Zip" = "7zip", "File compression utility";
+    "ActivityWatch" = "activitywatch", "Time management utility";
     "Adobe Acrobat Reader DC" = "adobereader", "PDF reader. Not usually needed, as web browsers have good integrated pdf readers.";
     "AltDrag" = "altdrag", "For moving windows easily";
     "Anaconda 3 (NOTE!)" = "anaconda3", "NOTE! Comes with lots of libraries. Use Miniconda or regular Python instead, unless you absolutely need this. Installation with Chocolatey does not work with PyCharm without custom symlinks.";
