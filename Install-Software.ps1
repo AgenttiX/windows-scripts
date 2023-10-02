@@ -310,12 +310,12 @@ function Install-Rezonator2 {
     #>
     [OutputType([bool])]
     param(
-        [string]$Version = "2.0.10-beta6"
+        [string]$Version = "2.0.12-beta8"
     )
     Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
     $Filename = "rezonator-${Version}-win-${Bitness}.zip"
-    Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     $DestinationPath = "${Home}\Downloads\reZonator"
     if(-Not (Clear-Path "${DestinationPath}")) {
         return $false
