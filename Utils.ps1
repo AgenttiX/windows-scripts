@@ -352,13 +352,13 @@ function New-Shortcut {
     $WshShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($Path)
     $Shortcut.TargetPath = $TargetPath
-    if ($WorkingDirectory -ne $null) {
+    if (! [string]::IsNullOrEmpty($WorkingDirectory)) {
         $Shortcut.WorkingDirectory = $WorkingDirectory
     }
-    if($Arguments -ne $null) {
+    if (! [string]::IsNullOrEmpty($Arguments)) {
         $Shortcut.Arguments = $Arguments
     }
-    if ($IconLocation -ne $null) {
+    if (! [string]::IsNullOrEmpty($IconLocation)) {
         $Shortcut.IconLocation = $IconLocation
     }
     $Shortcut.Save()

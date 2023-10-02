@@ -613,7 +613,7 @@ if ($Reboot) {
     shutdown /s /t 10 /c "Mika's maintenance script is ready. Shutting down."
 } else {
     if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck).IsRebootPending) {
-        Show-Output -ForegroundColor -Cyan "The computer is pending a reboot. Please reboot the computer, once all the updater windows that are open say that they are ready."
+        Show-Output -ForegroundColor Cyan "The computer is pending a reboot. Please reboot the computer, once all the updater windows that are open say that they are ready."
     }
     Show-Output -ForegroundColor Green "You can now close this window."
 }
