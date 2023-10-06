@@ -67,6 +67,10 @@ $StartPath = Get-Location
 # Define some useful variables
 $RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith(([System.IO.DirectoryInfo]"${env:UserProfile}").FullName)
 
+# Force Invoke-WebRequest to use TLS 1.2 instead of the insecure TLS 1.0, which is the default.
+# https://stackoverflow.com/a/41618979
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 
 function Add-ScriptShortcuts {
     if ($RepoInUserDir) {
@@ -256,7 +260,8 @@ function Install-Chocolatey {
     if($Force -Or (-Not (Test-CommandExists "choco"))) {
         Show-Output "Installing the Chocolatey package manager."
         Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        # This is already configured globally above
+        # [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
     }
 }
