@@ -143,10 +143,10 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
-function Install-BaslerPylon([string]$Version = "7.3.0.27189") {
+function Install-BaslerPylon([string]$Version = "7_4_0_14900") {
     Show-Output "Downloading Basler Pylon Camera Software Suite"
-    $Filename = "Basler_pylon_${Version}.exe"
-    Invoke-WebRequest "https://www.baslerweb.com/fp-1682511107/media/downloads/software/pylon_software/${Filename}" -outFile "${Downloads}\${Filename}"
+    $Filename = "basler_pylon_${Version}.exe"
+    Invoke-WebRequest "https://www2.baslerweb.com/media/downloads/software/pylon_software/${Filename}" -outFile "${Downloads}\${Filename}"
     Show-Output "Installing Basler Pylon Camera Software Suite"
     Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
 }
