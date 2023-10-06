@@ -93,7 +93,7 @@ function Add-ScriptShortcuts {
 
     $WindowsVersion = [System.Environment]::OSVersion.Version.Major
     if ($WindowsVersion -ge 8) {
-        if ((Get-WmiObject Win32_OperatingSystem).Caption -Match "Windows 10") {
+        if ((Get-CimInstance Win32_OperatingSystem).Caption -Match "Windows 10") {
             $WindowsUpdateTargetPath = "ms-settings:windowsupdate-action"
         } else {
             $WindowsUpdateTargetPath = "ms-settings:windowsupdate"
@@ -208,7 +208,7 @@ function Get-IsHeadlessServer {
 function Get-IsServer {
     [OutputType([bool])]
     param()
-    return (Get-WmiObject -Class Win32_OperatingSystem).ProductType -ne 1
+    return (Get-CimInstance -Class Win32_OperatingSystem).ProductType -ne 1
 }
 
 function Get-IsVirtualMachine {
