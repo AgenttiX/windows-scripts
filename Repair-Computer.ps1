@@ -10,6 +10,9 @@ Start-Transcript -Path "${LogPath}\Repair-Computer_$(Get-Date -Format "yyyy-MM-d
 
 Show-Output -ForegroundColor Cyan "Running Mika's repair script."
 
+Show-Output -ForegroundColor Cyan "Ensuring that Windows is activated."
+slmgr /ato
+
 Show-Output -ForegroundColor Cyan "Running Windows System File Checker (SFC)."
 sfc /scannow
 
