@@ -267,8 +267,16 @@ function Install-Chocolatey {
 }
 
 function Install-Geekbench {
+    <#
+    .SYNOPSIS
+        Install the Geekbench performance test benchmarks
+    .LINK
+        https://www.geekbench.com/download/windows/
+    .LINK
+        https://www.geekbench.com/legacy/
+    #>
     param(
-        [string[]]$GeekbenchVersions = @("5.4.4", "4.4.4", "3.4.4", "2.4.3")
+        [string[]]$GeekbenchVersions = @("6.2.1", "5.5.1", "4.4.4", "3.4.4", "2.4.3")
     )
     foreach ($Version in $GeekbenchVersions) {
         Show-Output "Downloading Geekbench ${Version}"
