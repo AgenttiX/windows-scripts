@@ -3,6 +3,13 @@
     Create a connection profile for the Vexlum VPN using a computer that already has the VPN configured.
 .NOTES
     This script cannot be run over Remote Desktop or in a Hyper-V enhanced session.
+
+    If you get the error "A general error occurred that is not covered by a more specific error code.",
+    please see these links and the comments in SecuritySettings.ps1.
+    https://github.com/MicrosoftDocs/windowsserverdocs/issues/6823
+    https://www.reddit.com/r/sysadmin/comments/uyd4rg/aovpn_cimsession_enumerateinstances_fails_with_a/
+    https://directaccess.richardhicks.com/2022/02/07/always-on-vpn-powershell-script-issues-in-windows-11/
+
 .LINK
     https://docs.microsoft.com/en-us/windows-server/remote/remote-access/vpn/always-on-vpn/deploy/vpn-deploy-client-vpn-connections
 #>
