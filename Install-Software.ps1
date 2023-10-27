@@ -115,6 +115,7 @@ $ChocoPrograms = [ordered]@{
     "yt-dlp" = "yt-dlp", "Video downloader for e.g. YouTube";
     "YubiKey Manager" = "yubikey-manager", "Management software for the YubiKey hardware security keys";
     "Zoom" = "zoom", "Video conferencing";
+    "Zotero" = "zotero", "Reference and citation management software";
 }
 $WingetPrograms = [ordered]@{
     "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
