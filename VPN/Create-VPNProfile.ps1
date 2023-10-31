@@ -9,7 +9,7 @@
     https://github.com/MicrosoftDocs/windowsserverdocs/issues/6823
     https://www.reddit.com/r/sysadmin/comments/uyd4rg/aovpn_cimsession_enumerateinstances_fails_with_a/
     https://directaccess.richardhicks.com/2022/02/07/always-on-vpn-powershell-script-issues-in-windows-11/
-
+    https://serverfault.com/questions/1131149/my-win-11-pro-vpn-client-for-ikev2-is-perpetually-broken
 .LINK
     https://docs.microsoft.com/en-us/windows-server/remote/remote-access/vpn/always-on-vpn/deploy/vpn-deploy-client-vpn-connections
 #>
