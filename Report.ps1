@@ -93,7 +93,13 @@ if (Test-CommandExists "netsh") {
 
 if (Test-CommandExists "powercfg") {
     Show-Output "Creating battery report"
-    powercfg /batteryreport /output "${Reports}\battery.html"
+    powercfg /batteryreport /output "${Reports}\powercfg_battery.html"
+    powercfg /devicequery wake_armed > "${Reports}\powercfg_devicequery_wake_armed.txt"
+    powercfg /energy /output "${Reports}\powercfg_energy.html"
+    powercfg /sleepstudy /output "${Reports}\powercfg_sleepstudy.html"
+    powercfg /srumutil /output "${Reports}\powercfg_srumutil.csv" /csv
+    powercfg /systempowerreport /output "${Reports}\powercfg_systempowerreport.html"
+    powercfg /waketimers > "${Reports}\powercfg_waketimers.txt"
 } else {
     Show-Output "The command `"powercfg`" was not found."
 }
