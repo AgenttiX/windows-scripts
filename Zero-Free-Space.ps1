@@ -9,12 +9,13 @@
     Name of the drive to be cleaned
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
     [Parameter(Mandatory=$true)] [string]$DriveLetter,
     [switch]$Elevated
 )
 
-. "./Utils.ps1"
+. "${PSScriptRoot}\Utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 
 if (! (Test-Path "./lib/SDelete")) {

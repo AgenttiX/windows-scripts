@@ -3,13 +3,17 @@
     Utility methods for scripts
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "", Justification="Overriding only for old PowerShell versions")]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "LogPath", Justification="Used in scripts")]
+param()
+
 # Compatibility for old PowerShell versions
 if($PSVersionTable.PSVersion.Major -lt 3) {
     # Configure PSScriptRoot variable for old PowerShell versions
     # https://stackoverflow.com/a/8406946/
     # https://stackoverflow.com/a/5466355/
     $invocation = (Get-Variable MyInvocation).Value
-    $PSScriptRoot = $directorypath = Split-Path $invocation.MyCommand.Path
+    $PSScriptRoot = Split-Path $invocation.MyCommand.Path
 
     # Implement missing features
 
@@ -20,6 +24,7 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
         .LINK
             https://stackoverflow.com/a/43544903
         #>
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidOverwritingBuiltInCmdlets", "", Justification="Overriding only for old PowerShell versions")]
         param(
             [Parameter(Mandatory=$true)][string]$Uri,
             [Parameter(Mandatory=$true)][string]$OutFile
@@ -38,6 +43,7 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
         .LINK
             https://stackoverflow.com/a/54687028
         #>
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidOverwritingBuiltInCmdlets", "", Justification="Overriding only for old PowerShell versions")]
         param(
             [Parameter(Mandatory=$true)][string]$Path,
             [Parameter(Mandatory=$true)][string]$DestinationPath
@@ -54,10 +60,10 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
 $RepoPath = $PSScriptRoot
 
 # Create sub-directories of the repo so that the scripts don't have to create them.
-New-Item -Path "$RepoPath" -Name "downloads" -ItemType "directory" -Force | Out-Null
-New-Item -Path "$RepoPath" -Name "logs" -ItemType "directory" -Force | Out-Null
-$Downloads = "${RepoPath}\downloads"
-$LogPath = "${RepoPath}\logs"
+New-Item -Path "$RepoPath" -Name "Downloads" -ItemType "directory" -Force | Out-Null
+New-Item -Path "$RepoPath" -Name "Logs" -ItemType "directory" -Force | Out-Null
+$Downloads = "${RepoPath}\Downloads"
+$LogPath = "${RepoPath}\Logs"
 
 # Define some useful paths
 $CommonDesktopPath = [Environment]::GetFolderPath("CommonDesktopDirectory")
@@ -67,12 +73,19 @@ $StartPath = Get-Location
 # Define some useful variables
 $RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith(([System.IO.DirectoryInfo]"${env:UserProfile}").FullName)
 
-# Force Invoke-WebRequest to use TLS 1.2 instead of the insecure TLS 1.0, which is the default.
+# Force Invoke-WebRequest to use TLS 1.2 and TLS 1.3 instead of the insecure TLS 1.0, which is the default.
 # https://stackoverflow.com/a/41618979
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+if ([Net.SecurityProtocolType]::Tls13) {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+} else {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+}
 
 
 function Add-ScriptShortcuts {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Plural on purpose")]
+    param()
+
     if ($RepoInUserDir) {
         $BasePath = $DesktopPath
     } else {
@@ -91,7 +104,7 @@ function Add-ScriptShortcuts {
     New-Shortcut -Path $InstallShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Install-Software.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,21" | Out-Null
     # }
     # if(!(Test-Path $MaintenanceShortcutPath)) {
-    New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
+    New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
     # }
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
 
@@ -176,15 +189,15 @@ function Get-InstallBitness {
     param(
         [string]$x86 = "x86",
         [string]$x86_64 = "x86_64",
-        [switch]$Verbose = $true
+        [switch]$Quiet = $false
     )
     if ([System.Environment]::Is64BitOperatingSystem) {
-        if ($Verbose) {
+        if (-not $Quiet) {
             Show-Information "64-bit operating system detected. Installing 64-bit version."
         }
         return $x86_64
     }
-    if ($Verbose) {
+    if (-not $Quiet) {
         Show-Information "32-bit operating system detected. Installing 32-bit version."
     }
     return $x86
@@ -254,6 +267,7 @@ function GitPull {
 }
 
 function Install-Chocolatey {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingInvokeExpression", "", Justification="Chocolatey installation requires Invoke-Expression")]
     param(
         [switch]$Force
     )
@@ -262,7 +276,7 @@ function Install-Chocolatey {
         Set-ExecutionPolicy Bypass -Scope Process -Force
         # This is already configured globally above
         # [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString("https://chocolatey.org/install.ps1"))
     }
 }
 
@@ -390,6 +404,7 @@ function New-Shortcut {
     .LINK
         https://stackoverflow.com/a/9701907
     #>
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory=$true)][string]$Path,
         [Parameter(Mandatory=$true)][string]$TargetPath,
@@ -414,7 +429,9 @@ function New-Shortcut {
     if (! [string]::IsNullOrEmpty($IconLocation)) {
         $Shortcut.IconLocation = $IconLocation
     }
-    $Shortcut.Save()
+    if($PSCmdlet.ShouldProcess($Path, "Save")) {
+        $Shortcut.Save()
+    }
     return $Shortcut
 }
 
@@ -428,6 +445,10 @@ function Request-DomainConnection {
 }
 
 function Set-RepoPermissions {
+    [CmdletBinding(SupportsShouldProcess)]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Plural on purpose")]
+    param()
+
     Import-Module Microsoft.PowerShell.Security
     if ($RepoInUserDir) {
         Show-Output "The repo is installed within the user folder. Ensuring that it's owned by the user."
@@ -439,17 +460,23 @@ function Set-RepoPermissions {
         if ($CurrentOwner -ne $User) {
             Show-Output "The repo is owned by `"${CurrentOwner}`". Changing it to: `"${User}`""
             $ACL.SetOwner($User)
-            $ACL | Set-Acl -Path "${RepoPath}"
+            if($PSCmdlet.ShouldProcess($RepoPath, "Set-Acl")) {
+                $ACL | Set-Acl -Path "${RepoPath}"
+            }
         }
     } else {
         Show-Output "The repo is installed globally. Ensuring that it's protected."
         $ACL = Get-Acl -Path "${env:ProgramFiles}"
-        $ACL | Set-Acl -Path "${RepoPath}"
+        if($PSCmdlet.ShouldProcess($RepoPath, "Set-Acl")) {
+            $ACL | Set-Acl -Path "${RepoPath}"
+        }
         $RepoPathObj = (Get-Item $RepoPath)
         if (($RepoPathObj.Parent.FullName -eq "Git") -and ($RepoPathObj.Parent.Parent.FullName -eq $env:SystemDrive)) {
             Show-Output "The repo is located in the Git folder at the root of the system drive. Protecting the Git folder."
             $ACL = Get-Acl -Path $env:SystemDrive
-            $ACL | Set-Acl -Path $RepoPathObj.Parent
+            if($PSCmdlet.ShouldProcess($RepoPathObj, "Set-Acl")) {
+                $ACL | Set-Acl -Path $RepoPathObj.Parent
+            }
         }
     }
 }
@@ -542,6 +569,7 @@ function Test-Admin {
 }
 
 Function Test-CommandExists {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Not plural")]
     [OutputType([bool])]
     Param(
         [Parameter(Mandatory=$true)][string]$command
@@ -610,6 +638,7 @@ function Update-Repo {
     .SYNOPSIS
         Update the repository if enough time has passed since the previous "git pull"
     #>
+    [CmdletBinding(SupportsShouldProcess)]
     [OutputType([bool])]
     param(
         [TimeSpan]$MaxTimeSpan = (New-TimeSpan -Days 1)
@@ -621,7 +650,9 @@ function Update-Repo {
     $FetchHeadPath = "${RepoPath}\.git\FETCH_HEAD"
     if (!(Test-Path "${FetchHeadPath}")) {
         Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
-        git pull
+        if($PSCmdlet.ShouldProcess($RepoPath, "git pull")) {
+            git pull
+        }
         Show-Output "You may have to restart the script to use the new version."
         # return $true
         return
@@ -638,10 +669,14 @@ function Update-Repo {
             $RepoName = Split-Path "${RepoPath}" -Leaf
             if ((! (Test-Path "${GitConfigPath}")) -or (! (Select-String "${GitConfigPath}" -Pattern "${RepoName}" -SimpleMatch))) {
                 Show-Output "Git config was not found, or it did not contain the repository path. Adding ${RepoPath} as a safe directory."
-                git config --global --add safe.directory "${RepoPath}"
+                if($PSCmdlet.ShouldProcess($RepoPath, "git config")) {
+                    git config --global --add safe.directory "${RepoPath}"
+                }
             }
         }
-        git pull
+        if($PSCmdlet.ShouldProcess($RepoPath, "git pull")) {
+            git pull
+        }
         Show-Output "You may have to restart the script to use the new version."
         # return $true
     }

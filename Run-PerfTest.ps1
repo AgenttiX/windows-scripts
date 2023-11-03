@@ -19,7 +19,7 @@ param(
     [switch]$Unigine
 )
 
-. "./Utils.ps1"
+. "${PSScriptRoot}\Utils.ps1"
 Elevate($MyInvocation.MyCommand.Definition)
 
 Start-Transcript -Path "${LogPath}\perftest_$(Get-Date -Format "yyyy-MM-dd_HH-mm").txt"

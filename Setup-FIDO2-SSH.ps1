@@ -5,14 +5,13 @@
     This parameter is for internal use to check whether an UAC prompt has already been attempted.
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
     [switch]$Elevated
 )
 
-. ".\Utils.ps1"
-
+. "${PSScriptRoot}\Utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
-
 . ".\venv\Scripts\activate.ps1"
 
 Show-Output -ForegroundColor Cyan "Changing the FIDO2 PIN"

@@ -8,21 +8,22 @@
 #>
 
 param(
+    [switch]$Elevated,
     [switch]$NoArchive
 )
 
-. ".\Utils.ps1"
+. "${PSScriptRoot}\Utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
-$Downloads = ".\downloads"
-$Reports = ".\reports"
+# $Downloads = ".\Downloads"
+$Reports = ".\Reports"
 
 function Compress-ReportArchive {
     Show-Output "Creating the report archive"
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
-    Compress-Archive -Path "${Reports}" -DestinationPath ".\reports_${Timestamp}.zip" -CompressionLevel Optimal
+    Compress-Archive -Path "${Reports}" -DestinationPath ".\Reports_${Timestamp}.zip" -CompressionLevel Optimal
 }
 
 if ($OnlyArchive) {
@@ -34,7 +35,7 @@ if ($OnlyArchive) {
 # Initialization
 # -----
 Show-Output "Running Mika's reporting script"
-New-Item -Path "." -Name "reports" -ItemType "directory" -Force | Out-Null
+New-Item -Path "." -Name "Reports" -ItemType "directory" -Force | Out-Null
 
 Show-Output "Removing old reports"
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
@@ -87,7 +88,7 @@ if (Test-CommandExists "gpresult") {
 if (Test-CommandExists "netsh") {
     Show-Output "Creating WiFi report"
     netsh wlan show wlanreport
-    Copy-Item "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html" "${Reports}"
+    Copy-Item "C:\ProgramData\Microsoft\Windows\WlanReport\wlan_report_latest.html" "${Reports}"
 }
 
 if (Test-CommandExists "powercfg") {

@@ -34,8 +34,7 @@ param(
 )
 
 # Load utility functions from another file.
-Set-Location "${PSScriptRoot}"
-. ".\Utils.ps1"
+. "${PSScriptRoot}\Utils.ps1"
 
 if ($Reboot -and $Shutdown) {
     # The Show-Output function is defined in Utils.ps1
@@ -601,7 +600,10 @@ if ($Zerofree) {
     .\zero-free-space.ps1 -DriveLetter "C"
 }
 
+Show-Output -ForegroundColor Cyan "Writing maintenance timestamp."
 Get-Date -Format "o" | Out-File $TimestampPath
+$ThisRunDate = [Datetime](Get-Content $TimestampPath)
+Show-Output -ForegroundColor Cyan "Saved timestamp: ${ThisRunDate}"
 
 Show-Output -ForegroundColor Green "The maintenance script is ready."
 if ($Reboot) {

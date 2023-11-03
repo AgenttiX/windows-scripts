@@ -1,7 +1,7 @@
 Set-StrictMode -Latest
 $ErrorActionPreference = "Stop"
 
-. "$((Get-Item ${PSScriptRoot}).Parent.FullName)/utils.ps1"
+. "$(Join-Path $((Get-Item "${PSScriptRoot}").Parent.FullName) "Utils.ps1")"
 
 Show-Output "Configuring PowerShell profile."
 

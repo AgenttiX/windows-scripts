@@ -5,11 +5,12 @@
     This parameter is for internal use to check whether an UAC prompt has already been attempted.
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
     [switch]$Elevated
 )
 
-. ".\Utils.ps1"
+. "${PSScriptRoot}\Utils.ps1"
 
 if ($RepoInUserDir) {
     Update-Repo
@@ -282,7 +283,7 @@ function Install-OriginViewer {
     Show-Output "Extracting Origin Viewer"
     Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
     $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
-    if ($ExePath -eq $null) {
+    if ($null -eq $ExePath) {
         Show-Information "No exe file was found in the extracted directory." -ForegroundColor Red
         return $false
     }
@@ -392,13 +393,18 @@ function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     }
 }
 
-function Install-ThorlabsKinesis ([string]$Version = "1.14.36", [string]$Version2 = "20973") {
+function Install-ThorlabsKinesis () {
     <#
     .SYNOPSIS
         Install Thorlabs Kinesis
     .LINK
         https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Thorlabs Kinesis is a singular noun")]
+    param(
+        [string]$Version = "1.14.36",
+        [string]$Version2 = "20973"
+    )
     Show-Output "Downloading Thorlabs Kinesis. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
@@ -509,6 +515,9 @@ function CreateTable {
     .LINK
         https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridview
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "e", Justification="Probably used by library code")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "sender", Justification="Probably used by library code")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Form", Justification="Reserved for future use")]
     [OutputType([system.Windows.Forms.DataGridView])]
     param(
         [Parameter(mandatory=$true)][System.Object]$Form,
@@ -707,7 +716,7 @@ if ($WindowsFeaturesSelected.Count) {
     Show-Output "Installing Windows features."
     foreach($feature in $WindowsFeaturesSelected) {
         Show-Output "Installing ${feature}"
-        Enable-WindowsOptionalFeature -Feature "$feature" -Online
+        Enable-WindowsOptionalFeature -FeatureName "$feature" -Online
     }
 } else {
     Show-Output "No Windows features were selected to be installed."

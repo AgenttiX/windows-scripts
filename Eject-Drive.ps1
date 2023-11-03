@@ -8,6 +8,7 @@
     Drive letter
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "DriveLetter", Justification="Set to null on purpose")]
 param(
     [Parameter(Mandatory=$true)][char]$DriveLetter
 )
@@ -16,7 +17,8 @@ param(
 # $driveEject = New-Object -comObject Shell.Application
 # $driveEject.Namespace(17).ParseName("${DriveLetter}:").InvokeVerb("Eject")
 
-$vol = Get-WmiObject -Class Win32_Volume | where{$_.Name -eq "${DriveLetter}:\"}
+# Todo: replace WMI with CIM
+$vol = Get-WmiObject -Class Win32_Volume | Where-Object {$_.Name -eq "${DriveLetter}:\"}
 $vol.DriveLetter = $null
 $vol.Put()
 $vol.Dismount($false, $false)
