@@ -4,5 +4,10 @@
 downloads
 lib
 logs
+obs-studio/crashes
+obs-studio/global.ini
+obs-studio/plugin_config
+obs-studio/profiler_data
+obs-studio/updates
 reports
 reports.zip

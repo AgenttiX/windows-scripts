@@ -343,6 +343,46 @@ function Install-Winget {
     return $false
 }
 
+function New-Junction {
+    <#
+    .SYNOPSIS
+        Create a new directory junction (equivalent to a symlink on Linux)
+    .LINK
+        https://github.com/PowerShell/PowerShell/issues/621
+     #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory=$true)][string]$Path,
+        [Parameter(Mandatory=$true)][string]$Target,
+        [Parameter(Mandatory=$false)][boolean]$Backup = $true,
+        [Parameter(Mandatory=$false)][string]$BackupSuffix = "-old",
+        [Parameter(Mandatory=$false)][string]$BackupPath
+    )
+    if (Test-Path -Path "${Path}") {
+        $LinkType = (Get-Item -Path "${Path}" -Force).LinkType
+        if ($LinkType -or (-not $Backup)) {
+            Show-Output "Removing old junction at `"${Path}`", LinkType=${LinkType}"
+            # The -Recurse argument has to be specified to remove a junction.
+            # They don't remove the actual directory or its contents. Please see the link above.
+            if($PSCmdlet.ShouldProcess($Path, "Remove-Item")) {
+                Remove-Item "${Path}" -Recurse
+            }
+        } else {
+            if (-not $PSBoundParameters.ContainsKey("BackupPath")) {
+                $BackupPath = "${Path}${BackupSuffix}"
+            }
+            Show-Output "Backing up old directory at `"${Path}`" to `"${BackupPath}`""
+            if($PSCmdlet.ShouldProcess($Path, "Move-Item")) {
+                Move-Item -Path "${Path}" -Destination "${BackupPath}"
+            }
+        }
+    }
+    Show-Output "Creating junction from `"${Path}`" to `"${Target}`""
+    if($PSCmdlet.ShouldProcess($Path, "New-Item")) {
+        return New-Item -ItemType "Junction" -Path "${Path}" -Target "${Target}"
+    }
+}
+
 function New-Shortcut {
     <#
     .SYNOPSIS
