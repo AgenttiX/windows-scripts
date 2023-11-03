@@ -588,7 +588,7 @@ function Test-PendingRebootAndExit {
         Show-Output -ForegroundColor Cyan "Ensuring that the PowerShell reboot checker module is installed. You may now be asked whether to install the NuGet package provider. Please select yes."
         Install-Module -Name PendingReboot -Force
     }
-    if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck).IsRebootPending) {
+    if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck -SkipPendingFileRenameOperationsCheck).IsRebootPending) {
         Show-Output -ForegroundColor Cyan "A reboot is already pending. Please close this window, reboot the computer and then run this script again."
         if (! (Get-YesNo "If you are sure you want to continue regardless, please write `"y`" and press enter.")) {
             Exit 0
