@@ -147,18 +147,13 @@ $WindowsFeatures = [ordered]@{
 # Installer functions
 
 function Install-BaslerPylon([string]$Version = "7_4_0_14900") {
-    Show-Output "Downloading Basler Pylon Camera Software Suite"
     $Filename = "basler_pylon_${Version}.exe"
-    Invoke-WebRequest "https://www2.baslerweb.com/media/downloads/software/pylon_software/${Filename}" -outFile "${Downloads}\${Filename}"
-    Show-Output "Installing Basler Pylon Camera Software Suite"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://www2.baslerweb.com/media/downloads/software/pylon_software/${Filename}" -Filename "${Filename}"
 }
 
 function Install-CorelDRAW {
     Show-Output "Downloading CorelDRAW"
-    Invoke-WebRequest -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -OutFile "${Downloads}\CDGS.exe"
-    Show-Output "Installing CorelDRAW"
-    Start-Process -NoNewWindow -Wait "${Downloads}\CDGS.exe"
+    Install-FromUri -Name "CorelDRAW" -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -Filename "CDGS.exe"
 }
 
 function Install-Git {
@@ -177,25 +172,15 @@ function Install-Git {
 }
 
 function Install-IDSPeak ([string]$Version = "2.3.0.0") {
-    Show-Output "Downloading IDS Peak"
     $Folder = "ids-peak-win-${Version}"
     $Filename = "${Folder}.zip"
-    Invoke-WebRequest -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Extracting IDS Peak"
-    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
-    Show-Output "Installing IDS Peak"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\ids_peak_${Version}.exe"
+    Install-FromUri -Name "IDS Peak" -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "ids_peak_${Version}.exe"
 }
 
 function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
-    Show-Output "Downloading IDS Software Suite (µEye)"
     $Folder = "ids-software-suite-win-${Version}"
     $Filename = "${Folder}.zip"
-    Invoke-WebRequest -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Extracting IDS Software Suite (µEye)"
-    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
-    Show-Output "Installing IDS Software Suite (µEye)"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Folder}\uEye_${Version2}.exe"
+    Install-FromUri -Name "IDS Software Suite (µEye)" -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "uEye_${Version2}.exe"
 }
 
 function Install-MeerstetterTEC() {
@@ -205,13 +190,9 @@ function Install-MeerstetterTEC() {
     .LINK
         https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software
     #>
-    Show-Output "Downloading Meerstetter TEC software"
     # Spaces are not allowed in msiexec filenames. Please also see this issue:
     # https://stackoverflow.com/questions/10108517/what-can-cause-msiexec-error-1619-this-installation-package-could-not-be-opened
-    $Filename = "TEC_Software.msi"
-    Invoke-WebRequest -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing Meerstetter TEC software"
-    Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
+    Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -Filename "TEC_Software.msi"
 }
 
 function Install-NI4882 ([string]$Version = "22.8") {
@@ -221,46 +202,36 @@ function Install-NI4882 ([string]$Version = "22.8") {
     .LINK
         https://www.ni.com/fi-fi/support/downloads/drivers/download.ni-488-2.html#467646
     #>
-    Show-Output "Downloading NI 488.2 (GPIB) drivers"
     $Filename = "ni-488.2_${Version}_online.exe"
-    Invoke-WebRequest -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing NI 488.2 (GPIB) drivers"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    Install-FromUri -Name "NI 488.2 (GPIB) drivers" -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -Filename "${Filename}"
 }
 
-function Install-OpenVPN ([string]$Version = "2.5.8", [string]$Version2 = "I604") {
+function Install-OpenVPN {
     <#
     .SYNOPSIS
         Install OpenVPN Community
     .LINK
         https://openvpn.net/community-downloads/
     #>
-    Show-Output "Downloading OpenVPN"
+    [OutputType([int])]
+    param(
+        [string]$Version = "2.5.8",
+        [string]$Version2 = "I604"
+    )
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
     $Filename = "OpenVPN-${Version}-${Version2}-${Arch}.msi"
-    Invoke-WebRequest -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -OutFile "${Downloads}\${Filename}"
-    Start-Process -NoNewWindow -Wait "msiexec" -ArgumentList "/i","${Downloads}\${Filename}"
+    Install-FromUri -Name "OpenVPN" -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -Filename "${Filename}"
 }
 
 function Install-OriginLab {
     <#
         Install the full version of OriginLab
     #>
-    [OutputType([bool])]
+    [OutputType([int])]
     param(
         [string]$Version = "Origin2022bSr1No_H"
     )
-    Show-Output "Searching for OriginLab from the network drive."
-    $FilePath = "${SoftwareRepoPath}\Origin\${Version}\setup.exe"
-    if (-not (Test-Path "$FilePath")) {
-        Show-Output "The OriginLab installer was not found. Do you have the network drive mounted?"
-        Show-Output "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
-        gpupdate /force
-        return $false
-    }
-    Show-Output "OriginLab installer found. Installing."
-    Start-Process -NoNewWindow -Wait "$FilePath"
-    return $true
+    return Install-Executable -Name "OriginLab" -Path "${SoftwareRepoPath}\Origin\${Version}\setup.exe"
 }
 
 function Install-OriginViewer {
@@ -275,7 +246,7 @@ function Install-OriginViewer {
     Show-Output "Downloading Origin Viewer"
     $Arch = Get-InstallBitness -x86 "" -x86_64 "_64"
     $Filename = "OriginViewer${Arch}.zip"
-    Invoke-WebRequest -Uri "https://www.originlab.com/ftp/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequestFast -Uri "https://www.originlab.com/ftp/${Filename}" -OutFile "${Downloads}\${Filename}"
     $DestinationPath = "${Home}\Downloads\Origin Viewer"
     if(-Not (Clear-Path "${DestinationPath}")) {
         return $false
@@ -298,11 +269,8 @@ function Install-Rezonator1([string]$Version = "1.7.116.375") {
     .LINK
         http://rezonator.orion-project.org/?page=dload
     #>
-    Show-Output "Downloading reZonator 1"
     $Filename = "rezonator-${Version}.exe"
-    Invoke-WebRequest -Uri "http://rezonator.orion-project.org/files/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing reZonator 1"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    Install-FromUri -Name "reZonator 1" -Uri "http://rezonator.orion-project.org/files/${Filename}" -Filename "${Filename}"
 }
 
 function Install-Rezonator2 {
@@ -319,7 +287,7 @@ function Install-Rezonator2 {
     Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
     $Filename = "rezonator-${Version}-win-${Bitness}.zip"
-    Invoke-WebRequest -Uri "https://github.com/orion-project/rezonator2/releases/download/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequestFast -Uri "https://github.com/orion-project/rezonator2/releases/download/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     $DestinationPath = "${Home}\Downloads\reZonator"
     if(-Not (Clear-Path "${DestinationPath}")) {
         return $false
@@ -331,11 +299,8 @@ function Install-Rezonator2 {
 }
 
 function Install-SNLO ([string]$Version = "78") {
-    Show-Output "Downloading SNLO"
     $Filename = "SNLO-v${Version}.exe"
-    Invoke-WebRequest -Uri "https://as-photonics.com/snlo_files/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing SNLO"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}"
 }
 
 function Install-StarLab {
@@ -345,11 +310,8 @@ function Install-StarLab {
     .LINK
         https://www.ophiropt.com/laser--measurement/software/starlab-for-usb
     #>
-    Show-Output "Downloading Ophir StarLab"
     $Filename="StarLab_Setup.exe"
-    Invoke-WebRequest -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing Ophir StarLab"
-    Start-Process -NoNewWindow -Wait "${Downloads}\${Filename}"
+    Install-FromUri -Name "Ophir StarLab" -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -Filename "${Filename}"
 }
 
 function Install-ThorCam ([string]$Version = "3.7.0.6") {
@@ -365,7 +327,7 @@ function Install-ThorCam ([string]$Version = "3.7.0.6") {
     $FilenameLocal = "Thorlabs Scientific Imaging Software ${Arch}.exe"
     # The "FireFox" typo is by Microsoft itself.
     # $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
-    Invoke-WebRequest -Uri "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}" -OutFile "${Downloads}\${FilenameLocal}" # -UserAgent $UserAgent
+    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}" -OutFile "${Downloads}\${FilenameLocal}" # -UserAgent $UserAgent
     Show-Output "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}"
     Show-Output "Installing Thorlabs ThorCam"
     $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${FilenameLocal}"
@@ -384,7 +346,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     Show-Output "Downloading Thorlabs Beam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Folder = "Thorlabs_Beam_${Version}"
     $Filename = "Thorlabs_Beam_${Version}.zip"
-    Invoke-WebRequest -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Beam"
     Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
     $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
@@ -393,7 +355,7 @@ function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     }
 }
 
-function Install-ThorlabsKinesis () {
+function Install-ThorlabsKinesis {
     <#
     .SYNOPSIS
         Install Thorlabs Kinesis
@@ -408,7 +370,7 @@ function Install-ThorlabsKinesis () {
     Show-Output "Downloading Thorlabs Kinesis. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
     $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
-    Invoke-WebRequest -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
+    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
     Show-Output "Installing Thorlabs Kinesis"
     $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
     if ($Process.ExitCode -ne 0) {
@@ -439,17 +401,30 @@ function Install-VeecoVision {
         Show-Output "Installing Veeco (Wyko) Vision update"
         Start-Process -NoNewWindow -Wait "${Downloads}\Vision64 5.51 Update 3\CD\Vision64_5.51_Update_3.EXE"
     } else {
-        Show-Output "Veeco (Wyko) Vision update was not found. Has the file been moved?"
+        Show-Output -ForegroundColor Red "Veeco (Wyko) Vision update was not found. Has the file been moved?"
         return 2
     }
     return 0
 }
+
 function Install-WSL {
     if (Test-CommandExists "wsl") {
         Show-Output "Installing Windows Subsystem for Linux (WSL), version >= 2"
         wsl --install
     } else {
-        Show-Output "The installer command for Windows Subsystem for Linux (WSL) was not found. Are you running an old version of Windows?"
+        Show-Output -ForegroundColor Red "The installer command for Windows Subsystem for Linux (WSL) was not found. Are you running an old version of Windows?"
+    }
+}
+
+function Install-Xeneth {
+    [OutputType([int])]
+    param()
+    $Bitness = Get-InstallBitness -x86 "" -x86_64 "64"
+    $FilePath = Resolve-Path "${SoftwareRepoPath}\Xenics\BOBCAT*\Software\Xeneth-Setup${Bitness}.exe"
+    if (Test-Path "${FilePath}") {
+        return Install-Executable -Name "Xeneth" -Path "${FilePath}"
+    } else {
+        Show-Output -ForegroundColor Red "Xeneth installer was not found. Has the file been moved?"
     }
 }
 
@@ -477,6 +452,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
+    "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
 }
 
 # Function definitions should be after the loading of utilities

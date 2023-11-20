@@ -280,6 +280,72 @@ function Install-Chocolatey {
     }
 }
 
+function Install-Executable {
+    [OutputType([int])]
+    param(
+        [string]$Name,
+        [string]$Path
+    )
+    try {
+        $File = Get-Item "${Path}" -ErrorAction Stop
+    } catch {
+        if ($Path.StartsWith("${RepoPath}")) {
+            Show-Output -ForegroundColor Red "${Name} installer was not found at ${Path}. Do you have the network drive mounted?"
+            Show-Output -ForegroundColor Red "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
+            gpupdate /force
+        } else {
+            Show-Output -ForegroundColor Red "${Name} installer was not found at ${Path}."
+        }
+        return 1
+    }
+    Show-Output "Installing ${Name}"
+    if ($File.Extension -eq ".msi") {
+        $Process = Start-Process -NoNewWindow -Wait -PassThru "msiexec" -ArgumentList "/i","${Path}"
+    } else {
+        $Process = Start-Process -NoNewWindow -Wait -PassThru "${Path}"
+    }
+    $ExitCode = $Process.ExitCode
+    if ($ExitCode -ne 0) {
+        Show-Output -ForegroundColor Red "${Name} installation returned non-zero exit code ${ExitCode}. Perhaps the installation failed?"
+    }
+    return $ExitCode
+}
+
+function Install-FromUri {
+    [OutputType([int])]
+    param(
+        [Parameter(mandatory=$true)][string]$Name,
+        [Parameter(mandatory=$true)][string]$Uri,
+        [Parameter(mandatory=$true)][string]$Filename,
+        [Parameter(mandatory=$false)][string]$UnzipFolderName,
+        [Parameter(mandatory=$false)][string]$UnzippedFilePath
+    )
+    Show-Output "Downloading ${Name}"
+    $Path = "${Downloads}\${Filename}"
+    Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
+    try {
+        $File = Get-Item "${Path}" -ErrorAction Stop
+    } catch {
+        Show-Output "Downloaded file was not found at ${Path}"
+        return 1
+    }
+    if ($File.Extension -eq ".zip") {
+        if (-not $PSBoundParameters.ContainsKey("UnzipFolderName")) {
+            Show-Output -ForegroundColor Red "UnzipFolderName was not provided for a zip file."
+            return 1
+        }
+        if (-not $PSBoundParameters.ContainsKey("UnzippedFilePath")) {
+            Show-Output -ForegroundColor Red "UnzippedFilePath was not provided for a zip file."
+            return 1
+        }
+        Show-Output "Extracting ${Name}"
+        Expand-Archive -Path "${Path}" -DestinationPath "${Downloads}\${UnzipFolderName}"
+        Install-Executable -Name "${Name}" -Path "${Downloads}\${UnzipFolderName}\${UnzippedFilePath}"
+    } else {
+        Install-Executable -Name "${Name}" -Path "${Downloads}\${Filename}"
+    }
+}
+
 function Install-Geekbench {
     <#
     .SYNOPSIS
@@ -355,6 +421,30 @@ function Install-Winget {
     }
     Show-Output "Cannot install App Installer, as Microsoft Store appears not to be installed. This is normal on servers. Winget will not be available."
     return $false
+}
+
+function Invoke-WebRequestFast {
+    <#
+    .SYNOPSIS
+        Invoke-WebRequest but without the progress bar that slows it down
+    .LINK
+        https://github.com/PowerShell/PowerShell/issues/13414
+    .LINK
+        https://learn.microsoft.com/en-us/virtualization/community/team-blog/2017/20171219-tar-and-curl-come-to-windows
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$Uri,
+        [Parameter(Mandatory=$true)][string]$OutFile
+    )
+    if (Test-CommandExists "curl.exe") {
+        # The --http3 argument is not supported on Windows 11 22H2
+        curl.exe --url "${Uri}" --output "${OutFile}" --tlsv1.2 --http2
+    } else {
+        $PreviousProgressPreference = $ProgressPreference
+        $ProgressPreference = "SilentlyContinue"
+        Invoke-WebRequest -Uri $Uri -OutFile $OutFile
+        $ProgressPreference = $PreviousProgressPreference
+    }
 }
 
 function New-Junction {
