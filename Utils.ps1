@@ -437,8 +437,9 @@ function Invoke-WebRequestFast {
         [Parameter(Mandatory=$true)][string]$OutFile
     )
     if (Test-CommandExists "curl.exe") {
-        # The --http3 argument is not supported on Windows 11 22H2
-        curl.exe --url "${Uri}" --output "${OutFile}" --tlsv1.2 --http2
+        # The --http2 and --http3 arguments are not supported on Windows 11 22H2
+        # https://github.com/microsoft/WSL/issues/3141
+        curl.exe --url "${Uri}" --output "${OutFile}" --tlsv1.2
     } else {
         $PreviousProgressPreference = $ProgressPreference
         $ProgressPreference = "SilentlyContinue"

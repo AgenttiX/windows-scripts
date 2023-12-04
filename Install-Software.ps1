@@ -152,8 +152,11 @@ function Install-BaslerPylon([string]$Version = "7_4_0_14900") {
 }
 
 function Install-CorelDRAW {
-    Show-Output "Downloading CorelDRAW"
     Install-FromUri -Name "CorelDRAW" -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -Filename "CDGS.exe"
+}
+
+function Install-Eduroam {
+    Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
 }
 
 function Install-Git {
@@ -431,6 +434,7 @@ function Install-Xeneth {
 $OtherOperations = [ordered]@{
     "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
     "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
+    "Eduroam" = ${function:Install-Eduroam}, "University Wi-Fi";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
