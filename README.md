@@ -6,9 +6,11 @@ These installation instructions are for users that have not used command line be
 If you are familiar with Git and PowerShell, you can clone and use the repository as you like instead of following these instructions.
 
 First check whether the scripts have already been installed on your computer.
-This can be done by checking whether there is a folder `Git\windows-scripts` in your home directory.
-The full path to this folder should be something like `C:\Users\<username>\Git\windows-scripts`.
-If this folder exists, move on to the usage instructions.
+This can be done by checking whether there is a folder `Git\windows-scripts` in your home directory,
+or in the root of your C drive.
+The full path to this folder should be something like
+`C:\Users\<username>\Git\windows-scripts` or `C:\Git\windows-scripts`.
+If this folder exists, move on to the [usage instructions](#usage-instructions).
 If it does not exist, please continue these installation instructions.
 
 To ease the setting up of these scripts on your computer, I have created an installation script.
@@ -17,14 +19,21 @@ To download it, right-click
 and select "Save link as..." to save the file to a directory of your choice.
 Then right-click the downloaded file and select "Run as administrator".
 This should open a command-line window and setup the scripts and their dependencies for you.
+
 If you get a Windows SmartScreen error saying that the file is blocked,
 you have to unblock it by right-clicking the downloaded file and selecting Properties,
 and then checking the checkbox named Unblock at the bottom of the window.
 Then click OK and run the script again.
-Due to various settings and configurations, you may have to run the script up to three times for it to work properly.
-Once the setup is complete, you can find the scripts in the directory `Git\windows-scripts` within your user folder (usually `C:\Users\<username>`).
+
+Once the setup is complete, you can find the scripts in the directory
+`Git\windows-scripts` within your user folder (usually `C:\Users\<username>`) if you chose per-user installation,
+or at `C:\Git\windows-scripts` if you chose global installation.
 
 ## Usage instructions
+Following the installation instructions should have created desktop icons for the installer and maintenance scripts.
+You can run these simply by double-clicking them.
+
+To run the other scripts, please follow these instructions.
 Most of these scripts are
 [PowerShell](https://en.wikipedia.org/wiki/PowerShell)
 scripts, which cannot be run by simply clicking them for security reasons.
