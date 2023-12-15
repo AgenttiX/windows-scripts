@@ -62,6 +62,7 @@ $ChocoPrograms = [ordered]@{
     "Firefox" = "firefox", "Web browser";
     "GIMP" = "gimp", "Image editor";
     # "Git" = "git", "Version control";
+    "GNU Octave" = "octave", "Free MATLAB alternative";
     "Inkscape" = "inkscape", "Vector graphics editor";
     "Intel Driver & Support Assistant" = "intel-dsa", "Intel driver updater";
     "Jellyfin" = "jellyfin-media-player", "Jellyfin client for playing media from a self-hosted server";
