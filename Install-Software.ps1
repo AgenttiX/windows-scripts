@@ -286,7 +286,7 @@ function Install-Rezonator2 {
     #>
     [OutputType([bool])]
     param(
-        [string]$Version = "2.0.12-beta8"
+        [string]$Version = "2.0.13-beta9"
     )
     Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
@@ -314,8 +314,8 @@ function Install-StarLab {
     .LINK
         https://www.ophiropt.com/laser--measurement/software/starlab-for-usb
     #>
-    $Filename="StarLab_Setup.exe"
-    Install-FromUri -Name "Ophir StarLab" -Uri "https://www.ophiropt.com/laser/register_files/${Filename}" -Filename "${Filename}"
+    $Filename="StarLab.zip"
+    Install-FromUri -Name "Ophir StarLab" -Uri "https://www.ophiropt.com/mam/celum/celum_assets/op/resources/${Filename}" -Filename "${Filename}" -UnzipFolderName "StarLab" -UnzippedFilePath "StarLab_Setup.exe"
 }
 
 function Install-ThorCam ([string]$Version = "3.7.0.6") {
@@ -449,8 +449,8 @@ $OtherOperations = [ordered]@{
     "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
     "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
-    "Rezonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
-    "Rezonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
+    "reZonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
+    "reZonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
     "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
     "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
