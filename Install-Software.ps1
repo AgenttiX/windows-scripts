@@ -210,7 +210,7 @@ function Install-MeerstetterTEC() {
     Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -Filename "TEC_Software.msi"
 }
 
-function Install-NI4882 ([string]$Version = "22.8") {
+function Install-NI4882 ([string]$Version = "23.5") {
     <#
     .SYNOPSIS
         Install National Instruments NI-488.2
