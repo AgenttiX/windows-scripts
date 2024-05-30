@@ -187,6 +187,17 @@ function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version
     Install-FromUri -Name "IDS Software Suite (µEye)" -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "uEye_${Version2}.exe"
 }
 
+function Install-LabVIEWRuntime ([string]$Version = "24.1") {
+    $Filename ="ni-labview-2024-runtime-engine_${Version}_online.exe"
+    Install-FromUri -Name "LabVIEW Runtime" -Uri "https://download.ni.com/support/nipkg/products/ni-l/ni-labview-2024-runtime-engine/${Version}/online/${Filename}" -Filename "${Filename}"
+}
+
+function Install-LabVIEWRuntime2014SP1 {
+    $Folder = "LVRTE2014SP1_f11Patch-64std"
+    $Filename = "${Folder}.zip"
+    Install-FromUri -Name "LabVIEW Runtime 2014 SP1" -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe"
+}
+
 function Install-MeerstetterTEC() {
     <#
     .SYNOPSIS
@@ -452,6 +463,8 @@ $OtherOperations = [ordered]@{
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
+    # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
+    # "LabVIEW Runtime 2014 SP1" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
     # OpenVPN is also available from Chocolatey.
