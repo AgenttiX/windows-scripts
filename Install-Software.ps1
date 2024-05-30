@@ -411,6 +411,18 @@ function Install-VeecoVision {
     return 0
 }
 
+function Install-WithSecure {
+    $FilePath = "${SoftwareRepoPath}\WithSecure\ElementsAgentInstaller*.exe"
+    if (Test-Path "${FilePath}") {
+        Show-Output "Installing WithSecure Elements Agent"
+        Start-Process -NoNewWindow -Wait "${FilePath}"
+    } else {
+        Show-Output -ForegroundColor Red "WithSecure Elements Agent installer was not found. Has the file been moved?"
+        return 1
+    }
+    return 0
+}
+
 function Install-WSL {
     if (Test-CommandExists "wsl") {
         Show-Output "Installing Windows Subsystem for Linux (WSL), version >= 2"
@@ -457,6 +469,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
+    "WithSecure Elements Agent" = ${function:Install-WithSecure}, "Anti-virus. Requires a license.";
     "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
 }
 
