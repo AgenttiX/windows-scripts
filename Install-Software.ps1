@@ -193,12 +193,20 @@ function Install-LabVIEWRuntime ([string]$Version = "24.1") {
 }
 
 function Install-LabVIEWRuntime2014SP1 {
-    $Folder = "LVRTE2014SP1_f11Patch-64std"
+    <#
+    .SYNOPSIS
+        Install LabVIEW Runtime 2014 SP1 32-bit
+    .LINK
+        https://www.ni.com/en/support/downloads/software-products/download.labview-runtime.html#306243
+    .DESCRIPTION
+        Required for SSMbe
+    #>
+    $Folder = "LVRTE2014SP1_f11Patchstd"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "LabVIEW Runtime 2014 SP1" -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe"
+    Install-FromUri -Name "LabVIEW Runtime 2014 SP1 32-bit" -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe" -SHA256 "2c54ab5169dd0cc9f14a7b0057881207b6f76e065c7c78bb8c898ac9c5ca0831"
 }
 
-function Install-MeerstetterTEC() {
+function Install-MeerstetterTEC {
     <#
     .SYNOPSIS
         Install Meerstetter TEC Software
@@ -219,6 +227,23 @@ function Install-NI4882 ([string]$Version = "23.5") {
     #>
     $Filename = "ni-488.2_${Version}_online.exe"
     Install-FromUri -Name "NI 488.2 (GPIB) drivers" -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -Filename "${Filename}"
+}
+
+function Install-NI-VISA1401Runtime {
+    <#
+    .SYNOPSIS
+        Install NI-VISA 14.0.1 Runtime
+    .LINK
+        https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html#306102
+    .DESCRIPTION
+        Required for SSMbe.
+        LabVIEW (runtime) should be installed first,
+        but this is automatically the case when installing both at the same time with this script,
+        since LabVIEW comes alphabetically first.
+    #>
+    $Folder = "NIVISA1401runtime"
+    $Filename = "${Folder}.zip"
+    Install-FromUri -Name "NI-VISA 14.0.1 Runtime" -Uri "https://download.ni.com/support/softlib/visa/VISA%20Run-Time%20Engine/14.0.1/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe" -SHA256 "960e0f68ab7dbff286ba8ac2286d4e883f02f9390c2a033b433005e29fb93e72"
 }
 
 function Install-OpenVPN {
@@ -464,9 +489,10 @@ $OtherOperations = [ordered]@{
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
     # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
-    # "LabVIEW Runtime 2014 SP1" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
+    "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
-    "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers";
+    "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers. Includes NI-VISA.";
+    "NI-VISA 14.0.1 Runtime" = ${function:Install-NI-VISA1401Runtime}, "Required for SSMbe (it requires this specific older version instead of the latest)";
     # OpenVPN is also available from Chocolatey.
     # Use this manual version only when the package version in Chocolatey is too old.
     # "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
