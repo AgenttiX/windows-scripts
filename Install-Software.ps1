@@ -343,6 +343,22 @@ function Install-SNLO ([string]$Version = "78") {
     Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}"
 }
 
+function Install-SSMbe ([string]$Version = "20160525") {
+    $FolderName = "SSMbe_exe_20160525"
+    $FilePath = "${SoftwareRepoPath}\SS10-1 MBE software\${FolderName}.zip"
+    $DestinationPath = "${Downloads}\SS10-1 MBE software"
+    if (-Not (Clear-Path "${DestinationPath}")) {
+        return $false
+    }
+    if (Test-Path $FilePath) {
+        Expand-Archive -Path "${FilePath}" -DestinationPath "${DestinationPath}"
+    } else {
+        Show-Output -ForegroundColor Red "SSMbe installer was not found."
+    }
+    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\SSMbe.lnk" -TargetPath "${DestinationPath}\${FolderName}\SSMbe.exe"
+    return $true
+}
+
 function Install-StarLab {
     <#
     .SYNOPSIS
@@ -503,6 +519,7 @@ $OtherOperations = [ordered]@{
     "reZonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "reZonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
     "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
+    "SSMbe (NOTE!)" = ${function:Install-SSMbe}, "Control software for the SS10-1 MBE reactor. NOTE! Also install the LabVIEW Runtime and NI-VISA dependencies.";
     "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
