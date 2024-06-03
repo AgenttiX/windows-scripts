@@ -318,7 +318,9 @@ function Install-FromUri {
         [Parameter(mandatory=$true)][string]$Uri,
         [Parameter(mandatory=$true)][string]$Filename,
         [Parameter(mandatory=$false)][string]$UnzipFolderName,
-        [Parameter(mandatory=$false)][string]$UnzippedFilePath
+        [Parameter(mandatory=$false)][string]$UnzippedFilePath,
+        [Parameter(mandatory=$false)][string]$MD5,
+        [Parameter(mandatory=$false)][string]$SHA256
     )
     Show-Output "Downloading ${Name}"
     $Path = "${Downloads}\${Filename}"
@@ -328,6 +330,23 @@ function Install-FromUri {
     } catch {
         Show-Output "Downloaded file was not found at ${Path}"
         return 1
+    }
+    if ($PSBoundParameters.ContainsKey("SHA256")) {
+        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
+        if ($FileHash -eq $SHA256) {
+            Show-Output "SHA256 checksum OK"
+        } else {
+            Show-Output -ForegroundColor Red "Downloaded file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
+            return 1
+        }
+    } elseif ($PSBoundParameters.ContainsKey("MD5")) {
+        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
+        if ($FileHash -eq $MD5) {
+            Show-Output "MD5 checksum OK"
+        } else {
+            Show-Output -ForegroundColor Red "Downloaded file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
+            return 1
+        }
     }
     if ($File.Extension -eq ".zip") {
         if (-not $PSBoundParameters.ContainsKey("UnzipFolderName")) {
