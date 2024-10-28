@@ -467,6 +467,11 @@ function Install-VeecoVision {
     return 0
 }
 
+function Install-Wavesquared ([string]$Version = "4.4.2.25284") {
+    # https://jrsoftware.org/ishelp/index.php?topic=setupcmdline
+    Start-Process -NoNewWindow -Wait "${SoftwareRepoPath}\Imagine Optic\wavesquared_${Version}\WaveSuite_setup.exe"
+}
+
 function Install-WithSecure {
     $FilePath = "${SoftwareRepoPath}\WithSecure\ElementsAgentInstaller*.exe"
     if (Test-Path "${FilePath}") {
@@ -528,6 +533,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
+    "Wavesquared" = ${function:Install-Wavesquared}, "M2 factor analysis software";
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
     "WithSecure Elements Agent" = ${function:Install-WithSecure}, "Anti-virus. Requires a license.";
     "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
