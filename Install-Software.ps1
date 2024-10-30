@@ -438,6 +438,22 @@ function Install-ThorlabsKinesis {
     }
 }
 
+function Install-VCU {
+    [OutputType([int])]
+    param(
+        [string]$Version = "0.13.40"
+    )
+    $FilePath = "${SoftwareRepoPath}\VCU\VCU_GUI_Setup_${Version}.exe"
+    if (Test-Path "$FilePath") {
+        Show-Output "Installing VCU GUI"
+        Start-Process -NoNewWindow -Wait "$FilePath"
+    } else {
+        Show-Output "The VCU GUI installer was not found. Is the network drive mounted?"
+        return 1
+    }
+    return 0
+}
+
 function Install-VeecoVision {
     [OutputType([int])]
     param()
@@ -532,6 +548,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
+    "VCU" = ${function:Install-VCU}, "VCU GUI";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
     "Wavesquared" = ${function:Install-Wavesquared}, "M2 factor analysis software";
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
