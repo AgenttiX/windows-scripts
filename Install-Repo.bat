@@ -63,10 +63,8 @@ IF exist %BASEPATH%\Git\windows-scripts (
     git clone "https://github.com/AgenttiX/windows-scripts"
 )
 
-IF "%GLOBALINSTALL%"=="0" (
-	echo Marking the repository directory to be safe for Git.
-	git config --global --add safe.directory %USERPROFILE%\Git\windows-scripts
-)
+echo Marking the repository directory to be safe for Git.
+git config --global --add safe.directory %BASEPATH%\Git\windows-scripts
 
 echo Creating shortcuts and scheduled task
 powershell -File %BASEPATH%\Git\windows-scripts\Maintenance.ps1 -SetupOnly
