@@ -1,3 +1,5 @@
+# This file gets loaded by both PowerShell and PowerShell ISE
+
 function Enable-SSHAgent {
     . "${env:ProgramFiles}\Git\cmd\start-ssh-agent.cmd"
 }
@@ -9,5 +11,5 @@ function Enable-SSHAgent {
 # See https://ch0.co/tab-completion for details.
 $ChocolateyProfile = "${env:ChocolateyInstall}\helpers\chocolateyProfile.psm1"
 if (Test-Path("${ChocolateyProfile}")) {
-  Import-Module "${ChocolateyProfile}"
+    Import-Module "${ChocolateyProfile}"
 }
