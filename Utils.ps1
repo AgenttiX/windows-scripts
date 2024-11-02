@@ -695,11 +695,13 @@ Function Test-CommandExists {
 }
 
 function Test-PendingRebootAndExit {
-    if (Test-CommandExists "Install-Module") {
-        Show-Output -ForegroundColor Cyan "Ensuring that the PowerShell reboot checker module is installed. You may now be asked whether to install the NuGet package provider. Please select yes."
-        Install-Module -Name PendingReboot -Force
-    }
-    if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck -SkipPendingFileRenameOperationsCheck).IsRebootPending) {
+    # The PendingReboot module gives false positives about the need to reboot.
+    # if (Test-CommandExists "Install-Module") {
+    #     Show-Output -ForegroundColor Cyan "Ensuring that the PowerShell reboot checker module is installed. You may now be asked whether to install the NuGet package provider. Please select yes."
+    #     Install-Module -Name PendingReboot -Force
+    # }
+    # if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck -SkipPendingFileRenameOperationsCheck).IsRebootPending) {
+    if (Test-RebootPending) {
         Show-Output -ForegroundColor Cyan "A reboot is already pending. Please close this window, reboot the computer and then run this script again."
         if (! (Get-YesNo "If you are sure you want to continue regardless, please write `"y`" and press enter.")) {
             Exit 0
@@ -707,42 +709,42 @@ function Test-PendingRebootAndExit {
     }
 }
 
-# function Test-RebootPending {
-#     <#
-#     .SYNOPSIS
-#         Test whether the computer has a reboot pending.
-#     .LINK
-#         https://4sysops.com/archives/use-powershell-to-test-if-a-windows-server-is-pending-a-reboot/
-#     #>
-#     [OutputType([bool])]
-#     $pendingRebootTests = @(
-#         @{
-#             Name = "RebootPending"
-#             Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing" -Name "RebootPending" -ErrorAction Ignore }
-#             TestType = "ValueExists"
-#         }
-#         @{
-#             Name = "RebootRequired"
-#             Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" -Name "RebootRequired" -ErrorAction Ignore }
-#             TestType = "ValueExists"
-#         }
-#         @{
-#             Name = "PendingFileRenameOperations"
-#             Test = { Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "PendingFileRenameOperations" -ErrorAction Ignore }
-#             TestType = "NonNullValue"
-#         }
-#     )
-#     foreach ($test in $pendingRebootTests) {
-#         $result = Invoke-Command -ScriptBlock $test.Test
-#         if ($test.TestType -eq "ValueExists" -and $result) {
-#             return $true
-#         } elseif ($test.TestType -eq "NonNullValue" -and $result -and $result.($test.Name)) {
-#             return $true
-#         } else {
-#             return $false
-#         }
-#     }
-# }
+function Test-RebootPending {
+    <#
+    .SYNOPSIS
+        Test whether the computer has a reboot pending. The name is chosen not to conflict with the PendingReboot PowerShell module.
+    .LINK
+        https://4sysops.com/archives/use-powershell-to-test-if-a-windows-server-is-pending-a-reboot/
+    #>
+    [OutputType([bool])]
+    $pendingRebootTests = @(
+        @{
+            Name = "RebootPending"
+            Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing" -Name "RebootPending" -ErrorAction Ignore }
+            TestType = "ValueExists"
+        }
+        @{
+            Name = "RebootRequired"
+            Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" -Name "RebootRequired" -ErrorAction Ignore }
+            TestType = "ValueExists"
+        }
+        @{
+            Name = "PendingFileRenameOperations"
+            Test = { Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "PendingFileRenameOperations" -ErrorAction Ignore }
+            TestType = "NonNullValue"
+        }
+    )
+    foreach ($test in $pendingRebootTests) {
+        $result = Invoke-Command -ScriptBlock $test.Test
+        if ($test.TestType -eq "ValueExists" -and $result) {
+            return $true
+        } elseif ($test.TestType -eq "NonNullValue" -and $result -and $result.($test.Name)) {
+            return $true
+        } else {
+            return $false
+        }
+    }
+}
 
 function Update-Repo {
     <#
