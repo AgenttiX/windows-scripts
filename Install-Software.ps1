@@ -816,7 +816,7 @@ if ($OtherSelected.Count) {
     Show-Output "No other operations were selected."
 }
 
-if ((Test-CommandExists "Test-PendingReboot") -and (Test-PendingReboot -SkipConfigurationManagerClientCheck -SkipPendingFileRenameOperationsCheck).IsRebootPending) {
+if (Test-RebootPending) {
     Show-Output -ForegroundColor Cyan "The computer is pending a reboot. Please reboot the computer."
 }
 Show-Output -ForegroundColor Green "The installation script is ready. You can now close this window."
