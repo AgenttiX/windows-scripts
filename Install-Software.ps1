@@ -58,6 +58,7 @@ $ChocoPrograms = [ordered]@{
     "DisplayCal" = "displaycal", "Display calibration utility";
     "Docker Desktop (NOTE!)" = "docker-desktop", "Container platform. NOTE! Windows Subsystem for Linux 2 (WSL 2) has to be installed before installing this";
     "EA App" = "ea-app", "Game store";
+    "eDrawings Viewer" = "edrawings-viewer", "2D & 3D CAD viewer";
     "Epic Games Launcher" = "epicgameslauncher", "Game store";
     "Firefox" = "firefox", "Web browser";
     "GIMP" = "gimp", "Image editor";
