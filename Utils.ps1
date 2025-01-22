@@ -73,6 +73,9 @@ $StartPath = Get-Location
 # Define some useful variables
 $RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith(([System.IO.DirectoryInfo]"${env:UserProfile}").FullName)
 
+# This will be filled by Get-InstalledSoftware
+$InstalledSoftware = $null
+
 # Force Invoke-WebRequest to use TLS 1.2 and TLS 1.3 instead of the insecure TLS 1.0, which is the default.
 # https://stackoverflow.com/a/41618979
 if ([Net.SecurityProtocolType]::Tls13) {
@@ -201,6 +204,25 @@ function Get-InstallBitness {
         Show-Information "32-bit operating system detected. Installing 32-bit version."
     }
     return $x86
+}
+
+function Get-InstalledSoftware {
+    <#
+    .SYNOPSIS
+        Get a list of installed software.
+    .NOTES
+        This uses Win32_Product, which is abysmally slow. Find a better method if possible.
+        Unfortunately, Get-Product does not work in PowerShell 7.
+    .LINK
+        https://gregramsey.net/2012/02/20/win32_product-is-evil/
+    #>
+    [OutputType([System.Array])]
+    param()
+    if ($script:InstalledSoftware -eq $null) {
+        Show-Information "Getting the list of installed software. This may take a while."
+        $script:InstalledSoftware = Get-CimInstance -ClassName Win32_Product
+    }
+    return $script:InstalledSoftware
 }
 
 function Get-IsDomainJoined {

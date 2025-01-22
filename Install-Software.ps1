@@ -155,6 +155,19 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
+function Install-AtostekID([string]$Version = "4.1.1.0") {
+    # Get-Package does not work on PowerShell 7
+    $DigiSign =  Get-InstalledSoftware | Where-Object {$_.Name -eq "mPollux DigiSign Client"}
+    if ($DigiSign) {
+        Show-Output "Fujitsu mPollux DigiSign Client found. Uninstalling."
+        Invoke-CimMethod -InputObject $DigiSign -MethodName Uninstall
+    } else {
+        Show-Output "Fujitsu mPollux DigiSign Client was not found, so there's no need to uninstall it before installing Atostek ID."
+    }
+    $Filename = "AtostekID_WIN_${Version}.msi"
+    Install-FromUri -Name "Atostek ID" -Uri "https://dvv.fi/documents/16079645/228119190/${Version}/1e0a06cd-ec87-a27c-ad91-2c84ee963aae?t=1732880016778" -Filename "${Filename}"
+}
+
 function Install-BaslerPylon([string]$Version = "7_4_0_14900") {
     $Filename = "basler_pylon_${Version}.exe"
     Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://www2.baslerweb.com/media/downloads/software/pylon_software/${Filename}" -Filename "${Filename}"
@@ -164,10 +177,10 @@ function Install-CorelDRAW {
     Install-FromUri -Name "CorelDRAW" -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -Filename "CDGS.exe"
 }
 
-function Install-DigiSign([string]$Version = "4.3.0(8707)") {
-    $Filename = "DigiSignClient_for_dvv_${Version}.exe"
-    Install-FromUri -Name "Fujitsu mPollux DigiSign" -Uri "https://dvv.fi/documents/16079645/216375523/${Filename}" -Filename "${Filename}"
-}
+# function Install-DigiSign([string]$Version = "4.3.0(8707)") {
+#     $Filename = "DigiSignClient_for_dvv_${Version}.exe"
+#     Install-FromUri -Name "Fujitsu mPollux DigiSign" -Uri "https://dvv.fi/documents/16079645/216375523/${Filename}" -Filename "${Filename}"
+# }
 
 function Install-Eduroam {
     Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
@@ -531,10 +544,11 @@ function Install-Xeneth {
 }
 
 $OtherOperations = [ordered]@{
+    "Atostek ID" = ${function:Install-AtostekID}, "Card reader software for Finnish identity cards";
     "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
     "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
     "Eduroam" = ${function:Install-Eduroam}, "University Wi-Fi";
-    "Fujitsu mPollux DigiSign" = ${function:Install-DigiSign}, "Card reader software for Finnish identity cards";
+    # "Fujitsu mPollux DigiSign" = ${function:Install-DigiSign}, "Card reader software for Finnish identity cards";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
