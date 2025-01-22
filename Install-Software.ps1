@@ -92,6 +92,7 @@ $ChocoPrograms = [ordered]@{
     "Plexamp" = "plexamp", "Plex client for playing music from a self-hosted server";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
+    "PuTTY" = "putty", "SSH, Telnet and serial port terminal client";
     "PyCharm Community" = "pycharm-community", "Python IDE";
     "PyCharm Professional" = "pycharm", "Professional Python IDE, requires a license";
     "Python (NOTE!)" = "python", "NOTE! This will be updated automatically in the future, which may break installed libraries and virtualenvs.";
