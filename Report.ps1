@@ -93,6 +93,7 @@ if (Test-CommandExists "netsh") {
 
 if (Test-CommandExists "powercfg") {
     Show-Output "Creating battery report"
+    powercfg /availablesleepstates > "${Reports}\powercfg_sleepstates.html"
     powercfg /batteryreport /output "${Reports}\powercfg_battery.html"
     powercfg /devicequery wake_armed > "${Reports}\powercfg_devicequery_wake_armed.txt"
     powercfg /energy /output "${Reports}\powercfg_energy.html"
