@@ -30,6 +30,17 @@ if ( $Reply -match "[yY]" ) {
     Show-Output -ForegroundColor Cyan "Interpreting answer as a no. Skipping DISM repair."
 }
 
+Show-Output "Running DISM component store analysis."
+Dism /Online /Cleanup-Image /AnalyzeComponentStore
+
+$Reply = Read-Host -Prompt "Do you want to run DISM start component cleanup? If no errors were found by the DISM analysis above, this is not needed."
+if ( $Reply -match "[yY]" ) {
+    Show-Output -ForegroundColor Cyan "Running DISM start component cleanup."
+    DISM.exe /Online /Cleanup-Image /StartComponentCleanup
+} else {
+    Show-Output -ForegroundColor Cyan "Interpreting answer as a no. Skipping DISM start component cleanup."
+}
+
 Show-Output -ForegroundColor Cyan "Running CHKDSK."
 chkdsk /R
 
