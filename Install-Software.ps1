@@ -67,6 +67,7 @@ $ChocoPrograms = [ordered]@{
     "ImageJ" = "imagej", "Image processing and analysis software";
     "Inkscape" = "inkscape", "Vector graphics editor";
     "Intel Driver & Support Assistant" = "intel-dsa", "Intel driver updater";
+    "Java Runtime (JRE) 8" = "javaruntime", "Required for running Java-based applications";
     "Jellyfin" = "jellyfin-media-player", "Jellyfin client for playing media from a self-hosted server";
     "KeePassXC" = "keepassxc", "Password manager";
     "KLayout" = "klayout", "Lithography mask editor";
