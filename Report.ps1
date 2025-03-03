@@ -21,7 +21,7 @@ $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 $Reports = "${PSScriptRoot}\Reports"
 
 function Compress-ReportArchive {
-    Show-Output "Creating the report archive"
+    Show-Output "Creating the report archive."
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
     Compress-Archive -Path "${Reports}" -DestinationPath "${DesktopPath}\IT_report_${Timestamp}.zip" -CompressionLevel Optimal
 }
@@ -34,10 +34,10 @@ if ($OnlyArchive) {
 # -----
 # Initialization
 # -----
-Show-Output "Running Mika's reporting script"
+Show-Output "Running Mika's reporting script."
 New-Item -Path "." -Name "Reports" -ItemType "directory" -Force | Out-Null
 
-Show-Output "Removing old reports"
+Show-Output "Removing old reports."
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
 
 # -----
@@ -69,7 +69,7 @@ if (Test-CommandExists "choco") {
 }
 
 if (Test-CommandExists "dxdiag") {
-    Show-Output "Creating DirectX reports"
+    Show-Output "Creating DirectX reports."
     dxdiag /x "${Reports}\dxdiag.xml"
     dxdiag /t "${Reports}\dxdiag.txt"
     dxdiag /x "${Reports}\dxdiag-whql.xml" /whql:on
@@ -86,7 +86,7 @@ if (Test-CommandExists "gpresult") {
 }
 
 if (Test-CommandExists "netsh") {
-    Show-Output "Creating WLAN report"
+    Show-Output "Creating WLAN report."
     netsh wlan show wlanreport
     $WlanReportPath1 = "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html"
     $WlanReportPath2 = "C:\ProgramData\Microsoft\Windows\WlanReport\wlan_report_latest.html"
@@ -100,7 +100,7 @@ if (Test-CommandExists "netsh") {
 }
 
 if (Test-CommandExists "powercfg") {
-    Show-Output "Creating battery report"
+    Show-Output "Creating battery report."
     powercfg /availablesleepstates > "${Reports}\powercfg_sleepstates.html"
     powercfg /batteryreport /output "${Reports}\powercfg_battery.html"
     powercfg /devicequery wake_armed > "${Reports}\powercfg_devicequery_wake_armed.txt"
