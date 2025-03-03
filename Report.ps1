@@ -18,12 +18,12 @@ Elevate($myinvocation.MyCommand.Definition)
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
 # $Downloads = ".\Downloads"
-$Reports = ".\Reports"
+$Reports = "${PSScriptRoot}\Reports"
 
 function Compress-ReportArchive {
     Show-Output "Creating the report archive"
     $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
-    Compress-Archive -Path "${Reports}" -DestinationPath ".\Reports_${Timestamp}.zip" -CompressionLevel Optimal
+    Compress-Archive -Path "${Reports}" -DestinationPath "${DesktopPath}\IT_report_${Timestamp}.zip" -CompressionLevel Optimal
 }
 
 if ($OnlyArchive) {
@@ -46,7 +46,7 @@ Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
 Show-Output "Creating report of installed Windows Store apps."
 Get-AppxPackage > "${Reports}\appx_packages.txt"
 
-Show-Output "Checking Windows Experience Index"
+Show-Output "Checking Windows Experience Index."
 Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
 
 Show-Output "Creating report of basic computer info."
@@ -86,9 +86,17 @@ if (Test-CommandExists "gpresult") {
 }
 
 if (Test-CommandExists "netsh") {
-    Show-Output "Creating WiFi report"
+    Show-Output "Creating WLAN report"
     netsh wlan show wlanreport
-    Copy-Item "C:\ProgramData\Microsoft\Windows\WlanReport\wlan_report_latest.html" "${Reports}"
+    $WlanReportPath1 = "C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-latest.html"
+    $WlanReportPath2 = "C:\ProgramData\Microsoft\Windows\WlanReport\wlan_report_latest.html"
+    if (Test-Path "${WlanReportPath1}") {
+        Copy-Item "${WlanReportPath1}" "${Reports}"
+    } elseif (Test-path "${WlanReportPath2}") {
+        Copy-Item "${WlanReportPath2}" "${Reports}"
+    } else {
+        Show-Output -ForegroundColor Red "The WLAN report was not found."
+    }
 }
 
 if (Test-CommandExists "powercfg") {
@@ -126,7 +134,7 @@ if (Test-Path $PTS) {
 if (-not $NoArchive) {
     Compress-ReportArchive
     Show-Output "The reporting script is ready." -ForegroundColor Green
-    Show-Output 'The reports can be found in the "reports" subfolder, and in the corresponding zip file.' -ForegroundColor Green
-    Show-Output "If Mika requested you to run this script, please send the reports.zip file to him." -ForegroundColor Green
+    Show-Output "The reports can be found in the zip file on your desktop, and at `"${RepoPath}\Reports`"." -ForegroundColor Green
+    Show-Output "If Mika requested you to run this script, please send the zip file to him." -ForegroundColor Green
     Show-Output "You can close this window now." -ForegroundColor Green
 }
