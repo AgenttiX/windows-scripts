@@ -101,6 +101,7 @@ function Add-ScriptShortcuts {
     $InstallShortcutPath = "${BasePath}\Installer.lnk"
     $MaintenanceShortcutPath = "${BasePath}\Maintenance.lnk"
     $WindowsUpdateShortcutPath = "${BasePath}\Windows Update.lnk"
+    $ReportShortcutPath = "${BasePath}\Create IT report.lnk"
     $RepoShortcutPath = "${BasePath}\windows-scripts.lnk"
 
     # if(!(Test-Path $InstallShortcutPath)) {
@@ -109,6 +110,7 @@ function Add-ScriptShortcuts {
     # if(!(Test-Path $MaintenanceShortcutPath)) {
     New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
     # }
+    New-Shortcut -Path $ReportShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Report.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,1" | Out-Null
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
 
     $WindowsVersion = [System.Environment]::OSVersion.Version.Major
