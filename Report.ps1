@@ -87,7 +87,7 @@ if (Test-CommandExists "gpresult") {
 
 if (Test-CommandExists "manage-bde") {
     manage-bde -status > "${Reports}\manage-bde.txt"
-else {
+} else {
     Show-Output "The command `"manage-bde`" was not found."
 }
 
