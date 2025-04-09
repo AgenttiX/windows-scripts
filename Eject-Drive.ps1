@@ -9,7 +9,7 @@
     Drive letter, e.g. C
 #>
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWMICmdlet", "Get-WmiObject", Justification="Used on purpose since the WMI object does not have the proper methods")]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWMICmdlet", "", Justification="Used on purpose since the WMI object does not have the proper methods")]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "DriveLetter", Justification="Set to null on purpose")]
 param(
     [Parameter(Mandatory=$true)][char]$DriveLetter
