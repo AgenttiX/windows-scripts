@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
@@ -24,7 +25,18 @@ jobs:
           } else {
               Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
           }
-#  test-windows:
-#    name: Test on Windows
-#    runs-on: windows-latest
-#    steps:
+  report:
+    name: Run reporting script
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run reporting script
+        run: .\Report.ps1
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Report
+          path: Reports
+          if-no-files-found: error
