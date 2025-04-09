@@ -7,6 +7,7 @@
     Only create the archive from existing reports. This is useful if you have generated additional reports after this script.
 #>
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
     [switch]$Elevated,
     [switch]$NoArchive

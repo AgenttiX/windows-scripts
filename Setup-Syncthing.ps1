@@ -20,7 +20,7 @@ choco install syncthing -y
 $Domain = Get-ADDomain
 $AccountName = "svc-$("${env:ComputerName}".ToLower())-sync"
 $AccountFullName = "$($Domain.NetBIOSName)\${AccountName}"
-echo "Using account name: ${AccountName}"
+Show-Output "Using account name: ${AccountName}"
 
 try {
     # Get-LocalUser "Syncthing"

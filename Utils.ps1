@@ -220,7 +220,7 @@ function Get-InstalledSoftware {
     #>
     [OutputType([System.Array])]
     param()
-    if ($script:InstalledSoftware -eq $null) {
+    if ($null -eq $script:InstalledSoftware) {
         Show-Information "Getting the list of installed software. This may take a while."
         $script:InstalledSoftware = Get-CimInstance -ClassName Win32_Product
     }
@@ -336,6 +336,7 @@ function Install-Executable {
 }
 
 function Install-FromUri {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingBrokenHashAlgorithms", "", Justification="Legacy MD5 support is on purpose for backwards compatibility")]
     [OutputType([int])]
     param(
         [Parameter(mandatory=$true)][string]$Name,

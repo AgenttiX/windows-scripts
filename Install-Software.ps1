@@ -617,6 +617,7 @@ function CreateTable {
     .LINK
         https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridview
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "sender", Justification="Probably used by library code")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "e", Justification="Probably used by library code")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "sender", Justification="Probably used by library code")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Form", Justification="Reserved for future use")]
