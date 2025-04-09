@@ -85,6 +85,12 @@ if (Test-CommandExists "gpresult") {
     Show-Output "The command `"gpresult`" was not found."
 }
 
+if (Test-CommandExists "manage-bde") {
+    manage-bde -status > "${Reports}\manage-bde.txt"
+else {
+    Show-Output "The command `"manage-bde`" was not found."
+}
+
 if (Test-CommandExists "netsh") {
     Show-Output "Creating WLAN report."
     netsh wlan show wlanreport
@@ -97,6 +103,8 @@ if (Test-CommandExists "netsh") {
     } else {
         Show-Output -ForegroundColor Red "The WLAN report was not found."
     }
+} else {
+    Show-Output "The command `"netsh`" was not found."
 }
 
 if (Test-CommandExists "powercfg") {
