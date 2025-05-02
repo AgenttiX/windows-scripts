@@ -169,9 +169,9 @@ function Install-AtostekID([string]$Version = "4.1.1.0") {
     Install-FromUri -Name "Atostek ID" -Uri "https://dvv.fi/documents/16079645/228119190/${Version}/1e0a06cd-ec87-a27c-ad91-2c84ee963aae?t=1732880016778" -Filename "${Filename}"
 }
 
-function Install-BaslerPylon([string]$Version = "7_4_0_14900") {
-    $Filename = "basler_pylon_${Version}.exe"
-    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://www2.baslerweb.com/media/downloads/software/pylon_software/${Filename}" -Filename "${Filename}"
+function Install-BaslerPylon([string]$Version = "8.1.0") {
+    $Filename = "Basler%20pylon%20${Version}.exe"
+    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://downloadbsl.blob.core.windows.net/software/${Filename}" -Filename "${Filename}"
 }
 
 function Install-CorelDRAW {
