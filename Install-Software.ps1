@@ -434,7 +434,23 @@ function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
     Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
     $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
     if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "Thorlabs Beam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+        Show-Output -ForegroundColor Red "Thorlabs Beam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Beam manually from the Thorlabs website."
+    }
+}
+
+function Install-ThorlabsElliptec ([string]$Version = "1.6.4") {
+    <#
+    .SYNOPSIS
+        Install Thorlabs Elliptec software
+    .LINK
+        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ELL
+    #>
+    Show-Output "Downloading Thorlabs Beam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
+    $Filename = "Thorlabs_Elliptec_${Version}.exe"
+    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/Software/Elliptec/Application/V${Version}/ELLO%20Install%20x64/setup.exe" -OutFile "${Downloads}\${Filename}"
+    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
+    if ($Process.ExitCode -ne 0) {
+        Show-Output -ForegroundColor Red "Thorlabs Elliptec installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Elliptec manually from the Thorlabs website."
     }
 }
 
@@ -457,7 +473,7 @@ function Install-ThorlabsKinesis {
     Show-Output "Installing Thorlabs Kinesis"
     $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
     if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "Thorlabs Kinesis installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+        Show-Output -ForegroundColor Red "Thorlabs Kinesis installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Kinesis manually from the Thorlabs website."
     }
 }
 
@@ -572,6 +588,7 @@ $OtherOperations = [ordered]@{
     "SSMbe (NOTE!)" = ${function:Install-SSMbe}, "Control software for the SS10-1 MBE reactor. NOTE! Also install the LabVIEW Runtime and NI-VISA dependencies.";
     "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
+    "Thorlabs Elliptec" = ${function:Install-ThorlabsElliptec}, "Driver for Thorlabs Elliptec stages and mounts";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "VCU" = ${function:Install-VCU}, "VCU GUI";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
