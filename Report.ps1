@@ -115,6 +115,10 @@ if (Test-CommandExists "powercfg") {
     powercfg /batteryreport /output "${Reports}\powercfg_battery.html"
     powercfg /devicequery wake_armed > "${Reports}\powercfg_devicequery_wake_armed.txt"
     powercfg /energy /output "${Reports}\powercfg_energy.html"
+    powercfg /getactivescheme > "${Reports}\powercfg_activescheme.txt"
+    powercfg /lastwake > "${Reports}\powercfg_lastwake.txt"
+    powercfg /list > "${Reports}\powercfg_list.txt"
+    powercfg /provisioningxml /output "${Reports}\powercfg_provisioning.xml"
     powercfg /sleepstudy /output "${Reports}\powercfg_sleepstudy.html"
     powercfg /srumutil /output "${Reports}\powercfg_srumutil.csv" /csv
     powercfg /systempowerreport /output "${Reports}\powercfg_systempowerreport.html"
