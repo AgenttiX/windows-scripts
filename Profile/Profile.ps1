@@ -27,3 +27,14 @@ if ($SSHAgentStarted -or (-not [Environment]::GetEnvironmentVariable("SSH_AUTH_S
 if ($SSHAgentStarted) {
     & "${Env:USERPROFILE}\Git\private-scripts\ssh\Setup-Agent.ps1" | Out-Null
 }
+
+if ($env:ComputerName -eq "agx-z2e-win") {
+    function Set-Monitors($Name) {
+        $FilePath = "${PSScriptRoot}\DisplayConfig\${Name}.xml"
+        if (Test-Path $FilePath) {
+            Import-Module DisplayConfig
+        } else {
+            Write-Information "The monitor configuration was not found at `"${FilePath}`"".
+        }
+    }
+}

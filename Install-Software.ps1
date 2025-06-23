@@ -37,6 +37,10 @@ Add-ScriptShortcuts
 Set-RepoPermissions
 Test-PendingRebootAndExit
 
+if ($env:ComputerName -eq "agx-z2e-win") {
+	Install-Module DisplayConfig
+}
+
 # Global variables
 $GlobalHeight = 800;
 $GlobalWidth = 700;
