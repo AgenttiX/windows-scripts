@@ -10,6 +10,7 @@ obs-studio/global.ini
 obs-studio/plugin_config
 obs-studio/profiler_data
 obs-studio/updates
+obs-studio/user.ini
 reports
 reports.zip
 venv
