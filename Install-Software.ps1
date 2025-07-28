@@ -82,6 +82,8 @@ $ChocoPrograms = [ordered]@{
     "Mattermost" = "mattermost-desktop", "Messaging app for teams and organizations (open source Slack alternative)";
     "Microsoft Teams" = "microsoft-teams", "Instant messaging and video conferencing platform";
     "MiKTeX" = "miktex", "LaTeX environment";
+    # Minecraft should be installed from the Microsoft Store to enable automatic updates.
+    # "Minecraft" = "minecraft-launcher", "The classic sandbox game";
     "Miniconda 3 (NOTE!)" = "miniconda3", "Anaconda package manager and Python 3 without the pre-installed libraries. NOTE! Installation with Chocolatey does not work with PyCharm without custom symlinks.";
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
