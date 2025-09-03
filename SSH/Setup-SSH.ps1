@@ -18,6 +18,13 @@ if (-not (Test-Path "${ConfigDir}")) {
     Write-Host "The SSH configuration was not found at ${ConfigDir}"
     return
 }
+
+$ControlMasterDir = "${ConfigDir}\controlmasters"
+if (-not (Test-Path "${ControlMasterDir}")) {
+    Write-Host "The SSH ControlMasters directory was not found. Creating it at `"${ControlMasterDir}`"."
+    New-Item -Path "${ControlMasterDir}" -ItemType "directory"
+}
+
 $SSHDir = "${HOME}\.ssh"
 
 # This should be as early as possible to avoid loading the function definitions etc. twice.
