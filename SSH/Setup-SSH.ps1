@@ -38,6 +38,9 @@ $SSHDir = "${HOME}\.ssh"
 Show-Output "Creating junction to SSH config directory."
 New-Junction -Path "${SSHDir}" -Target "${ConfigDir}"
 
+Show-Output "Creating junction to SSH config.d directory."
+New-Junction -Path "${ConfigDir}\config.d" -Target "${GitPath}\linux-scripts\ssh\config.d"
+
 # $Service = Get-Service -Name "ssh-agent" -ErrorAction SilentlyContinue
 # if ($Service.Length -gt 0) {
 #     Remove-Service -Name "ssh-agent"
