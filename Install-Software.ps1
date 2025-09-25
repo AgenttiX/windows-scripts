@@ -45,6 +45,7 @@ if ($env:ComputerName -eq "agx-z2e-win") {
 $GlobalHeight = 800;
 $GlobalWidth = 700;
 $SoftwareRepoPath = "V:\IT\Software"
+$ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
 
 # TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
@@ -242,6 +243,31 @@ function Install-LabVIEWRuntime2014SP1 {
     Install-FromUri -Name "LabVIEW Runtime 2014 SP1 32-bit" -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe" -SHA256 "2c54ab5169dd0cc9f14a7b0057881207b6f76e065c7c78bb8c898ac9c5ca0831"
 }
 
+function Install-LenovoSuperIOFirmware {
+    [OutputType([int])]
+    param()
+    # Lenovo ThinkStation P330 Tiny
+    if ($ComputerSystem.Model -eq "30CES0B200") {
+        $InstallerPath = "${SoftwareRepoPath}\Lenovo\P330 Tiny\Firmware\Lenovo Super IO Firmware\m1uct18usa.exe"
+        $ScriptDir = "${env:SystemDrive}\SWTOOLS\M1UCT18USA"
+        $ScriptPath = "${ScriptDir}\Flash64.cmd"
+        if (Test-Path "$InstallerPath") {
+            Start-Process -NoNewWindow -Wait "$InstallerPath" -ArgumentList "/silent"
+            if (! (Get-YesNo "Did you see the firmware being updated in addition to the flasher being installed?")) {
+                Show-Output "Since the firmware was not yet updated, updating it now."
+                Start-Process -NoNewWindow -Wait "cmd.exe" -ArgumentList "/c","cd ${ScriptDir} && ${ScriptPath}"
+            }
+        } else {
+            Show-Output "The Lenovo Super IO firmware installer was not found. Is the network drive mounted?"
+            return 1
+        }
+    } else {
+        Show-Output -ForegroundColor Red "No Lenovo Super IO firmware has been configured for your computer model `"$ComputerSystem.Model`"."
+        return 1
+    }
+    return 0
+}
+
 function Install-MeerstetterTEC {
     <#
     .SYNOPSIS
@@ -252,6 +278,25 @@ function Install-MeerstetterTEC {
     # Spaces are not allowed in msiexec filenames. Please also see this issue:
     # https://stackoverflow.com/questions/10108517/what-can-cause-msiexec-error-1619-this-installation-package-could-not-be-opened
     Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -Filename "TEC_Software.msi"
+}
+
+function Install-MEFirmware {
+    [OutputType([int])]
+    param()
+    # Lenovo ThinkStation P330 Tiny
+    if ($ComputerSystem.Model -eq "30CES0B200") {
+        $FilePath = "${SoftwareRepoPath}\Lenovo\P330 Tiny\Firmware\Intel ME Firmware\12.0.90.2072_corporate.exe"
+        if (Test-Path "$FilePath") {
+            Start-Process -NoNewWindow -Wait "$FilePath" -ArgumentList "/silent"
+        } else {
+            Show-Output "The Intel ME firmware installer was not found. Is the network drive mounted?"
+            return 1
+        }
+    } else {
+        Show-Output -ForegroundColor Red "No Intel ME firmware has been configured for your computer model `"$ComputerSystem.Model`"."
+        return 1
+    }
+    return 0
 }
 
 function Install-NI4882 ([string]$Version = "23.5") {
@@ -579,8 +624,10 @@ $OtherOperations = [ordered]@{
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
+    "Intel ME firmware" = ${function:Install-MEFirmware}, "Intel Management Engine firmware";
     # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
     "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
+    "Lenovo Super IO firmware" = ${function:Install-LenovoSuperIOFirmware}, "Firmware for the IO chip on Lenovo motherboards"
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers. Includes NI-VISA.";
     "NI-VISA 14.0.1 Runtime" = ${function:Install-NI-VISA1401Runtime}, "Required for SSMbe (it requires this specific older version instead of the latest)";
