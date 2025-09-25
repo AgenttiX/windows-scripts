@@ -168,7 +168,7 @@ $WindowsFeatures = [ordered]@{
 
 function Install-AtostekID([string]$Version = "4.1.1.0") {
     # Get-Package does not work on PowerShell 7
-    $DigiSign =  Get-InstalledSoftware | Where-Object {$_.Name -eq "mPollux DigiSign Client"}
+    $DigiSign = Get-InstalledSoftware | Where-Object {$_.Name -eq "mPollux DigiSign Client"}
     if ($DigiSign) {
         Show-Output "Fujitsu mPollux DigiSign Client found. Uninstalling."
         Invoke-CimMethod -InputObject $DigiSign -MethodName Uninstall
@@ -249,7 +249,7 @@ function Install-LenovoSuperIOFirmware {
     # Lenovo ThinkStation P330 Tiny
     if ($ComputerSystem.Model -eq "30CES0B200") {
         $InstallerPath = "${SoftwareRepoPath}\Lenovo\P330 Tiny\Firmware\Lenovo Super IO Firmware\m1uct18usa.exe"
-        $ScriptDir = "${env:SystemDrive}\SWTOOLS\M1UCT18USA"
+        $ScriptDir = "${env:SystemDrive}\SWTOOLS\FLASH\M1UCT18USA"
         $ScriptPath = "${ScriptDir}\Flash64.cmd"
         if (Test-Path "$InstallerPath") {
             Start-Process -NoNewWindow -Wait "$InstallerPath" -ArgumentList "/silent"
@@ -391,6 +391,7 @@ function Install-Rezonator1([string]$Version = "1.7.116.375") {
         http://rezonator.orion-project.org/?page=dload
     #>
     $Filename = "rezonator-${Version}.exe"
+    # The reZonator web page does not support HTTPS.
     Install-FromUri -Name "reZonator 1" -Uri "http://rezonator.orion-project.org/files/${Filename}" -Filename "${Filename}"
 }
 
@@ -627,7 +628,7 @@ $OtherOperations = [ordered]@{
     "Intel ME firmware" = ${function:Install-MEFirmware}, "Intel Management Engine firmware";
     # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
     "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
-    "Lenovo Super IO firmware" = ${function:Install-LenovoSuperIOFirmware}, "Firmware for the IO chip on Lenovo motherboards"
+    "Lenovo Super IO firmware" = ${function:Install-LenovoSuperIOFirmware}, "Firmware for the IO chip on Lenovo motherboards";
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers. Includes NI-VISA.";
     "NI-VISA 14.0.1 Runtime" = ${function:Install-NI-VISA1401Runtime}, "Required for SSMbe (it requires this specific older version instead of the latest)";

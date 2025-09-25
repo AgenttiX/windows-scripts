@@ -513,7 +513,7 @@ function New-Junction {
         if ($LinkType -or (-not $Backup)) {
             Show-Output "Removing old junction at `"${Path}`", LinkType=${LinkType}"
             # The -Recurse argument has to be specified to remove a junction.
-            # They don't remove the actual directory or its contents. Please see the link above.
+            # This doesn't remove the actual directory or its contents. Please see the link above.
             if($PSCmdlet.ShouldProcess($Path, "Remove-Item")) {
                 Remove-Item "${Path}" -Recurse
             }
