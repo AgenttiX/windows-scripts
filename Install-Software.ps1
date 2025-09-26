@@ -661,6 +661,9 @@ $OtherOperations = [ordered]@{
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
     "WithSecure Elements Agent" = ${function:Install-WithSecure}, "Anti-virus. Requires a license.";
     "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
+    # These are the last on purpose
+    "Maintenance" = "${PSScriptRoot}\Maintenance.ps1", "Run the maintenance script";
+    "Report" = "${PSScriptRoot}\Report.ps1", "Run the reporting script";
 }
 
 #####
@@ -888,6 +891,7 @@ function Select-CommonDefaults {
         $CommonDefaultChocoPrograms += "Intel Driver & Support Assistant"
     }
     Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names $CommonDefaultChocoPrograms
+    Select-Cells -View $OtherOperationsView -Dict $OtherOperations -Names @("Maintenance")
 }
 
 function Select-LabDefaults {
