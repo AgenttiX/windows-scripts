@@ -808,7 +808,7 @@ function Select-Cells {
         [Parameter(mandatory=$true)][string[]]$Names
     )
     foreach ($Name in $Names) {
-        $Index = $Dict.Keys.IndexOf($Name)
+        $Index = @($Dict.Keys).IndexOf($Name)
         $View.rows[$Index].Cells[0].Value = $true
     }
 }
