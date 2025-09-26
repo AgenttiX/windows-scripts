@@ -10,6 +10,10 @@ param(
     [switch]$Elevated
 )
 
+#####
+# Script startup
+#####
+
 . "${PSScriptRoot}\Utils.ps1"
 
 if ($RepoInUserDir) {
@@ -46,6 +50,10 @@ $GlobalHeight = 800;
 $GlobalWidth = 700;
 $SoftwareRepoPath = "V:\IT\Software"
 $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
+
+#####
+# Installer definitions
+#####
 
 # TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
@@ -655,8 +663,12 @@ $OtherOperations = [ordered]@{
     "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
 }
 
+#####
+# GUI functions
+#####
+
 # Function definitions should be after the loading of utilities
-function CreateList {
+function New-List {
     <#
     .SYNOPSIS
         Create a GUI element for selecting options from a list with checkboxes
@@ -684,7 +696,8 @@ function CreateList {
     $List.Height = $Options.Count * 17 + 18;
     return $List;
 }
-function CreateTable {
+
+function New-Table {
     <#
     .SYNOPSIS
         Create a GUI element for selecting items from a list with checboxes
@@ -774,7 +787,8 @@ function CreateTable {
 
     return $View;
 }
-function GetSelectedCommands {
+
+function Get-SelectedCommands {
     [OutputType([string[]])]
     param(
         [Parameter(mandatory=$true)][system.Windows.Forms.DataGridView]$View
@@ -787,7 +801,21 @@ function GetSelectedCommands {
     return $commands;
 }
 
-# Script starts here
+function Select-Cells {
+    param(
+        [Parameter(mandatory=$true)][system.Windows.Forms.DataGridView]$View,
+        [Parameter(mandatory=$true)][System.Collections.Specialized.OrderedDictionary]$Dict,
+        [Parameter(mandatory=$true)][string[]]$Names
+    )
+    foreach ($Name in $Names) {
+        $Index = $Dict.Keys.IndexOf($Name)
+        $View.rows[$Index].Cells[0].Value = $true
+    }
+}
+
+#####
+# Create the GUI
+#####
 
 Install-Chocolatey
 Install-Winget
@@ -797,28 +825,30 @@ Add-Type -AssemblyName System.Windows.Forms;
 
 # Create the Form
 $Form = New-Object -TypeName System.Windows.Forms.Form;
-$Form.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$AllDirectionsAnchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$Form.Anchor = $AllDirectionsAnchor
 # $Form.AutoSize = $true;
 # $Form.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowAndShrink;
 $Form.Text = "Mika's installer script"
 $Form.MinimumSize = New-Object System.Drawing.Size($GlobalWidth, $GlobalHeight);
 
 $Layout = New-Object System.Windows.Forms.TableLayoutPanel;
-$Layout.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$Layout.Anchor = $AllDirectionsAnchor
 # $Layout.AutoSize = $true;
 # $Layout.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowAndShrink;
 # $Layout.BorderStyle = [System.Windows.Forms.BorderStyle]::Fixed3D;
 $Layout.RowCount = 6;
 $Form.Controls.Add($Layout);
 
-$ChocoProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Chocolatey)" -Data $ChocoPrograms;
-$WingetProgramsView = CreateTable -Form $Form -Parent $Layout -Title "Centrally updated programs (Winget)" -Data $WingetPrograms;
+# Create grid views
+$ChocoProgramsView = New-Table -Form $Form -Parent $Layout -Title "Centrally updated programs (Chocolatey)" -Data $ChocoPrograms;
+$WingetProgramsView = New-Table -Form $Form -Parent $Layout -Title "Centrally updated programs (Winget)" -Data $WingetPrograms;
 $WingetProgramsView.Height = 50;
-$WindowsCapabilitiesView = CreateTable -Form $Form -Parent $Layout -Title "Windows capabilities" -Data $WindowsCapabilities;
+$WindowsCapabilitiesView = New-Table -Form $Form -Parent $Layout -Title "Windows capabilities" -Data $WindowsCapabilities;
 $WindowsCapabilitiesView.Height = 150;
-$WindowsFeaturesView = CreateTable -Form $Form -Parent $Layout -Title "Windows features" -Data $WindowsFeatures;
+$WindowsFeaturesView = New-Table -Form $Form -Parent $Layout -Title "Windows features" -Data $WindowsFeatures;
 $WindowsFeaturesView.Height = 95;
-$OtherOperationsView = CreateTable -Form $Form -Parent $Layout -Title "Other programs and operations. These you have to keep updated manually." -Data $OtherOperations
+$OtherOperationsView = New-Table -Form $Form -Parent $Layout -Title "Other programs and operations. These you have to keep updated manually." -Data $OtherOperations
 $OtherOperationsView.height = 150;
 
 # Disable unsupported features
@@ -835,6 +865,10 @@ if (!(Test-CommandExists "Enable-WindowsOptionalFeature")) {
     $WindowsFeaturesView.Enabled = $false;
 }
 
+$ButtonsLayout = New-Object System.Windows.Forms.TableLayoutPanel;
+$ButtonsLayout.Anchor = $AllDirectionsAnchor
+$Layout.Controls.Add($ButtonsLayout)
+
 # Add OK button
 $Form | Add-Member -MemberType NoteProperty -Name Continue -Value $false;
 $OKButton = New-Object System.Windows.Forms.Button;
@@ -843,15 +877,70 @@ $OKButton.Add_Click({
     $Form.Continue = $true;
     $Form.Close();
 })
-$Layout.Controls.Add($OKButton);
+$ButtonsLayout.Controls.Add($OKButton);
 
-function ResizeLayout {
+# Add default buttons
+# These have to be after the grid view definitions.
+
+function Select-CommonDefaults {
+    $CommonDefaultChocoPrograms = @("7-Zip", "Chocolatey GUI (RECOMMENDED!)", "Firefox", "VLC")
+    if ((Get-CimInstance -Class Win32_Processor).Manufacturer -eq "GenuineIntel") {
+        $CommonDefaultChocoPrograms += "Intel Driver & Support Assistant"
+    }
+    Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names $CommonDefaultChocoPrograms
+}
+
+function Select-LabDefaults {
+    Select-CommonDefaults
+    Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names @("Notepad++")
+    Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
+}
+
+function Select-PersonalDefaults {
+    Select-CommonDefaults
+    Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names @("KeePassXC")
+}
+
+function Select-WorkstationDefaults {
+    Select-CommonDefaults
+    Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names @("KeePassXC", "Notepad++", "OpenVPN", "PDF-XChange Editor", "Slack")
+    Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
+    Select-Cells -View $OtherOperationsView -Dict $OtherOperations -Names @("WithSecure Elements Agent")
+}
+
+if (Get-IsDomainJoined) {
+    $WorkstationDefaultsButton = New-Object System.Windows.Forms.Button
+    $WorkstationDefaultsButton.Text = "Select workstation defaults"
+    $WorkstationDefaultsButton.Width = 160
+    $WorkstationDefaultsButton.Add_Click({
+        Select-WorkstationDefaults
+    })
+    $ButtonsLayout.Controls.Add($WorkstationDefaultsButton, 1, 0)
+
+    $LabDefaultsButton = New-Object System.Windows.Forms.Button
+    $LabDefaultsButton.Text = "Select lab defaults"
+    $LabDefaultsButton.Width = 120
+    $LabDefaultsButton.Add_Click({
+        Select-LabDefaults
+    })
+    $ButtonsLayout.Controls.Add($LabDefaultsButton, 2, 0)
+} else {
+    $PersonalDefaultsButton = New-Object System.Windows.Forms.Button
+    $PersonalDefaultsButton.Text = "Select defaults for personal use"
+    $PersonalDefaultsButton.Width = 200
+    $PersonalDefaultsButton.Add_Click({
+        Select-PersonalDefaults
+    })
+    $ButtonsLayout.Controls.Add($PersonalDefaultsButton, 1, 0)
+}
+
+function Resize-Layout {
     $Layout.Width = $Form.Width - 10;
     $Layout.Height = $Form.Height - 10;
     $ChocoProgramsView.Height = $Form.Height - 660;
 }
-$Form.Add_Resize($function:ResizeLayout);
-ResizeLayout;
+$Form.Add_Resize(${function:Resize-Layout});
+Resize-Layout;
 
 # Show the form
 $Form.ShowDialog();
@@ -859,7 +948,11 @@ if (! $Form.Continue) {
     return 0;
 }
 
-$ChocoSelected = GetSelectedCommands $ChocoProgramsView
+#####
+# Run the installations
+#####
+
+$ChocoSelected = Get-SelectedCommands $ChocoProgramsView
 if ($ChocoSelected.Count) {
     Show-Output "Installing programs with Chocolatey."
     choco upgrade -y $ChocoSelected
@@ -867,7 +960,7 @@ if ($ChocoSelected.Count) {
     Show-Output "No programs were selected to be installed with Chocolatey."
 }
 
-$WingetSelected = GetSelectedCommands $WingetProgramsView
+$WingetSelected = Get-SelectedCommands $WingetProgramsView
 if ($WingetSelected.Count) {
     Show-Output "Installing programs with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($program in $WingetSelected) {
@@ -877,7 +970,7 @@ if ($WingetSelected.Count) {
     Show-Output "No programs were selected to be installed with Winget."
 }
 
-$WindowsCapabilitiesSelected = GetSelectedCommands $WindowsCapabilitiesView
+$WindowsCapabilitiesSelected = Get-SelectedCommands $WindowsCapabilitiesView
 if ($WindowsCapabilitiesSelected.Count) {
     Show-Output "Installing Windows capabilities."
     foreach($capability in $WindowsCapabilitiesSelected) {
@@ -888,7 +981,7 @@ if ($WindowsCapabilitiesSelected.Count) {
     Show-Output "No Windows capabilities were selected to be installed."
 }
 
-$WindowsFeaturesSelected = GetSelectedCommands $WindowsFeaturesView
+$WindowsFeaturesSelected = Get-SelectedCommands $WindowsFeaturesView
 if ($WindowsFeaturesSelected.Count) {
     Show-Output "Installing Windows features."
     foreach($feature in $WindowsFeaturesSelected) {
@@ -900,7 +993,7 @@ if ($WindowsFeaturesSelected.Count) {
 }
 
 # These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
-$OtherSelected = GetSelectedCommands $OtherOperationsView
+$OtherSelected = Get-SelectedCommands $OtherOperationsView
 if ($OtherSelected.Count) {
     Show-Output "Running other selected operations."
     foreach($command in $OtherSelected) {
