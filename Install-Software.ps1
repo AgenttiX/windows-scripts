@@ -543,7 +543,7 @@ function Install-ThorlabsKinesis {
 function Install-VCU {
     [OutputType([int])]
     param(
-        [string]$Version = "0.13.40"
+        [string]$Version = "0.13.42"
     )
     $FilePath = "${SoftwareRepoPath}\VCU\VCU_GUI_Setup_${Version}.exe"
     if (Test-Path "$FilePath") {
