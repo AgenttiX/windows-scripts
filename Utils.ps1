@@ -164,10 +164,18 @@ function Elevate {
         }
         else {
             Show-Output "This script requires admin access. Elevating."
-            Show-Output "$command"
+            Show-Output "${command}"
+            $ArgumentList = ('-NoProfile -NoExit -Command "cd {0}; {1} -Elevated"' -f ($pwd, $command))
             # Use newer PowerShell if available.
             if (Test-CommandExists "pwsh") {$shell = "pwsh"} else {$shell = "powershell"}
-            Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList ('-NoProfile -NoExit -Command "cd {0}; {1}" -Elevated' -f ($pwd, $command))
+            # Use Windows Terminal if available
+            # if (Test-CommandExists "wt") {
+            #     # https://stackoverflow.com/a/63163528
+            #     # This has problems in parsing the semicolon
+            # Start-Process -FilePath "wt" -Verb RunAs -ArgumentList ('new-tab {0} {1}' -f ($shell, $ArgumentList))
+            # } else {
+            Start-Process -FilePath "$shell" -Verb RunAs -ArgumentList "${ArgumentList}"
+            # }
             Show-Output "The script has been started in another window. You can close this window now." -ForegroundColor Green
         }
     Exit
