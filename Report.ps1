@@ -21,10 +21,10 @@ $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
 # $Downloads = ".\Downloads"
 $Reports = "${PSScriptRoot}\Reports"
+$Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
 
 function Compress-ReportArchive {
     Show-Output "Creating the report archive."
-    $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
     Compress-Archive -Path "${Reports}" -DestinationPath "${DesktopPath}\IT_report_${Timestamp}.zip" -CompressionLevel Optimal
 }
 
@@ -41,6 +41,9 @@ New-Item -Path "." -Name "Reports" -ItemType "directory" -Force | Out-Null
 
 Show-Output "Removing old reports."
 Get-ChildItem "${Reports}/*" -Recurse | Remove-Item
+
+Show-Output "Adding a README to the report."
+(Get-Content "${PSScriptRoot}/Report-Readme-Template.txt").Replace("HOST", "${env:ComputerName}").Replace("TIMESTAMP", "${Timestamp}") | Set-Content "${Reports}\README.txt"
 
 # -----
 # Getter commands (in alphabetical order)
