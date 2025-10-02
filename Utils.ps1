@@ -291,13 +291,6 @@ function Get-YesNo {
     }
 }
 
-function GitPull {
-    # Git pull should be run before elevating
-    if (! ($elevated)) {
-        git pull
-    }
-}
-
 function Install-Chocolatey {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingInvokeExpression", "", Justification="Chocolatey installation requires Invoke-Expression")]
     param(
