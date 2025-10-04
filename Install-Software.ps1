@@ -201,6 +201,11 @@ function Install-CorelDRAW {
 #     Install-FromUri -Name "Fujitsu mPollux DigiSign" -Uri "https://dvv.fi/documents/16079645/216375523/${Filename}" -Filename "${Filename}"
 # }
 
+function Install-DigilentWaveforms([string]$Version = "3.24.4") {
+    $Filename = "digilent.waveforms_v${Version}_64bit.exe"
+    Install-FromUri -Name "Digilent Waveforms" -Uri "https://files.digilent.com/Software/Waveforms/${Version}/${Filename}" -Filename "${Filename}"
+}
+
 function Install-Eduroam {
     Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
 }
@@ -627,6 +632,7 @@ $OtherOperations = [ordered]@{
     "Atostek ID" = ${function:Install-AtostekID}, "Card reader software for Finnish identity cards";
     "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
     "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
+    "Digilent Waveforms" = ${function:Install-DigilentWaveforms}, "Measurement software for Digilent lab devices";
     "Eduroam" = ${function:Install-Eduroam}, "University Wi-Fi";
     # "Fujitsu mPollux DigiSign" = ${function:Install-DigiSign}, "Card reader software for Finnish identity cards";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
