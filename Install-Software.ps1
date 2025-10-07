@@ -433,6 +433,18 @@ function Install-Rezonator2 {
     return $true
 }
 
+function Install-SMCThermoChiller ([string]$Version = "2.0.1.0") {
+    <#
+    .SYNOPSIS
+        Monitoring software for SMC ThermoChillers, especially the HRR series
+    .LINK
+        https://smc-fluidcontrol.com/hrr-software/
+    #>
+    $Folder = "hrr-v${Version}"
+    $Filename = "${Folder}.zip"
+    Install-FromUri -Name "SMC ThermoChiller" -Uri "https://static.smc.eu/binaries/content/assets/smc_global/products/engineering-tools/hrr-monitoring-software/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "HRR V${Version}.exe"
+}
+
 function Install-SNLO ([string]$Version = "78") {
     $Filename = "SNLO-v${Version}.exe"
     Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}"
@@ -655,6 +667,7 @@ $OtherOperations = [ordered]@{
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "reZonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "reZonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
+    "SMC ThermoChiller" = ${function:Install-SMCThermoChiller}, "Monitoring software for SMC ThermoChillers, especially the HRR series";
     "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
     "SSMbe (NOTE!)" = ${function:Install-SSMbe}, "Control software for the SS10-1 MBE reactor. NOTE! Also install the LabVIEW Runtime and NI-VISA dependencies.";
     "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
