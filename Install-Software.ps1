@@ -95,6 +95,7 @@ $ChocoPrograms = [ordered]@{
     # Minecraft should be installed from the Microsoft Store to enable automatic updates.
     # "Minecraft" = "minecraft-launcher", "The classic sandbox game";
     "Miniconda 3 (NOTE!)" = "miniconda3", "Anaconda package manager and Python 3 without the pre-installed libraries. NOTE! Installation with Chocolatey does not work with PyCharm without custom symlinks.";
+    "mRemoteNG" = "mremoteng", "Remote connections manager (RDP, VNC, SSH etc.)";
     "Mumble" = "mumble", "Group call platform";
     "Notepad++" = "notepadplusplus", "Text editor";
     "NVM" = "nvm", "Node.js Version Manager";
