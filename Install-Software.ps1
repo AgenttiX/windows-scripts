@@ -125,6 +125,7 @@ $ChocoPrograms = [ordered]@{
     "Speedtest CLI" = "speedtest", "Command-line utility for measuring internet speed";
     "Spotify" = "spotify", "Music streaming service client";
     "Steam" = "steam", "Game store";
+    "Stream Deck" = "streamdeck", "Control software for Elgato Stream Decks";
     "Syncthing / SyncTrayzor" = "synctrayzor", "Utility for directly synchronizing files between devices";
     "TeamViewer" = "teamviewer", "Remote control utility, commercial use requires a license";
     "Telegram" = "telegram", "Instant messenger";
