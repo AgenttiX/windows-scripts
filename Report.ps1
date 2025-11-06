@@ -152,6 +152,6 @@ if (-not $NoArchive) {
     Compress-ReportArchive
     Show-Output "The reporting script is ready." -ForegroundColor Green
     Show-Output "The reports can be found in the zip file on your desktop, and at `"${RepoPath}\Reports`"." -ForegroundColor Green
-    Show-Output "If Mika requested you to run this script, please send the zip file to him." -ForegroundColor Green
+    Show-Output "If Mika requested you to run this script, please send the zip file from your desktop to him." -ForegroundColor Green
     Show-Output "You can close this window now." -ForegroundColor Green
 }
