@@ -176,7 +176,11 @@ $WindowsFeatures = [ordered]@{
 
 # Installer functions
 
-function Install-AtostekID([string]$Version = "4.1.1.0") {
+function Install-AtostekID([string]$Version = "4.4.0.0") {
+    <#
+    .LINK
+        https://dvv.fi/en/card-reader-software
+    #>
     # Get-Package does not work on PowerShell 7
     $DigiSign = Get-InstalledSoftware | Where-Object {$_.Name -eq "mPollux DigiSign Client"}
     if ($DigiSign) {
@@ -186,15 +190,26 @@ function Install-AtostekID([string]$Version = "4.1.1.0") {
         Show-Output "Fujitsu mPollux DigiSign Client was not found, so there's no need to uninstall it before installing Atostek ID."
     }
     $Filename = "AtostekID_WIN_${Version}.msi"
-    Install-FromUri -Name "Atostek ID" -Uri "https://dvv.fi/documents/16079645/228119190/${Version}/1e0a06cd-ec87-a27c-ad91-2c84ee963aae?t=1732880016778" -Filename "${Filename}"
+    Install-FromUri -Name "Atostek ID" -Uri "https://files.fineid.fi/download/atostek/${Version}/windows/${Filename}" -Filename "${Filename}"
 }
 
-function Install-BaslerPylon([string]$Version = "8.1.0") {
-    $Filename = "Basler%20pylon%20${Version}.exe"
-    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://downloadbsl.blob.core.windows.net/software/${Filename}" -Filename "${Filename}"
+function Install-BaslerPylon([string]$Version = "25.10.2") {
+    <#
+    .LINK
+        https://www.baslerweb.com/en/downloads/software/
+    #>
+    $Filename = "Basler pylon ${Version}.exe"
+    $FilenameUrl = [uri]::EscapeDataString($Filename)
+    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://downloadbsl.blob.core.windows.net/software/pylon%20${Version}/${FilenameUrl}" -Filename "${Filename}"
 }
 
 function Install-CorelDRAW {
+    <#
+    .LINK
+        https://myaccount.corel.com/perpetual-products
+    .LINK
+        https://www.coreldraw.com/en/licensing/download/
+    #>
     Install-FromUri -Name "CorelDRAW" -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -Filename "CDGS.exe"
 }
 
@@ -204,15 +219,27 @@ function Install-CorelDRAW {
 # }
 
 function Install-DigilentWaveforms([string]$Version = "3.24.4") {
+    <#
+    .LINK
+        https://cloud.digilent.com/myproducts/waveforms
+    #>
     $Filename = "digilent.waveforms_v${Version}_64bit.exe"
     Install-FromUri -Name "Digilent Waveforms" -Uri "https://files.digilent.com/Software/Waveforms/${Version}/${Filename}" -Filename "${Filename}"
 }
 
 function Install-Eduroam {
+    <#
+    .LINK
+        https://www.eduroam.app/
+    #>
     Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
 }
 
 function Install-FDAeSubmitter {
+    <#
+    .LINK
+        https://www.fda.gov/industry/fda-esubmitter/esubmitter-download-and-installation
+    #>
     Install-FromUri -Name "FDA eSubmitter" `
         -Uri "https://www.accessdata.fda.gov/esubmissions/ftparea/esubmitter/platforms/Windows/IncludeJvm/jinstall.zip" `
         -Filename "jinstall.zip" -UnzipFolderName "${jinstall}" -UnzippedFilePath "jinstall.exe" `
@@ -235,10 +262,14 @@ function Install-Git {
     choco upgrade git.install -y --force --params "/GitAndUnixToolsOnPath /WindowsTerminalProfile"
 }
 
-function Install-IDSPeak ([string]$Version = "2.3.0.0") {
-    $Folder = "ids-peak-win-${Version}"
+function Install-IDSPeak ([string]$Version = "2.18.1.0", [string]$Version2 = "183") {
+    <#
+    .LINK
+        https://en.ids-imaging.com/download-peak.html
+    #>
+    $Folder = "ids-peak-win-extended-setup-64-${Version}"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "IDS Peak" -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "ids_peak_${Version}.exe"
+    Install-FromUri -Name "IDS Peak" -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "ids_peak_${Version}-${Version2}_full_with_ueye_runtime.exe"
 }
 
 function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
@@ -247,9 +278,10 @@ function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version
     Install-FromUri -Name "IDS Software Suite (µEye)" -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "uEye_${Version2}.exe"
 }
 
-function Install-LabVIEWRuntime ([string]$Version = "24.1") {
-    $Filename ="ni-labview-2024-runtime-engine_${Version}_online.exe"
-    Install-FromUri -Name "LabVIEW Runtime" -Uri "https://download.ni.com/support/nipkg/products/ni-l/ni-labview-2024-runtime-engine/${Version}/online/${Filename}" -Filename "${Filename}"
+function Install-LabVIEWRuntime ([string]$Version = "25.3") {
+    $Year = $Version.SubString(0,2)
+    $Filename ="ni-labview-20${Year}-runtime-engine_${Version}_online.exe"
+    Install-FromUri -Name "LabVIEW Runtime" -Uri "https://download.ni.com/support/nipkg/products/ni-l/ni-labview-20${Year}-runtime-engine/${Version}/online/${Filename}" -Filename "${Filename}"
 }
 
 function Install-LabVIEWRuntime2014SP1 {
@@ -300,7 +332,7 @@ function Install-MeerstetterTEC {
     #>
     # Spaces are not allowed in msiexec filenames. Please also see this issue:
     # https://stackoverflow.com/questions/10108517/what-can-cause-msiexec-error-1619-this-installation-package-could-not-be-opened
-    Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=331:tec-family-tec-controllers-software" -Filename "TEC_Software.msi"
+    Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=764:tec-controller-software" -Filename "TEC_Software.msi"
 }
 
 function Install-MEFirmware {
@@ -322,12 +354,12 @@ function Install-MEFirmware {
     return 0
 }
 
-function Install-NI4882 ([string]$Version = "23.5") {
+function Install-NI4882 ([string]$Version = "25.8") {
     <#
     .SYNOPSIS
         Install National Instruments NI-488.2
     .LINK
-        https://www.ni.com/fi-fi/support/downloads/drivers/download.ni-488-2.html#467646
+        https://www.ni.com/fi-fi/support/downloads/drivers/download.ni-488-2.html
     #>
     $Filename = "ni-488.2_${Version}_online.exe"
     Install-FromUri -Name "NI 488.2 (GPIB) drivers" -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -Filename "${Filename}"
@@ -359,8 +391,8 @@ function Install-OpenVPN {
     #>
     [OutputType([int])]
     param(
-        [string]$Version = "2.5.8",
-        [string]$Version2 = "I604"
+        [string]$Version = "2.6.15",
+        [string]$Version2 = "I001"
     )
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
     $Filename = "OpenVPN-${Version}-${Version2}-${Arch}.msi"
@@ -406,7 +438,7 @@ function Install-OriginViewer {
     return $true
 }
 
-function Install-Rezonator1([string]$Version = "1.7.116.375") {
+function Install-Rezonator1([string]$Version = "1.7.116.375", [string]$SHA256 = "c0601dd4de38de638f90ef9314c5d6f5a808cf5dd848f4a02ac7382b71d43ad6") {
     <#
     .SYNOPSIS
         Install the reZonator laser cavity simulator
@@ -415,7 +447,8 @@ function Install-Rezonator1([string]$Version = "1.7.116.375") {
     #>
     $Filename = "rezonator-${Version}.exe"
     # The reZonator web page does not support HTTPS.
-    Install-FromUri -Name "reZonator 1" -Uri "http://rezonator.orion-project.org/files/${Filename}" -Filename "${Filename}"
+    Install-FromUri -Name "reZonator 1" -Uri "https://rezonator.orion-project.org/files/${Filename}" `
+        -Filename "${Filename}" -SHA256 "${SHA256}" -BypassAuthenticode
 }
 
 function Install-Rezonator2 {
@@ -427,7 +460,7 @@ function Install-Rezonator2 {
     #>
     [OutputType([bool])]
     param(
-        [string]$Version = "2.0.13-beta9"
+        [string]$Version = "2.1.1"
     )
     Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
@@ -443,7 +476,7 @@ function Install-Rezonator2 {
     return $true
 }
 
-function Install-SMCThermoChiller ([string]$Version = "2.0.1.0") {
+function Install-SMCThermoChiller ([string]$Version = "2.0.1.0", [string]$SHA256 = "cbb67f4b4e185c708c7dec523087b156c74eab816c136dbbeb1dd7f7dc1d5cb3") {
     <#
     .SYNOPSIS
         Monitoring software for SMC ThermoChillers, especially the HRR series
@@ -452,12 +485,14 @@ function Install-SMCThermoChiller ([string]$Version = "2.0.1.0") {
     #>
     $Folder = "hrr-v${Version}"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "SMC ThermoChiller" -Uri "https://static.smc.eu/binaries/content/assets/smc_global/products/engineering-tools/hrr-monitoring-software/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "HRR V${Version}.exe"
+    Install-FromUri -Name "SMC ThermoChiller" `
+        -Uri "https://static.smc.eu/binaries/content/assets/smc_global/products/engineering-tools/hrr-monitoring-software/${Filename}" `
+        -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "HRR V${Version}.exe" -SHA256 "${SHA256}" -BypassAuthenticode
 }
 
-function Install-SNLO ([string]$Version = "78") {
+function Install-SNLO ([string]$Version = "78", [string]$SHA256 = "be4635f51f6d6f51433c660dc4787a256796fb9d35425605f212ff1a60aeba0a") {
     $Filename = "SNLO-v${Version}.exe"
-    Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}"
+    Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}" -SHA256 "${SHA256}" -BypassAuthenticode
 }
 
 function Install-SSMbe ([string]$Version = "20160525") {
@@ -661,7 +696,7 @@ $OtherOperations = [ordered]@{
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
-    "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! Use IDS Peak instad if your cameras are compatible with it.";
+    "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! IDS Peak should now be compatible also with these old cameras, so use it instead.";
     "Intel ME firmware" = ${function:Install-MEFirmware}, "Intel Management Engine firmware";
     # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
     "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
