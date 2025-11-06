@@ -197,6 +197,20 @@ function Find-First {
     return @(Get-ChildItem -Filter "${Filter}" -Path "${Path}")[0]
 }
 
+function Get-CertificateInfo {
+    <#
+    .SYNOPSIS
+        Get basic info of a certificate as a string
+    #>
+    [OutputType([string])]
+    param([Parameter(Mandatory=$true)][System.Security.Cryptography.X509Certificates.X509Certificate]$Certificate)
+    $NotBefore = $Certificate.NotBefore.ToUniversalTime().ToString("yyyy-MM-dd")
+    $NotAfter = $Certificate.NotAfter.ToUniversalTime().ToString("yyyy-MM-dd")
+    $Algorithm = $Certificate.SignatureAlgorithm.FriendlyName
+    return "$($Certificate.Subject) (${NotBefore} - ${NotAfter}, ${Algorithm}, " `
+        + "Currently valid: $($Certificate.Verify()), Thumbprint: $($Certificate.Thumbprint))"
+}
+
 function Get-InstallBitness {
     [OutputType([string])]
     param(
@@ -309,8 +323,10 @@ function Install-Executable {
     [OutputType([int])]
     param(
         [string]$Name,
-        [string]$Path
+        [string]$Path,
+        [switch]$BypassAuthenticode = $false
     )
+    # Validate the file path
     try {
         $File = Get-Item "${Path}" -ErrorAction Stop
     } catch {
@@ -323,6 +339,15 @@ function Install-Executable {
         }
         return 1
     }
+    # Validate Authenticode
+    if (-not $BypassAuthenticode) {
+        try {
+            Test-AuthenticodeSignature -FilePath "${Path}"
+        } catch {
+            return 2
+        }
+    }
+    # Install the executable
     Show-Output "Installing ${Name}"
     if ($File.Extension -eq ".msi") {
         $Process = Start-Process -NoNewWindow -Wait -PassThru "msiexec" -ArgumentList "/i","${Path}"
@@ -330,7 +355,7 @@ function Install-Executable {
         $Process = Start-Process -NoNewWindow -Wait -PassThru "${Path}"
     }
     $ExitCode = $Process.ExitCode
-    if ($ExitCode -ne 0) {
+    if ($ExitCode) {
         Show-Output -ForegroundColor Red "${Name} installation returned non-zero exit code ${ExitCode}. Perhaps the installation failed?"
     }
     return $ExitCode
@@ -346,34 +371,71 @@ function Install-FromUri {
         [Parameter(mandatory=$false)][string]$UnzipFolderName,
         [Parameter(mandatory=$false)][string]$UnzippedFilePath,
         [Parameter(mandatory=$false)][string]$MD5,
-        [Parameter(mandatory=$false)][string]$SHA256
+        [Parameter(mandatory=$false)][string]$SHA256,
+        [switch]$BypassAuthenticode = $false
     )
     Show-Output "Downloading ${Name}"
     $Path = "${Downloads}\${Filename}"
-    Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
+
+    # Test if the file already exists and matches the given hash
+    $FileAlreadyOK = $false
+    if (Test-Path $Path) {
+        if ($PSBoundParameters.ContainsKey("SHA256")) {
+            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
+            if ($FileHash -eq $SHA256) {
+                $FileAlreadyOK = $true
+                Show-Output "The file `"${Path}`" is already downloaded and has the correct SHA-256 hash ${SHA256}. Skipping download."
+            } else {
+                Show-Output "The file `"${Path}` was already downloaded, but had an incorrect SHA-256 hash. " `
+                    + "(Expected ${SHA256}, got ${FileHash}.) The previous download may have been interrupted. Downloading again."
+            }
+        } elseif ($PSBoundParameters.ContainsKey("MD5")) {
+            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
+            if ($FileHash -eq $MD5) {
+                $FileAlreadyOK = $true
+                Show-Output "The file `"${Path}`" is already downloaded and has the correct MD5 hash ${MD5}. Skipping download."
+            } else {
+                Show-Output "The file `"${Path}` was already downloaded, but had an incorrect MD5 hash. " `
+                    + "(Expected ${MD5}, got ${FileHash}.) The previous download may have been interrupted. Downloading again."
+            }
+        }
+    }
+
+    # Download the file
+    if (-not $FileAlreadyOK) {
+        Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
+    }
+
+    # Get the file object
     try {
         $File = Get-Item "${Path}" -ErrorAction Stop
     } catch {
         Show-Output "Downloaded file was not found at ${Path}"
         return 1
     }
-    if ($PSBoundParameters.ContainsKey("SHA256")) {
-        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
-        if ($FileHash -eq $SHA256) {
-            Show-Output "SHA256 checksum OK"
-        } else {
-            Show-Output -ForegroundColor Red "Downloaded file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
-            return 1
-        }
-    } elseif ($PSBoundParameters.ContainsKey("MD5")) {
-        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
-        if ($FileHash -eq $MD5) {
-            Show-Output "MD5 checksum OK"
-        } else {
-            Show-Output -ForegroundColor Red "Downloaded file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
-            return 1
+
+    # Verify the file checksum if not already verified
+    if (-not $FileAlreadyOK) {
+        if ($PSBoundParameters.ContainsKey("SHA256")) {
+            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
+            if ($FileHash -eq $SHA256) {
+                Show-Output "SHA256 checksum OK"
+            } else {
+                Show-Output -ForegroundColor Red "Downloaded file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
+                return 1
+            }
+        } elseif ($PSBoundParameters.ContainsKey("MD5")) {
+            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
+            if ($FileHash -eq $MD5) {
+                Show-Output "MD5 checksum OK"
+            } else {
+                Show-Output -ForegroundColor Red "Downloaded file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
+                return 1
+            }
         }
     }
+
+    # Process the downloaded file
     if ($File.Extension -eq ".zip") {
         if (-not $PSBoundParameters.ContainsKey("UnzipFolderName")) {
             Show-Output -ForegroundColor Red "UnzipFolderName was not provided for a zip file."
@@ -384,11 +446,12 @@ function Install-FromUri {
             return 1
         }
         Show-Output "Extracting ${Name}"
-        Expand-Archive -Path "${Path}" -DestinationPath "${Downloads}\${UnzipFolderName}"
-        Install-Executable -Name "${Name}" -Path "${Downloads}\${UnzipFolderName}\${UnzippedFilePath}"
+        Expand-Archive -Path "${Path}" -DestinationPath "${Downloads}\${UnzipFolderName}" -Force
+        $ExecutablePath = "${Downloads}\${UnzipFolderName}\${UnzippedFilePath}"
     } else {
-        Install-Executable -Name "${Name}" -Path "${Downloads}\${Filename}"
+        $ExecutablePath = "${Downloads}\${Filename}"
     }
+    Install-Executable -Name "${Name}" -Path "${ExecutablePath}" -BypassAuthenticode:$BypassAuthenticode
 }
 
 function Install-Geekbench {
@@ -703,6 +766,42 @@ function Test-Admin {
     [OutputType([bool])]
     $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
     return $CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+
+function Test-AuthenticodeSignature {
+    <#
+    .SYNOPSIS
+        Validate that a file has a valid Authenticode signature
+    #>
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [switch]$Silent = $false
+    )
+    $Signature = Get-AuthenticodeSignature -FilePath "${FilePath}"
+    $Failed = $Signature.Status -ne "Valid"
+    if (-not $Silent) {
+        $Status = "Status: $($Signature.Status) ($($Signature.StatusMessage))"
+        if ($Failed) {
+            Show-Output -ForegroundColor Red "Authenticode signature verification failed for `"$($Signature.Path)`"."
+            Show-Output -ForegroundColor Red "${Status}"
+            Show-Output -ForegroundColor Red "This may be an indication of malicious tampering with the file."
+            Show-Output -ForegroundColor Red "Please contact your system administrator or the developers of the software."
+        } else {
+            Show-Output "Authenticode signature verification successful for `"$($Signature.Path)`"."
+            Show-Output "${Status}, Signature type: $($Signature.SignatureType)"
+        }
+        $Signer = $Signature.SignerCertificate
+        if ($Signer) {
+            Show-Output "Certificate: $(Get-CertificateInfo $Signer)"
+        }
+        $TimeStamper = $Signature.TimeStamperCertificate
+        if ($TimeStamper) {
+             Show-Output "Timestamper: $(Get-CertificateInfo $TimeStamper)"
+        }
+    }
+    if ($Failed) {
+        throw "Authenticode signature verification failed for `"$($Signature.Path)`"."
+    }
 }
 
 function Test-CommandExists {
