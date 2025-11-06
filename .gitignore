@@ -3,6 +3,7 @@
 *.zip
 .idea
 downloads
+errors.log
 lib
 logs
 obs-studio/crashes

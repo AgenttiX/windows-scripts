@@ -212,6 +212,14 @@ function Install-Eduroam {
     Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
 }
 
+function Install-FDAeSubmitter {
+    Install-FromUri -Name "FDA eSubmitter" `
+        -Uri "https://www.accessdata.fda.gov/esubmissions/ftparea/esubmitter/platforms/Windows/IncludeJvm/jinstall.zip" `
+        -Filename "jinstall.zip" -UnzipFolderName "${jinstall}" -UnzippedFilePath "jinstall.exe" `
+        -SHA256 "b98d19c7ae5daf53f7cb7e552a15f8c5c67609a2ffb4b789cf530f8b6733b6fb" `
+        -BypassAuthenticode
+}
+
 function Install-Git {
     <#
     .SYNOPSIS
@@ -648,6 +656,7 @@ $OtherOperations = [ordered]@{
     "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
     "Digilent Waveforms" = ${function:Install-DigilentWaveforms}, "Measurement software for Digilent lab devices";
     "Eduroam" = ${function:Install-Eduroam}, "University Wi-Fi";
+    "FDA eSubmitter" = ${function:Install-FDAeSubmitter}, "Utility for submitting information to the U.S. Food & Drug Administration";
     # "Fujitsu mPollux DigiSign" = ${function:Install-DigiSign}, "Card reader software for Finnish identity cards";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
