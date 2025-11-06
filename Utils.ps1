@@ -705,7 +705,7 @@ function Test-Admin {
     return $CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
-Function Test-CommandExists {
+function Test-CommandExists {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Not plural")]
     [OutputType([bool])]
     Param(

@@ -391,7 +391,7 @@ function Install-OriginViewer {
     Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
     $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
     if ($null -eq $ExePath) {
-        Show-Information "No exe file was found in the extracted directory." -ForegroundColor Red
+        Show-Output -ForegroundColor Red "No exe file was found in the extracted directory."
         return $false
     }
     New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" -TargetPath "${ExePath}"
