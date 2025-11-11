@@ -15,7 +15,14 @@ param(
 )
 
 . "${PSScriptRoot}\Utils.ps1"
+
+if ($RepoInUserDir) {
+    Update-Repo
+}
 Elevate($myinvocation.MyCommand.Definition)
+if (! $RepoInUserDir) {
+    Update-Repo
+}
 
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
