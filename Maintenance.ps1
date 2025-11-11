@@ -280,6 +280,41 @@ if ($Zerofree) {
     Show-Output -ForegroundColor Cyan "Free space will be zeroed at the end of this script."
 }
 
+# Check that SSH keys are stored on secure devices
+$SSHDir = "${UserDir}\.ssh"
+if ((Test-Path "${SSHDir}") -and (Test-CommandExists "ssh-keygen")) {
+    Show-Output "SSH configuration folder found. Checking that the keys are secure."
+    $BadKeys = [System.Collections.ArrayList]@()
+    # Get-ChildItem does not support -Filter and -Exclude at the same time
+    Get-ChildItem "${SSHDir}" -Filter "id_*" | Foreach-Object {
+        # Skip .pub files
+        if ($_.FullName -match '^(?!.*\.pub$).*$') {
+            $KeyProps = "$(ssh-keygen -lf $_.FullName)"
+            # Get the last part and strip first and last characters
+            $KeyType = $KeyProps.split(" ")[-1] -replace "^." -replace ".$"
+            if (-not $KeyType.EndsWith("-SK")) {
+                $BadKeys.Add("$($_.FullName)`n${KeyProps}")
+            }
+        }
+    }
+    if ($BadKeys.Length) {
+        Add-Type -AssemblyName PresentationCore,PresentationFramework
+        $ButtonType = [System.Windows.MessageBoxButton]::OK
+        $MessageIcon = [System.Windows.MessageBoxImage]::Error
+        $MessageBody = (
+            "The following SSH keys seem not to be stored on a secure device " +
+            "such as a TPM (Windows Hello) or a FIDO2 hardware token (e.g. YubiKey). " +
+            "Please replace them with secure keys as soon as possible. " +
+            "Please see https://agx.fi/it/ssh for further instructions.`n`n" + ($BadKeys -join "`n`n")
+        )
+        $MessageTitle = "Insecure SSH keys detected"
+        [System.Windows.MessageBox]::Show($MessageBody, $MessageTitle, $ButtonType, $MessageIcon)
+        Start-Process "https://agx.fi/it/ssh"
+    }
+} else {
+    Show-Output "SSH configuration folder or ssh-keygen was not found."
+}
+
 # Loaded globally, since these are slow
 $ComputerInfo = Get-ComputerInfo
 $IsDomainJoined = Get-IsDomainJoined
