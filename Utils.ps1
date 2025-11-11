@@ -71,7 +71,8 @@ $DesktopPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop
 $StartPath = Get-Location
 
 # Define some useful variables
-$RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith(([System.IO.DirectoryInfo]"${env:UserProfile}").FullName)
+$UserDir = ([System.IO.DirectoryInfo]"${env:UserProfile}").FullName
+$RepoInUserDir = ([System.IO.DirectoryInfo]"${RepoPath}").FullName.StartsWith($UserDir)
 
 # This will be filled by Get-InstalledSoftware
 $InstalledSoftware = $null

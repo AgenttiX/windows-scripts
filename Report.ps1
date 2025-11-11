@@ -19,6 +19,8 @@ Elevate($myinvocation.MyCommand.Definition)
 
 $host.ui.RawUI.WindowTitle = "Mika's reporting script"
 
+# These variables are defined already here so that they are available also
+# when only running the Compress-ReportArchive below.
 # $Downloads = ".\Downloads"
 $Reports = "${PSScriptRoot}\Reports"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
@@ -110,6 +112,15 @@ if (Test-CommandExists "netsh") {
     }
 } else {
     Show-Output "The command `"netsh`" was not found."
+}
+
+$OpenVPNLogs = "${UserDir}\OpenVPN\log"
+if (Test-Path "${OpenVPNLogs}") {
+    Show-Output "OpenVPN log folder found. Copying logs."
+    New-Item -Path "${Reports}" -Name "OpenVPN" -ItemType "directory" -Force | Out-Null
+    Copy-Item -Path "${OpenVPNLogs}\*" -Destination "${Reports}\OpenVPN"
+} else {
+    Show-Output "OpenVPN log folder was not found."
 }
 
 if (Test-CommandExists "powercfg") {
