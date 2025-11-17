@@ -72,6 +72,9 @@ Get-Disk | Get-StorageReliabilityCounter | Select-Object -Property "*" > "${Repo
 Show-Output "Creating report of Plug and Play devices."
 Get-PnPDevice > "${Reports}\pnp_devices.txt"
 
+Show-Output "Extracting Windows Update logs."
+Get-WindowsUpdateLog -LogPath "${Reports}\WindowsUpdate.log"
+
 # -----
 # External commands (in alphabetical order)
 # -----
