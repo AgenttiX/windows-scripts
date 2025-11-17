@@ -41,6 +41,13 @@ if ( $Reply -match "[yY]" ) {
     Show-Output -ForegroundColor Cyan "Interpreting answer as a no. Skipping DISM start component cleanup."
 }
 
+if (Test-CommandExists "CompatTelRunner.exe") {
+    Show-Output "Running Windows telemetry to fix the availability of major Windows updates."
+    CompatTelRunner.exe -m:appraiser.dll -f:DoScheduledTelemetryRun
+} else {
+    Show-Output "The command `"CompatTelRunner.exe`" was not found."
+}
+
 Show-Output -ForegroundColor Cyan "Running CHKDSK."
 chkdsk /R
 
