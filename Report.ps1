@@ -69,6 +69,18 @@ Get-ComputerInfo > "${Reports}\computer_info.txt"
 Show-Output "Creating report of SSD/HDD SMART data."
 Get-Disk | Get-StorageReliabilityCounter | Select-Object -Property "*" > "${Reports}\smart.txt"
 
+Show-Output "Creating report of network configuration."
+Get-NetIPConfiguration | Select-Object `
+    "InterfaceAlias",
+    "InterfaceDescription",
+    @{n="MacAddress"; e={$_.NetAdapter.MacAddress}},
+    @{n="MacAddressColon"; e={$_.NetAdapter.MacAddress.Replace("-", ":")}},
+    @{n="IPv4Address"; e={$_.IPv4Address -join ", "}},
+    @{n="IPv6Address"; e={$_.IPv6Address -join ", "}},
+    @{n="IPv4DefaultGateway"; e={$_.IPv4DefaultGateway.NextHop -join ", "}},
+    @{n="IPv6DefaultGateway"; e={$_.IPv6DefaultGateway.NextHop -join ", "}},
+    @{n="DNSServer"; e={$_.DNSServer.ServerAddresses -join ", "}} > "${Reports}\network_configuration.txt"
+
 Show-Output "Creating report of Plug and Play devices."
 Get-PnPDevice > "${Reports}\pnp_devices.txt"
 
