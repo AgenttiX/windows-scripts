@@ -144,6 +144,7 @@ $ChocoPrograms = [ordered]@{
     "Visual Studio Code (NOTE!)" = "vscode", "Text editor / IDE. Sends lots of tracking data to Microsoft. Use VSCodium instead.";
     "VSCodium" = "vscodium", "Text editor / IDE. Open source version of Visual Studio Code.";
     "Wacom drivers" = "wacom-drivers", "Drivers for Wacom drawing tablets";
+    "WireGuard" = "wireguard", "VPN client";
     "Xournal++" = "xournalplusplus", "For taking handwritten notes with a drawing tablet";
     "Xerox Global Print Driver PCL/PS V3" = "xeroxupd", "Driver for Xerox printers";
     "yt-dlp" = "yt-dlp", "Video downloader for e.g. YouTube";
