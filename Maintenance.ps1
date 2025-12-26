@@ -581,7 +581,7 @@ if (Test-CommandExists "docker") {
     Show-Output "Docker was not found."
 }
 
-# Driver updates
+# Driver and firmware updates
 # This should be the last step in the script so that its updates are not installed during other updates.
 if ($Reboot -or $Shutdown) {
     Show-Output -ForegroundColor Cyan "Driver updates will not be started, as automatic reboot or shutdown is enabled."
@@ -589,6 +589,23 @@ if ($Reboot -or $Shutdown) {
 } elseif (Test-RebootPending) {
     Show-Output -ForegroundColor Cyan "Driver updates will not be started, as the computer is pending a reboot."
 } else {
+    # ASUS Armoury Crate (non-blocking)
+    $ArmouryCrateInstalled = Get-AppxPackage -Name "B9ECED6F.ArmouryCrate"
+    if ($ArmouryCrateInstalled) {
+        Show-Output -ForegroundColor Cyan "Starting ASUS Armoury Crate for firmware updates."
+        Start-Process shell:appsFolder\B9ECED6F.ArmouryCrate_qmba6cd70vzyy!App
+    } else {
+        Show-Output "ASUS Armoury crate was not found."
+    }
+
+    # Intel Driver & Support Assistant (non-blocking)
+    if ($IntelDSAInstalled) {
+        Start-Process -NoNewWindow "${IntelDSAPath}"
+        Start-Process "https://www.intel.com/content/www/us/en/support/intel-driver-support-assistant.html"
+    } else {
+        Show-Output "Intel Driver & Support Assistant was not found."
+    }
+
     # Lenovo Vantage (non-blocking)
     if ($LenovoCommercialVantageInstalled) {
         Show-Output -ForegroundColor Cyan "Starting Lenovo Commercial Vantage for updates. Please select `"Check for system updates`" and install the suggested updates."
@@ -600,12 +617,22 @@ if ($Reboot -or $Shutdown) {
         Show-Output "Lenovo Vantage was not found."
     }
 
-    # Intel Driver & Support Assistant (non-blocking)
-    if ($IntelDSAInstalled) {
-        Start-Process -NoNewWindow "${IntelDSAPath}"
-        Start-Process "https://www.intel.com/content/www/us/en/support/intel-driver-support-assistant.html"
+    # Samsung Magician (non-blocking)
+    $SamsungMagicianPath = "${env:ProgramFiles(x86)}\Samsung\Samsung Magician\SamsungMagician.exe"
+    if (Test-Path "${SamsungMagicianPath}") {
+        Show-Output "Starting Samsung Magician for HDD & SSD status check and firmware updates."
+        Start-Process -NoNewWindow "${SamsungMagicianPath}"
     } else {
-        Show-Output "Intel Driver & Support Assistant was not found."
+        Show-Output "Samsung Magician was not found."
+    }
+
+    # Seagate SeaTools (non-blocking)
+    $SeaToolsPath = "${env:ProgramFiles}\SeaTools5\SeaTools.exe"
+    if (Test-Path "${SeaToolsPath}") {
+        Show-Output "Starting Seagate SeaTools for HDD & SSD status check and firmware updates."
+        Start-Process -NoNewWindow "${SeaToolsPath}"
+    } else {
+        Show-Output "Seagate SeaTools was not found."
     }
 }
 
