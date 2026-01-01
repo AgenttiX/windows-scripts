@@ -78,6 +78,7 @@ $ChocoPrograms = [ordered]@{
     "GIMP" = "gimp", "Image editor";
     # "Git" = "git", "Version control";
     "GNU Octave" = "octave", "Free MATLAB alternative";
+    "Google Drive" = "googledrive", "Cloud storage client";
     "Gpg4Win" = "gpg4win", "GPG / PGP software for encryption and signing";
     "ImageJ" = "imagej", "Image processing and analysis software";
     "Inkscape" = "inkscape", "Vector graphics editor";
