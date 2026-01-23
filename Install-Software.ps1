@@ -249,7 +249,7 @@ function Install-FDAeSubmitter {
     #>
     Install-FromUri -Name "FDA eSubmitter" `
         -Uri "https://www.accessdata.fda.gov/esubmissions/ftparea/esubmitter/platforms/Windows/IncludeJvm/jinstall.zip" `
-        -Filename "jinstall.zip" -UnzipFolderName "${jinstall}" -UnzippedFilePath "jinstall.exe" `
+        -Filename "jinstall.zip" -UnzippedFilePath "jinstall.exe" `
         -SHA256 "b98d19c7ae5daf53f7cb7e552a15f8c5c67609a2ffb4b789cf530f8b6733b6fb" `
         -BypassAuthenticode
 }
@@ -276,19 +276,32 @@ function Install-IDSPeak ([string]$Version = "2.18.1.0", [string]$Version2 = "18
     #>
     $Folder = "ids-peak-win-extended-setup-64-${Version}"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "IDS Peak" -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "ids_peak_${Version}-${Version2}_full_with_ueye_runtime.exe"
+    Install-FromUri `
+        -Name "IDS Peak" `
+        -Uri "https://en.ids-imaging.com/files/downloads/ids-peak/software/windows/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzipFolderName "${Folder}" `
+        -UnzippedFilePath "ids_peak_${Version}-${Version2}_full_with_ueye_runtime.exe"
 }
 
 function Install-IDSSoftwareSuite ([string]$Version = "4.95.2", [string]$Version2 = "49520") {
     $Folder = "ids-software-suite-win-${Version}"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "IDS Software Suite (µEye)" -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "uEye_${Version2}.exe"
+    Install-FromUri `
+        -Name "IDS Software Suite (µEye)" `
+        -Uri "https://en.ids-imaging.com/files/downloads/ids-software-suite/software/windows/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzipFolderName "${Folder}" `
+        -UnzippedFilePath "uEye_${Version2}.exe"
 }
 
 function Install-LabVIEWRuntime ([string]$Version = "25.3") {
     $Year = $Version.SubString(0,2)
     $Filename ="ni-labview-20${Year}-runtime-engine_${Version}_online.exe"
-    Install-FromUri -Name "LabVIEW Runtime" -Uri "https://download.ni.com/support/nipkg/products/ni-l/ni-labview-20${Year}-runtime-engine/${Version}/online/${Filename}" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "LabVIEW Runtime" `
+        -Uri "https://download.ni.com/support/nipkg/products/ni-l/ni-labview-20${Year}-runtime-engine/${Version}/online/${Filename}" `
+        -Filename "${Filename}"
 }
 
 function Install-LabVIEWRuntime2014SP1 {
@@ -302,12 +315,16 @@ function Install-LabVIEWRuntime2014SP1 {
     #>
     $Folder = "LVRTE2014SP1_f11Patchstd"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "LabVIEW Runtime 2014 SP1 32-bit" -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe" -SHA256 "2c54ab5169dd0cc9f14a7b0057881207b6f76e065c7c78bb8c898ac9c5ca0831"
+    Install-FromUri `
+        -Name "LabVIEW Runtime 2014 SP1 32-bit" `
+        -Uri "https://download.ni.com/support/softlib/labview/labview_runtime/2014%20SP1/Windows/f11/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzipFolderName "${Folder}" `
+        -UnzippedFilePath "setup.exe" `
+        -SHA256 "2c54ab5169dd0cc9f14a7b0057881207b6f76e065c7c78bb8c898ac9c5ca0831"
 }
 
 function Install-LenovoSuperIOFirmware {
-    [OutputType([int])]
-    param()
     # Lenovo ThinkStation P330 Tiny
     if ($ComputerSystem.Model -eq "30CES0B200") {
         $InstallerPath = "${SoftwareRepoPath}\Lenovo\P330 Tiny\Firmware\Lenovo Super IO Firmware\m1uct18usa.exe"
@@ -320,14 +337,11 @@ function Install-LenovoSuperIOFirmware {
                 Start-Process -NoNewWindow -Wait "cmd.exe" -ArgumentList "/c","cd ${ScriptDir} && ${ScriptPath}"
             }
         } else {
-            Show-Output "The Lenovo Super IO firmware installer was not found. Is the network drive mounted?"
-            return 1
+            throw [System.IO.FileNotFoundException] "The Lenovo Super IO firmware installer was not found. Is the network drive mounted?"
         }
     } else {
-        Show-Output -ForegroundColor Red "No Lenovo Super IO firmware has been configured for your computer model `"$ComputerSystem.Model`"."
-        return 1
+        throw [System.PlatformNotSupportedException] "No Lenovo Super IO firmware has been configured for your computer model `"$($ComputerSystem.Model)`"."
     }
-    return 0
 }
 
 function Install-MeerstetterTEC {
@@ -339,26 +353,24 @@ function Install-MeerstetterTEC {
     #>
     # Spaces are not allowed in msiexec filenames. Please also see this issue:
     # https://stackoverflow.com/questions/10108517/what-can-cause-msiexec-error-1619-this-installation-package-could-not-be-opened
-    Install-FromUri -Name "Meerstetter TEC software" -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=764:tec-controller-software" -Filename "TEC_Software.msi"
+    Install-FromUri `
+        -Name "Meerstetter TEC software" `
+        -Uri "https://www.meerstetter.ch/customer-center/downloads/category/31-latest-software?download=764:tec-controller-software" `
+        -Filename "TEC_Software.msi"
 }
 
 function Install-MEFirmware {
-    [OutputType([int])]
-    param()
     # Lenovo ThinkStation P330 Tiny
     if ($ComputerSystem.Model -eq "30CES0B200") {
         $FilePath = "${SoftwareRepoPath}\Lenovo\P330 Tiny\Firmware\Intel ME Firmware\12.0.90.2072_corporate.exe"
         if (Test-Path "$FilePath") {
             Start-Process -NoNewWindow -Wait "$FilePath" -ArgumentList "/silent"
         } else {
-            Show-Output "The Intel ME firmware installer was not found. Is the network drive mounted?"
-            return 1
+            throw [System.IO.FileNotFoundException] "The Intel ME firmware installer was not found. Is the network drive mounted?"
         }
     } else {
-        Show-Output -ForegroundColor Red "No Intel ME firmware has been configured for your computer model `"$ComputerSystem.Model`"."
-        return 1
+        throw [System.PlatformNotSupportedException] "No Intel ME firmware has been configured for your computer model `"$ComputerSystem.Model`"."
     }
-    return 0
 }
 
 function Install-NI4882 ([string]$Version = "25.8") {
@@ -369,7 +381,10 @@ function Install-NI4882 ([string]$Version = "25.8") {
         https://www.ni.com/fi-fi/support/downloads/drivers/download.ni-488-2.html
     #>
     $Filename = "ni-488.2_${Version}_online.exe"
-    Install-FromUri -Name "NI 488.2 (GPIB) drivers" -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "NI 488.2 (GPIB) drivers" `
+        -Uri "https://download.ni.com/support/nipkg/products/ni-4/ni-488.2/${Version}/online/${Filename}" `
+        -Filename "${Filename}"
 }
 
 function Install-NI-VISA1401Runtime {
@@ -386,35 +401,51 @@ function Install-NI-VISA1401Runtime {
     #>
     $Folder = "NIVISA1401runtime"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "NI-VISA 14.0.1 Runtime" -Uri "https://download.ni.com/support/softlib/visa/VISA%20Run-Time%20Engine/14.0.1/${Filename}" -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "setup.exe" -SHA256 "960e0f68ab7dbff286ba8ac2286d4e883f02f9390c2a033b433005e29fb93e72"
+    Install-FromUri `
+        -Name "NI-VISA 14.0.1 Runtime" `
+        -Uri "https://download.ni.com/support/softlib/visa/VISA%20Run-Time%20Engine/14.0.1/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzipFolderName "${Folder}" `
+        -UnzippedFilePath "setup.exe" `
+        -SHA256 "960e0f68ab7dbff286ba8ac2286d4e883f02f9390c2a033b433005e29fb93e72"
 }
 
 function Install-OpenVPN {
     <#
     .SYNOPSIS
         Install OpenVPN Community
+    .NOTES
+        Not currently used, since OpenVPN is also available from Chocolatey.
     .LINK
         https://openvpn.net/community-downloads/
     #>
-    [OutputType([int])]
     param(
         [string]$Version = "2.6.15",
         [string]$Version2 = "I001"
     )
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "amd64"
     $Filename = "OpenVPN-${Version}-${Version2}-${Arch}.msi"
-    Install-FromUri -Name "OpenVPN" -Uri "https://swupdate.openvpn.org/community/releases/$Filename" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "OpenVPN" `
+        -Uri "https://swupdate.openvpn.org/community/releases/${Filename}" `
+        -Filename "${Filename}"
 }
 
 function Install-OriginLab {
     <#
+    .SYNOPSIS
         Install the full version of OriginLab
+    .LINK
+        https://www.originlab.com/
     #>
-    [OutputType([int])]
     param(
-        [string]$Version = "Origin2022bSr1No_H"
+        [string]$Version = "Origin2022bSr1No_H",
+        [string]$SHA256 = "08ae9a8a2e75e2d1d19f2b8a74504e83a87623d445ea216dc847da9d00b3f9fc"
     )
-    return Install-Executable -Name "OriginLab" -Path "${SoftwareRepoPath}\Origin\${Version}\setup.exe"
+    Install-Executable `
+        -Name "OriginLab" `
+        -Path "${SoftwareRepoPath}\Origin\${Version}\setup.exe" `
+        -SHA256 $SHA256
 }
 
 function Install-OriginViewer {
@@ -424,38 +455,42 @@ function Install-OriginViewer {
     .LINK
         https://www.originlab.com/viewer/
     #>
-    [OutputType([bool])]
-    param()
     Show-Output "Downloading Origin Viewer"
     $Arch = Get-InstallBitness -x86 "" -x86_64 "_64"
     $Filename = "OriginViewer${Arch}.zip"
-    Invoke-WebRequestFast -Uri "https://www.originlab.com/ftp/${Filename}" -OutFile "${Downloads}\${Filename}"
-    $DestinationPath = "${Home}\Downloads\Origin Viewer"
-    if(-Not (Clear-Path "${DestinationPath}")) {
-        return $false
-    }
-    Show-Output "Extracting Origin Viewer"
-    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
+    Install-FromUri `
+        -Name "Origin Viewer" `
+        -Uri "https://www.originlab.com/ftp/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzipFolderName "Origin Viewer"
+    $DestinationPath = "${Downloads}\Origin Viewer"
     $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
     if ($null -eq $ExePath) {
-        Show-Output -ForegroundColor Red "No exe file was found in the extracted directory."
-        return $false
+        throw [System.IO.FileNotFoundException] "No exe file was found in the extracted directory `"${DestinationPath}`"."
     }
+    Test-AuthenticodeSignature -FilePath $ExePath
     New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" -TargetPath "${ExePath}"
-    return $true
 }
 
-function Install-Rezonator1([string]$Version = "1.7.116.375", [string]$SHA256 = "c0601dd4de38de638f90ef9314c5d6f5a808cf5dd848f4a02ac7382b71d43ad6") {
+function Install-Rezonator1 {
     <#
     .SYNOPSIS
         Install the reZonator laser cavity simulator
     .LINK
         http://rezonator.orion-project.org/?page=dload
     #>
+    param(
+        [string]$Version = "1.7.116.375",
+        [string]$SHA256 = "c0601dd4de38de638f90ef9314c5d6f5a808cf5dd848f4a02ac7382b71d43ad6"
+    )
     $Filename = "rezonator-${Version}.exe"
     # The reZonator web page does not support HTTPS.
-    Install-FromUri -Name "reZonator 1" -Uri "https://rezonator.orion-project.org/files/${Filename}" `
-        -Filename "${Filename}" -SHA256 "${SHA256}" -BypassAuthenticode
+    Install-FromUri `
+        -Name "reZonator 1" `
+        -Uri "https://rezonator.orion-project.org/files/${Filename}" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
 }
 
 function Install-Rezonator2 {
@@ -469,53 +504,64 @@ function Install-Rezonator2 {
     param(
         [string]$Version = "2.1.1"
     )
-    Show-Output "Downloading reZonator 2"
     $Bitness = Get-InstallBitness -x86 "x32" -x86_64 "x64"
     $Filename = "rezonator-${Version}-win-${Bitness}.zip"
-    Invoke-WebRequestFast -Uri "https://github.com/orion-project/rezonator2/releases/download/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
-    $DestinationPath = "${Home}\Downloads\reZonator"
-    if(-Not (Clear-Path "${DestinationPath}")) {
-        return $false
-    }
-    Show-Output "Extracting reZonator 2"
-    Expand-Archive -Path "${Downloads}\$Filename" -DestinationPath "${DestinationPath}"
-    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\reZonator 2.lnk" -TargetPath "${DestinationPath}\rezonator.exe"
-    return $true
+    Install-FromUri `
+        -Name "reZonator 2" `
+        -Uri "https://github.com/orion-project/rezonator2/releases/download/v${Version}/${Filename}" `
+        -Filename $Filename `
+        -UnzipFolderName "reZonator 2"
+    New-StartMenuShortcut -Name "reZonator 2" -TargetPath "${Downloads}\reZonator 2\rezonator.exe"
 }
 
-function Install-SMCThermoChiller ([string]$Version = "2.0.1.0", [string]$SHA256 = "cbb67f4b4e185c708c7dec523087b156c74eab816c136dbbeb1dd7f7dc1d5cb3") {
+function Install-SMCThermoChiller {
     <#
     .SYNOPSIS
         Monitoring software for SMC ThermoChillers, especially the HRR series
     .LINK
         https://smc-fluidcontrol.com/hrr-software/
     #>
+    param(
+        [string]$Version = "2.0.1.0",
+        [string]$SHA256 = "cbb67f4b4e185c708c7dec523087b156c74eab816c136dbbeb1dd7f7dc1d5cb3"
+    )
     $Folder = "hrr-v${Version}"
     $Filename = "${Folder}.zip"
-    Install-FromUri -Name "SMC ThermoChiller" `
+    Install-FromUri `
+        -Name "SMC ThermoChiller" `
         -Uri "https://static.smc.eu/binaries/content/assets/smc_global/products/engineering-tools/hrr-monitoring-software/${Filename}" `
-        -Filename "${Filename}" -UnzipFolderName "${Folder}" -UnzippedFilePath "HRR V${Version}.exe" -SHA256 "${SHA256}" -BypassAuthenticode
+        -Filename "${Filename}" `
+        -UnzipFolderName "${Folder}" `
+        -UnzippedFilePath "HRR V${Version}.exe" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
 }
 
-function Install-SNLO ([string]$Version = "78", [string]$SHA256 = "be4635f51f6d6f51433c660dc4787a256796fb9d35425605f212ff1a60aeba0a") {
+function Install-SNLO {
+    param(
+        [string]$Version = "78",
+        [string]$SHA256 = "be4635f51f6d6f51433c660dc4787a256796fb9d35425605f212ff1a60aeba0a"
+    )
     $Filename = "SNLO-v${Version}.exe"
-    Install-FromUri -Name "SNLO" -Uri "https://as-photonics.com/snlo_files/${Filename}" -Filename "${Filename}" -SHA256 "${SHA256}" -BypassAuthenticode
+    Install-FromUri `
+        -Name "SNLO" `
+        -Uri "https://as-photonics.com/snlo_files/${Filename}" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
 }
 
-function Install-SSMbe ([string]$Version = "20160525") {
-    $FolderName = "SSMbe_exe_20160525"
-    $FilePath = "${SoftwareRepoPath}\SS10-1 MBE software\${FolderName}.zip"
-    $DestinationPath = "${Downloads}\SS10-1 MBE software"
-    if (-Not (Clear-Path "${DestinationPath}")) {
-        return $false
-    }
-    if (Test-Path $FilePath) {
-        Expand-Archive -Path "${FilePath}" -DestinationPath "${DestinationPath}"
-    } else {
-        Show-Output -ForegroundColor Red "SSMbe installer was not found."
-    }
-    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\SSMbe.lnk" -TargetPath "${DestinationPath}\${FolderName}\SSMbe.exe"
-    return $true
+function Install-SSMbe {
+    param(
+        [string]$Version = "20160525",
+        [string]$SHA256 = "20f1648d44a3bef1c7d1fae0b9973c846c0ea644ce6d0c405c03c558e05894c0"
+    )
+    $FolderName = "SSMbe_exe_${Version}"
+    Install-FromUri `
+        -Name "SSMbe" `
+        -Uri "${SoftwareRepoPath}\SS10-1 MBE software\${FolderName}.zip" `
+        -SHA256 $SHA256
+    New-StartMenuShortcut -Name "SSMbe" -TargetPath "${Downloads}\${FolderName}\SSMbe.exe"
 }
 
 function Install-StarLab {
@@ -526,7 +572,11 @@ function Install-StarLab {
         https://www.ophiropt.com/laser--measurement/software/starlab-for-usb
     #>
     $Filename="StarLab.zip"
-    Install-FromUri -Name "Ophir StarLab" -Uri "https://www.ophiropt.com/mam/celum/celum_assets/op/resources/${Filename}" -Filename "${Filename}" -UnzipFolderName "StarLab" -UnzippedFilePath "StarLab_Setup.exe"
+    Install-FromUri `
+        -Name "Ophir StarLab" `
+        -Uri "https://www.ophiropt.com/mam/celum/celum_assets/op/resources/${Filename}" `
+        -Filename "${Filename}" `
+        -UnzippedFilePath "StarLab_Setup.exe"
 }
 
 function Install-ThorCam ([string]$Version = "3.7.0.6") {
@@ -610,65 +660,59 @@ function Install-ThorlabsKinesis {
 }
 
 function Install-VCU {
+    param(
+        [string]$Version = "0.13.42",
+        [string]$SHA256 = "d1a20b6a24bd2bff8ee9bb8cd6aca1200a47e6f5e86eebf8fb053100751255e6"
+    )
+    Install-Executable `
+        -Name "VCU GUI" `
+        -Path "${SoftwareRepoPath}\VCU\VCU_GUI_Setup_${Version}.exe" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
+}
+
+function Install-VCURemote2 {
     [OutputType([int])]
     param(
-        [string]$Version = "0.13.42"
+        [string]$Version = "250805"
     )
-    $FilePath = "${SoftwareRepoPath}\VCU\VCU_GUI_Setup_${Version}.exe"
-    if (Test-Path "$FilePath") {
-        Show-Output "Installing VCU GUI"
-        Start-Process -NoNewWindow -Wait "$FilePath"
-    } else {
-        Show-Output "The VCU GUI installer was not found. Is the network drive mounted?"
-        return 1
-    }
-    return 0
+    $Folder = "vcu_remote2_${Version}"
+    Install-FromUri `
+        -Name "VCU Remote 2" `
+        -Uri "${SoftwareRepoPath}\VCU\${Folder}.zip" `
+        -SHA256 "30adc530bb6b40ff527ca183ed21c0617d0e3cadc8e39a6f937b3a87df4903d7"
+    New-StartMenuShortcut -Name "VCU Remote 2" -TargetPath "${Downloads}\${Folder}\vcu-remote2.exe"
 }
 
 function Install-VeecoVision {
-    [OutputType([int])]
-    param()
-
-    Show-Output "Searching for Veeco (Wyko) Vision from the network drive."
-    $FilePath = "${SoftwareRepoPath}\Veeco\VISION64_V5.51_Release.zip"
-    if (Test-Path "$FilePath") {
-        Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
-        Show-Output "Installing Veeco (Wyko) Vision"
-        Start-Process -NoNewWindow -Wait "${Downloads}\CD 775-425 SOFTWARE VISION64 V5.51\Install.exe"
-    } else {
-        Show-Output "Veeco (Wyko) Vision was not found. Is the network drive mounted?"
-        Show-Output "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
-        gpupdate /force
-        return 1
-    }
-    Show-Output "Searching for Veeco (Wyko) Vision update from the network drive."
-    $FilePath = "${SoftwareRepoPath}\Veeco\Vision64 5.51 Update 3.zip"
-    if (Test-Path "$FilePath") {
-        Expand-Archive -Path "$FilePath" -DestinationPath "$Downloads"
-        Show-Output "Installing Veeco (Wyko) Vision update"
-        Start-Process -NoNewWindow -Wait "${Downloads}\Vision64 5.51 Update 3\CD\Vision64_5.51_Update_3.EXE"
-    } else {
-        Show-Output -ForegroundColor Red "Veeco (Wyko) Vision update was not found. Has the file been moved?"
-        return 2
-    }
-    return 0
+    Install-FromUri `
+        -Name "Veeco (Wyko) Vision" `
+        -Uri "${SoftwareRepoPath}\Veeco\VISION64_V5.51_Release.zip" `
+        -UnzippedFilePath "CD 775-425 SOFTWARE VISION64 V5.51\Install.exe" `
+        -SHA256 "49601df2ca6f6668f342b776d67c533841b6de2b43f531ff70f636fd5ef87af8"
+    Install-FromUri `
+        -Name "Veeco (Wyko) Vision update" `
+        -Uri "${SoftwareRepoPath}\Veeco\Vision64 5.51 Update 3.zip" `
+        -UnzippedFilePath "Vision64 5.51 Update 3\CD\Vision64_5.51_Update_3.EXE" `
+        -SHA256 "43ecbd255d7830029337a489e0219536b860a4858672378ce6d9d78c60cbc5df" `
+        -BypassAuthenticode
 }
 
-function Install-Wavesquared ([string]$Version = "4.4.2.25284") {
+function Install-Wavesquared {
+    param(
+        [string]$Version = "4.4.2.25284",
+        [string]$SHA256 = "5fd66f23fe6dfdcae781936b9f52a46a216da455707922ae8dd905e4c710ec6e"
+    )
     # https://jrsoftware.org/ishelp/index.php?topic=setupcmdline
-    Start-Process -NoNewWindow -Wait "${SoftwareRepoPath}\Imagine Optic\wavesquared_${Version}\WaveSuite_setup.exe"
+    Install-Executable `
+        -Name "Wavesquared" `
+        -Path "${SoftwareRepoPath}\Imagine Optic\wavesquared_${Version}\WaveSuite_setup.exe" `
+        -SHA256 $SHA256 `
+        -BypassAuthenticode
 }
 
 function Install-WithSecure {
-    $FilePath = "${SoftwareRepoPath}\WithSecure\ElementsAgentInstaller*.exe"
-    if (Test-Path "${FilePath}") {
-        Show-Output "Installing WithSecure Elements Agent"
-        Start-Process -NoNewWindow -Wait "${FilePath}"
-    } else {
-        Show-Output -ForegroundColor Red "WithSecure Elements Agent installer was not found. Has the file been moved?"
-        return 1
-    }
-    return 0
+    Install-Executable -Name "WithSecure" -Path "${SoftwareRepoPath}\WithSecure\ElementsAgentInstaller*.exe"
 }
 
 function Install-WSL {
@@ -681,15 +725,17 @@ function Install-WSL {
 }
 
 function Install-Xeneth {
-    [OutputType([int])]
-    param()
-    $Bitness = Get-InstallBitness -x86 "" -x86_64 "64"
-    $FilePath = Resolve-Path "${SoftwareRepoPath}\Xenics\BOBCAT*\Software\Xeneth-Setup${Bitness}.exe"
-    if (Test-Path "${FilePath}") {
-        return Install-Executable -Name "Xeneth" -Path "${FilePath}"
-    } else {
-        Show-Output -ForegroundColor Red "Xeneth installer was not found. Has the file been moved?"
-    }
+    param(
+        [string]$Version = "BOBCAT320-9851_RMA18001067",
+        [string]$SHA256 = "acde5c53ef46595de5dee77a0b0e59cd1d6e15e4be0ae27b5257ddec039ff7f7"
+    )
+    # $Bitness = Get-InstallBitness -x86 "" -x86_64 "64"
+    $FilePath = "${SoftwareRepoPath}\Xenics\${Version}\Software\Xeneth-Setup64.exe"
+    Install-Executable `
+        -Name "Xeneth" `
+        -Path "${FilePath}" `
+        -SHA256 $SHA256 `
+        -BypassAuthenticode
 }
 
 $OtherOperations = [ordered]@{
@@ -728,6 +774,7 @@ $OtherOperations = [ordered]@{
     "Thorlabs Elliptec" = ${function:Install-ThorlabsElliptec}, "Driver for Thorlabs Elliptec stages and mounts";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";
     "VCU" = ${function:Install-VCU}, "VCU GUI";
+    "VCU Remote 2" = ${function:Install-VCURemote2}, "VCU Remote 2";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
     "Wavesquared" = ${function:Install-Wavesquared}, "M2 factor analysis software";
     "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
@@ -1030,7 +1077,7 @@ if (! $Form.Continue) {
 
 $ChocoSelected = Get-SelectedCommands $ChocoProgramsView
 if ($ChocoSelected.Count) {
-    Show-Output "Installing programs with Chocolatey."
+    Show-Output "Installing $($ChocoSelected.Count) program(s) with Chocolatey."
     choco upgrade -y $ChocoSelected
 } else {
     Show-Output "No programs were selected to be installed with Chocolatey."
@@ -1038,9 +1085,9 @@ if ($ChocoSelected.Count) {
 
 $WingetSelected = Get-SelectedCommands $WingetProgramsView
 if ($WingetSelected.Count) {
-    Show-Output "Installing programs with Winget. If asked to accept the license of the package repository, please select yes."
-    foreach($program in $WingetSelected) {
-        winget install "${program}"
+    Show-Output "Installing $($WingetSelected.Count) program(s) with Winget. If asked to accept the license of the package repository, please select yes."
+    foreach($Program in $WingetSelected) {
+        winget install "${Program}"
     }
 } else {
     Show-Output "No programs were selected to be installed with Winget."
@@ -1048,10 +1095,10 @@ if ($WingetSelected.Count) {
 
 $WindowsCapabilitiesSelected = Get-SelectedCommands $WindowsCapabilitiesView
 if ($WindowsCapabilitiesSelected.Count) {
-    Show-Output "Installing Windows capabilities."
-    foreach($capability in $WindowsCapabilitiesSelected) {
-        Show-Output "Installing ${capability}"
-        Add-WindowsCapability -Name "$capability" -Online
+    Show-Output "Installing $($WindowsCapabilitiesSelected.Count) Windows capabilitie(s)."
+    foreach($Capability in $WindowsCapabilitiesSelected) {
+        Show-Output "Installing ${Capability}"
+        Add-WindowsCapability -Name "$Capability" -Online
     }
 } else {
     Show-Output "No Windows capabilities were selected to be installed."
@@ -1059,10 +1106,10 @@ if ($WindowsCapabilitiesSelected.Count) {
 
 $WindowsFeaturesSelected = Get-SelectedCommands $WindowsFeaturesView
 if ($WindowsFeaturesSelected.Count) {
-    Show-Output "Installing Windows features."
-    foreach($feature in $WindowsFeaturesSelected) {
-        Show-Output "Installing ${feature}"
-        Enable-WindowsOptionalFeature -FeatureName "$feature" -Online
+    Show-Output "Installing $($WindowsFeaturesSelected.Count) Windows feature(s)."
+    foreach($Feature in $WindowsFeaturesSelected) {
+        Show-Output "Installing ${Feature}"
+        Enable-WindowsOptionalFeature -FeatureName "$Feature" -Online
     }
 } else {
     Show-Output "No Windows features were selected to be installed."
@@ -1071,9 +1118,13 @@ if ($WindowsFeaturesSelected.Count) {
 # These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
 $OtherSelected = Get-SelectedCommands $OtherOperationsView
 if ($OtherSelected.Count) {
-    Show-Output "Running other selected operations."
-    foreach($command in $OtherSelected) {
-        . $command
+    Show-Output "Running $($OtherSelected.Count) other selected operation(s)."
+    foreach($Command in $OtherSelected) {
+        try {
+            . $Command
+        } catch {
+            Show-Output -ForegroundColor Red $_
+        }
     }
 } else {
     Show-Output "No other operations were selected."

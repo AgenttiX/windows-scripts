@@ -68,6 +68,8 @@ $LogPath = "${RepoPath}\Logs"
 # Define some useful paths
 $CommonDesktopPath = [Environment]::GetFolderPath("CommonDesktopDirectory")
 $DesktopPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop)
+$CommonStartMenuPath = "${env:PROGRAMDATA}\Microsoft\Windows\Start Menu\Programs"
+$UserStartMenuPath = "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs"
 $StartPath = Get-Location
 
 # Define some useful variables
@@ -321,11 +323,12 @@ function Install-Chocolatey {
 }
 
 function Install-Executable {
-    [OutputType([int])]
     param(
         [string]$Name,
         [string]$Path,
-        [switch]$BypassAuthenticode = $false
+        [switch]$BypassAuthenticode = $false,
+        [string]$MD5,
+        [string]$SHA256
     )
     # Validate the file path
     try {
@@ -335,18 +338,14 @@ function Install-Executable {
             Show-Output -ForegroundColor Red "${Name} installer was not found at ${Path}. Do you have the network drive mounted?"
             Show-Output -ForegroundColor Red "It could be that your computer does not have the necessary group policies applied. Applying. You will need to reboot for the changes to become effective."
             gpupdate /force
-        } else {
-            Show-Output -ForegroundColor Red "${Name} installer was not found at ${Path}."
         }
-        return 1
+        throw [System.IO.FileNotFoundException] "${Name} installer was not found at `"${Path}`"."
     }
+    # Validate checksum
+    Test-Checksum -Path $Path -MD5 $MD5 -SHA256 $SHA256
     # Validate Authenticode
     if (-not $BypassAuthenticode) {
-        try {
-            Test-AuthenticodeSignature -FilePath "${Path}"
-        } catch {
-            return 2
-        }
+        Test-AuthenticodeSignature -FilePath "${Path}"
     }
     # Install the executable
     Show-Output "Installing ${Name}"
@@ -359,51 +358,82 @@ function Install-Executable {
     if ($ExitCode) {
         Show-Output -ForegroundColor Red "${Name} installation returned non-zero exit code ${ExitCode}. Perhaps the installation failed?"
     }
-    return $ExitCode
 }
 
 function Install-FromUri {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingBrokenHashAlgorithms", "", Justification="Legacy MD5 support is on purpose for backwards compatibility")]
-    [OutputType([int])]
     param(
         [Parameter(mandatory=$true)][string]$Name,
         [Parameter(mandatory=$true)][string]$Uri,
-        [Parameter(mandatory=$true)][string]$Filename,
+        [Parameter(mandatory=$false)][string]$Filename,
         [Parameter(mandatory=$false)][string]$UnzipFolderName,
         [Parameter(mandatory=$false)][string]$UnzippedFilePath,
         [Parameter(mandatory=$false)][string]$MD5,
         [Parameter(mandatory=$false)][string]$SHA256,
         [switch]$BypassAuthenticode = $false
     )
-    Show-Output "Downloading ${Name}"
-    $Path = "${Downloads}\${Filename}"
+    # Check whether $Uri is a remote resource or a path from e.g. a network drive.
+    $IsRemote = $Uri.Contains("://")
+    if ($IsRemote) {
+        if (($Uri.Contains("http://") -or ($Uri.Contains("ftp://"))) -and (-not ($PSBoundParameters.ContainsKey("SHA256") -or $PSBoundParameters.ContainsKey("MD5")))) {
+            throw [System.Security.SecurityException] "Downloading over an unencrypted connection without providing a hash for checking file integrity is not supported for security."
+        }
+        $Path = "${Downloads}\${Filename}"
+        if (-not $PSBoundParameters.ContainsKey("Filename")) {
+            throw [System.ArgumentException] "A filename must be provided when downloading a remote file."
+        }
+    } else {
+        $Path = $Uri
+    }
 
     # Test if the file already exists and matches the given hash
     $FileAlreadyOK = $false
     if (Test-Path $Path) {
+        if ($IsRemote) {
+            $DownloadText1 = "is already downloaded and "
+            $DownloadText2 = " Skipping download."
+            $DownloadText3 = "already downloaded"
+            $DownloadText4 = " The previous download may have been interrupted. Downloading again."
+        } else {
+            $DownloadText1 = ""
+            $DownloadText2 = ""
+            $DownloadText3 = "found"
+            $DownloadText4 = " Please request a healthy copy from the software developer."
+        }
         if ($PSBoundParameters.ContainsKey("SHA256")) {
+            Show-Output "Verifying SHA256 checksum for `"${Path}`"."
             $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
             if ($FileHash -eq $SHA256) {
                 $FileAlreadyOK = $true
-                Show-Output "The file `"${Path}`" is already downloaded and has the correct SHA-256 hash ${SHA256}. Skipping download."
+                Show-Output "The file `"${Path}`" ${DownloadText1}has the correct SHA-256 hash ${SHA256}.${DownloadText2}"
             } else {
-                Show-Output "The file `"${Path}` was already downloaded, but had an incorrect SHA-256 hash. " `
-                    + "(Expected ${SHA256}, got ${FileHash}.) The previous download may have been interrupted. Downloading again."
+                Show-Output -ForegroundColor Red "The file `"${Path}` was ${DownloadText3}, but has an incorrect SHA-256 hash. " `
+                    + "(Expected ${SHA256}, got ${FileHash}.)${DownloadText4}"
+                if (-not $IsRemote) {
+                    throw [System.Security.SecurityException]
+                }
             }
         } elseif ($PSBoundParameters.ContainsKey("MD5")) {
+            Show-Output "Verifying MD5 checksum for `"${Path}`"."
             $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
             if ($FileHash -eq $MD5) {
                 $FileAlreadyOK = $true
-                Show-Output "The file `"${Path}`" is already downloaded and has the correct MD5 hash ${MD5}. Skipping download."
+                Show-Output "The file `"${Path}`" ${DownloadText1}has the correct MD5 hash ${MD5}.${DownloadText2}"
             } else {
-                Show-Output "The file `"${Path}` was already downloaded, but had an incorrect MD5 hash. " `
-                    + "(Expected ${MD5}, got ${FileHash}.) The previous download may have been interrupted. Downloading again."
+                Show-Output -ForegroundColor Red "The file `"${Path}` was ${DownloadText3}, but has an incorrect MD5 hash. " `
+                    + "(Expected ${MD5}, got ${FileHash}.)${DownloadText4}"
+                if (-not $IsRemote) {
+                    throw [System.Security.SecurityException]
+                }
             }
         }
+    } elseif (-not $IsRemote) {
+        throw [System.IO.FileNotFoundException] "The path `"${Path}`" seems not to exist on the system, nor does it seem to be a remote uri."
     }
 
     # Download the file
-    if (-not $FileAlreadyOK) {
+    if ($IsRemote -and (-not $FileAlreadyOK)) {
+        Show-Output "Downloading ${Name}"
         Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
     }
 
@@ -411,46 +441,40 @@ function Install-FromUri {
     try {
         $File = Get-Item "${Path}" -ErrorAction Stop
     } catch {
-        Show-Output "Downloaded file was not found at ${Path}"
-        return 1
+        throw [System.IO.FileNotFoundException] "The file was not found at ${Path}"
     }
 
     # Verify the file checksum if not already verified
     if (-not $FileAlreadyOK) {
-        if ($PSBoundParameters.ContainsKey("SHA256")) {
-            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
-            if ($FileHash -eq $SHA256) {
-                Show-Output "SHA256 checksum OK"
-            } else {
-                Show-Output -ForegroundColor Red "Downloaded file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
-                return 1
-            }
-        } elseif ($PSBoundParameters.ContainsKey("MD5")) {
-            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
-            if ($FileHash -eq $MD5) {
-                Show-Output "MD5 checksum OK"
-            } else {
-                Show-Output -ForegroundColor Red "Downloaded file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
-                return 1
-            }
-        }
+        Test-Checksum -Path $Path -MD5 $MD5 -SHA256 $SHA256
     }
 
     # Process the downloaded file
     if ($File.Extension -eq ".zip") {
-        if (-not $PSBoundParameters.ContainsKey("UnzipFolderName")) {
-            Show-Output -ForegroundColor Red "UnzipFolderName was not provided for a zip file."
-            return 1
-        }
-        if (-not $PSBoundParameters.ContainsKey("UnzippedFilePath")) {
-            Show-Output -ForegroundColor Red "UnzippedFilePath was not provided for a zip file."
-            return 1
+        # Some zip files have a directory already in them.
+        # if (-not $PSBoundParameters.ContainsKey("UnzipFolderName")) {
+        #     Show-Output -ForegroundColor Red "UnzipFolderName was not provided for a zip file."
+        #     return 1
+        # }
+        if ($PSBoundParameters.ContainsKey("UnzipFolderName")) {
+            $UnzipPath = "${Downloads}\${UnzipFolderName}"
+            if ((Test-Path $UnzipPath) -and (-not (Clear-Path $UnzipPath))) {
+                throw [System.IO.IOException] "Cannot extract to the non-empty folder `"${UnzipPath}`"."
+            }
+        } else {
+            $UnzipPath = $Downloads
         }
         Show-Output "Extracting ${Name}"
-        Expand-Archive -Path "${Path}" -DestinationPath "${Downloads}\${UnzipFolderName}" -Force
-        $ExecutablePath = "${Downloads}\${UnzipFolderName}\${UnzippedFilePath}"
+        # The -Force is necessary for overwriting an existing .exe
+        Expand-Archive -LiteralPath "${Path}" -DestinationPath "${UnzipPath}" -Force
+        if ($PSBoundParameters.ContainsKey("UnzippedFilePath")) {
+            $ExecutablePath = "${Downloads}\${UnzipFolderName}\${UnzippedFilePath}"
+        } else {
+            Show-Output "UnzippedFilePath was not provided for the zip file."
+            return
+        }
     } else {
-        $ExecutablePath = "${Downloads}\${Filename}"
+        $ExecutablePath = $Path
     }
     Install-Executable -Name "${Name}" -Path "${ExecutablePath}" -BypassAuthenticode:$BypassAuthenticode
 }
@@ -486,20 +510,23 @@ function Install-PTS {
     )
     $PTS = "${Env:SystemDrive}\phoronix-test-suite\phoronix-test-suite.bat"
     if ((-not (Test-Path "$PTS")) -or $Force) {
-        Show-Output "Downloading Phoronix Test Suite (PTS)."
-        Invoke-WebRequest -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip" -OutFile "${Downloads}\phoronix-test-suite-${PTS_version}.zip"
-        Show-Output "Extracting Phoronix Test Suite (PTS)"
-        Expand-Archive -LiteralPath "${Downloads}\phoronix-test-suite-${PTS_version}.zip" -DestinationPath "${Downloads}\phoronix-test-suite-${PTS_version}" -Force
+        Install-FromUri
+            -Name "Phoronix Test Suite (PTS)"
+            -Uri "https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v${PTS_version}.zip"
+            -Filename "phoronix-test-suite-${PTS_version}.zip"
+
         # The installation script needs to be executed in its directory
-        Set-Location "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}"
-        Show-Output "Installing Phoronix Test Suite (PTS)."
-        Show-Output "You may get prompts asking whether you accept the EULA and whether to send anonymous usage statistics."
-        Show-Output "Please select yes to the former and preferably to the latter as well."
-        & ".\install.bat"
-        Set-Location "$StartPath"
-        if (-Not (Test-Path "$PTS")) {
-            Show-Output -ForegroundColor Red "Phoronix Test Suite (PTS) installation failed."
-            exit 1
+        try {
+            Set-Location "${Downloads}\phoronix-test-suite-${PTS_version}\phoronix-test-suite-${PTS_version}"
+            Show-Output "Installing Phoronix Test Suite (PTS)."
+            Show-Output "You may get prompts asking whether you accept the EULA and whether to send anonymous usage statistics."
+            Show-Output "Please select yes to the former and preferably to the latter as well."
+            & ".\install.bat"
+        } finally{
+            Set-Location "$StartPath"
+        }
+        if (-not (Test-Path "$PTS")) {
+            throw [System.IO.FileNotFoundException] "Phoronix Test Suite (PTS) was not found at `"${PTS}`"."
         }
         Show-Output "Phoronix Test Suite (PTS) has been installed. It is highly recommended that you log in now so that you can manage the uploaded results."
         & "$PTS" openbenchmarking-login
@@ -613,10 +640,11 @@ function New-Shortcut {
         [string]$IconLocation,
         [string]$WorkingDirectory
     )
-    # This does not work, as it throws an error for bare program names, e.g. "powershell"
-    # if (!(Test-Path "${TargetPath}")) {
-    #     throw [System.IO.FileNotFoundException] "Could not find shortcut target ${TargetPath}"
-    # }
+    # Some shortcuts may also be created for bare program names,
+    # in which case Test-Path may not find them, even though they are valid.
+    if ([System.IO.Path]::IsPathRooted($TargetPath) -and (-not (Test-Path($TargetPath)))) {
+        throw [System.IO.FileNotFoundException] "Could not find shortcut target `"${TargetPath}`""
+    }
 
     $WshShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($Path)
@@ -634,6 +662,42 @@ function New-Shortcut {
         $Shortcut.Save()
     }
     return $Shortcut
+}
+
+function New-DesktopShortcut {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [Parameter(Mandatory=$true)][string]$TargetPath,
+        [string]$Arguments,
+        [string]$IconLocation,
+        [string]$WorkingDirectory,
+        [switch]$UserOnly
+    )
+    if ($UserOnly -or ($TargetPath.StartsWith($UserDir, "CurrentCultureIgnoreCase"))) {
+        $Path = "${DesktopPath}\$Name.lnk"
+    } else {
+        $Path = "${CommonDesktopPath}\${Name}.lnk"
+    }
+    New-Shortcut -Path $Path -TargetPath $TargetPath -Arguments $Arguments -WorkingDirectory $WorkingDirectory
+}
+
+function New-StartMenuShortcut {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [Parameter(Mandatory=$true)][string]$TargetPath,
+        [string]$Arguments,
+        [string]$IconLocation,
+        [string]$WorkingDirectory,
+        [string]$UserOnly
+    )
+    if ($UserOnly -or ($TargetPath.StartsWith($UserDir, "CurrentCultureIgnoreCase"))) {
+        $Path = "${UserStartMenuPath}\${Name}.lnk"
+    } else {
+        $Path = "${CommonStartMenuPath}\${Name}.lnk"
+    }
+    New-Shortcut -Path $Path -TargetPath $TargetPath -Arguments $Arguments -WorkingDirectory $WorkingDirectory
 }
 
 function Request-DomainConnection {
@@ -776,7 +840,7 @@ function Test-AuthenticodeSignature {
     #>
     param(
         [Parameter(Mandatory=$true)][string]$FilePath,
-        [switch]$Silent = $false
+        [switch]$Silent
     )
     $Signature = Get-AuthenticodeSignature -FilePath "${FilePath}"
     $Failed = $Signature.Status -ne "Valid"
@@ -805,19 +869,48 @@ function Test-AuthenticodeSignature {
     }
 }
 
+function Test-Checksum {
+    param(
+        [string]$Path,
+        [string]$MD5,
+        [string]$SHA256
+    )
+    if ($SHA256) {
+        Show-Output "Verifying SHA256 checksum for `"${Path}`"."
+        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "SHA256").Hash
+        if ($FileHash -eq $SHA256) {
+            Show-Output "SHA256 checksum OK"
+        } else {
+            throw [System.Security.SecurityException] "The file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
+        }
+    } elseif ($MD5) {
+        Show-Output "Verifying MD5 checksum for `"${Path}`"."
+        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
+        if ($FileHash -eq $MD5) {
+            Show-Output "MD5 checksum OK"
+        } else {
+            throw [System.Security.SecurityException] "The file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
+        }
+    }
+}
+
 function Test-CommandExists {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Not plural")]
     [OutputType([bool])]
-    Param(
+    param(
         [Parameter(Mandatory=$true)][string]$command
     )
-    $oldPreference = $ErrorActionPreference
+    $OldPreference = $ErrorActionPreference
     $ErrorActionPreference = "stop"
     try {
-        if (Get-Command $command){RETURN $true}
+        if (Get-Command $command){
+            return $true
+        }
+    } catch {
+        return $false
+    } finally {
+        $ErrorActionPreference=$OldPreference
     }
-    catch {RETURN $false}
-    finally {$ErrorActionPreference=$oldPreference}
 }
 
 function Test-PendingRebootAndExit {
@@ -830,7 +923,7 @@ function Test-PendingRebootAndExit {
     if (Test-RebootPending) {
         Show-Output -ForegroundColor Cyan "A reboot is already pending. Please close this window, reboot the computer and then run this script again."
         if (! (Get-YesNo "If you are sure you want to continue regardless, please write `"y`" and press enter.")) {
-            Exit 0
+            exit 0
         }
     }
 }
@@ -843,7 +936,7 @@ function Test-RebootPending {
         https://4sysops.com/archives/use-powershell-to-test-if-a-windows-server-is-pending-a-reboot/
     #>
     [OutputType([bool])]
-    $pendingRebootTests = @(
+    $PendingRebootTests = @(
         @{
             Name = "RebootPending"
             Test = { Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing" -Name "RebootPending" -ErrorAction Ignore }
@@ -860,11 +953,11 @@ function Test-RebootPending {
             TestType = "NonNullValue"
         }
     )
-    foreach ($test in $pendingRebootTests) {
-        $result = Invoke-Command -ScriptBlock $test.Test
-        if ($test.TestType -eq "ValueExists" -and $result) {
+    foreach ($Test in $PendingRebootTests) {
+        $result = Invoke-Command -ScriptBlock $Test.Test
+        if ($Test.TestType -eq "ValueExists" -and $result) {
             return $true
-        } elseif ($test.TestType -eq "NonNullValue" -and $result -and $result.($test.Name)) {
+        } elseif ($Test.TestType -eq "NonNullValue" -and $result -and $result.($Test.Name)) {
             return $true
         } else {
             return $false
