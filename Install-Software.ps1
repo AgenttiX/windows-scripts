@@ -472,6 +472,45 @@ function Install-OriginViewer {
     New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" -TargetPath "${ExePath}"
 }
 
+function Install-PicoScope {
+    <#
+    .SYNOPSIS
+        Driver for Pico Tecnology oscilloscopes
+    .LINK
+        https://www.picotech.com/downloads/_lightbox/picoscope-7-stable-for-windows
+    #>
+    param(
+        [string]$Version = "7.2.10.7893",
+        [string]$SHA256 = "4155cfaf8e4cc3bf61f693b6b420bbdacd77f345d3431ccb949e9b6bd81dc51c"
+    )
+    $Filename = "PicoScope_7_TandM_${Version}.x64.exe"
+    Install-FromUri `
+        -Name "PicoScope" `
+        -Uri "https://www.picotech.com/download/software/sr/${Filename}" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}"
+}
+
+function Install-QuPath {
+    <#
+    .SYNOPSIS
+        Bioimage analysis software
+    .LINK
+        https://qupath.github.io/
+    #>
+    param(
+        [string]$Version = "0.6.0",
+        [string]$SHA256 = "fce57283898de252ccba2c781269aa7338f50e981bbd646e309b0e1125deb10c"
+    )
+    $Filename = "QuPath-v${Version}-Windows.msi"
+    Install-FromUri `
+        -Name "QuPath" `
+        -Uri "https://github.com/qupath/qupath/releases/download/v${Version}/${Filename}" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
+}
+
 function Install-Rezonator1 {
     <#
     .SYNOPSIS
@@ -764,6 +803,8 @@ $OtherOperations = [ordered]@{
     "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
     "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
     "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+    "PicoScope" = ${function:Install-PicoScope}, "Driver for Pico Technology oscilloscopes";
+    "QuPath" = ${function:Install-QuPath}, "Bioimage analysis software";
     "reZonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
     "reZonator 2" = ${function:Install-Rezonator2}, "Simulator for optical cavities (new beta version)";
     "SMC ThermoChiller" = ${function:Install-SMCThermoChiller}, "Monitoring software for SMC ThermoChillers, especially the HRR series";
