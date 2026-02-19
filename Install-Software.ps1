@@ -141,6 +141,7 @@ $ChocoPrograms = [ordered]@{
     "TightVNC" = "tightvnc", "VNC server. Can be used with noVNC by using the configuration from Mika's GitHub.";
     "Ubisoft Connect" = "ubisoft-connect", "Game store";
     "Ventoy" = "ventoy", "A tool for creating bootable USB drives";
+    "VeraCrypt" = "veracrypt", "File and disk encryption software";
     "VirtualBox (NOTE!)" = "virtualbox", "Virtualization platform. NOTE! Cannot be installed on the same computer as Hyper-V. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
     "VirtualBox Guest Additions (NOTE!)" = "virtualbox-guest-additions-guest.install", "NOTE! This should be installed inside a virtual machine.";
     "VLC" = "vlc", "Video player";
