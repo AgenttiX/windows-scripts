@@ -624,56 +624,83 @@ function Install-ThorCam ([string]$Version = "3.7.0.6") {
     .SYNOPSIS
         Install ThorLabs ThorCam
     .LINK
-        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ThorCam
+        https://www.thorlabs.com/software-pages/thorcam
     #>
-    Show-Output "Downloading Thorlabs ThorCam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
-    $FilenameRemote = "Thorlabs%20Scientific%20Imaging%20Software%20${Arch}.exe"
-    $FilenameLocal = "Thorlabs Scientific Imaging Software ${Arch}.exe"
-    # The "FireFox" typo is by Microsoft itself.
-    # $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
-    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}" -OutFile "${Downloads}\${FilenameLocal}" # -UserAgent $UserAgent
-    Show-Output "https://www.thorlabs.com/software/THO/ThorCam/ThorCam_V${Version}/${FilenameRemote}"
-    Show-Output "Installing Thorlabs ThorCam"
-    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${FilenameLocal}"
-    if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "ThorCam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download ThorCam manually from the Thorlabs website."
+    $Filename = "thorlabs-scientific-imaging-software-${Arch}.exe"
+    if ("${Arch}" -eq "x86") {
+        $Uri = "https://media.thorlabs.com/contentassets/766069a3302a46a48e6534be6b332b42/${Filename}?v=1116040429"
+        $SHA256 = "042505509c0546d9e6c8ea16befb70997e363c235b38a02df6251a18ebb19c78"
+    } else {
+        $Uri = "https://media.thorlabs.com/contentassets/9f7e1f0b3cff4e9a8c18a3dfa4a0bc0a/${Filename}?v=1116040439"
+        $SHA256 = "a98f58e484920fc31795b8bd5d65529bb6ee7d296424c496aa659c2bafb4861c"
     }
+    Install-FromUri `
+        -Name "Thorlabs ThorCam" `
+        -Uri "${Uri}" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}"
 }
 
-function Install-ThorlabsBeam ([string]$Version = "8.2.5232.395") {
+function Install-ThorImageCAM {
+    <#
+    .SYNOPSIS
+        Install ThorLabs ThorImageCAM
+    .LINK
+        https://www.thorlabs.com/software-pages/thorcam
+    #>
+    param(
+        [string]$Version = "1.2.17",
+        [string]$SHA256 = "1379ea68f248cd32e99e6a69a961d8494f2ff9258c81fe9cefbebd681eb6a800"
+    )
+    $Filename = "thorimagecam_v${Version}_setup.exe"
+    Install-FromUri `
+        -Name "Thorlabs ThorImageCAM" `
+        -Uri "https://media.thorlabs.com/contentassets/be3cd1548455438293b1611d70ccb6da/${Filename}?v=1116040425" `
+        -Filename "${Filename}" `
+        -SHA256 "${SHA256}"
+}
+
+function Install-ThorlabsBeam {
     <#
     .SYNOPSIS
         Install Thorlabs Beam
     .LINK
-        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Beam
+        https://www.thorlabs.com/en/software-pages/beam
     #>
-    Show-Output "Downloading Thorlabs Beam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
-    $Folder = "Thorlabs_Beam_${Version}"
-    $Filename = "Thorlabs_Beam_${Version}.zip"
-    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/software/MUC/Beam/Software/Beam_${version}/${filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing Thorlabs Beam"
-    Expand-Archive -Path "${Downloads}\${Filename}" -DestinationPath "${Downloads}\${Folder}"
-    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Folder}\Thorlabs Beam Setup.exe"
-    if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "Thorlabs Beam installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Beam manually from the Thorlabs website."
-    }
+    param(
+        [string]$Version = "9.3.6304.790",
+        [string]$SHA256 = "bb4e77c82bf5f227f2e3c6b6a8de43f3821826c2aa4900789282ee14c3367220"
+    )
+    $Filename = "thorlabs.thorlabsbeamsetup-release.${Version}_nsis.zip"
+    Install-FromUri `
+        -Name "Thorlabs Beam" `
+        -Uri "https://media.thorlabs.com/contentassets/bcb47aa2aa704177b02ee0c293d15f1a/${Filename}?v=1118090216" `
+        -Filename "${Filename}" `
+        -UnzippedFilePath "Thorlabs Beam Setup.exe" `
+        -SHA256 "${SHA256}"
 }
 
-function Install-ThorlabsElliptec ([string]$Version = "1.6.4") {
+function Install-ThorlabsElliptec ([string]$Version = "1.6.6") {
     <#
     .SYNOPSIS
         Install Thorlabs Elliptec software
     .LINK
-        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=ELL
+        https://www.thorlabs.com/software-pages/ell
     #>
-    Show-Output "Downloading Thorlabs Beam. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
-    $Filename = "Thorlabs_Elliptec_${Version}.exe"
-    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/Software/Elliptec/Application/V${Version}/ELLO%20Install%20x64/setup.exe" -OutFile "${Downloads}\${Filename}"
-    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
-    if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "Thorlabs Elliptec installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Elliptec manually from the Thorlabs website."
+    $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
+    if ("${Arch}" -eq "x86") {
+        $Uri = "https://media.thorlabs.com/contentassets/d42094d0a1ff4b39a2cc2a61543c7481/setup.exe?v=1116040935"
+        $SHA256 = "9f371175c22bb96d64370ea4854d64296ff7326b608e09103af3ddf658b9a4c0"
+    } else {
+        $Uri = "https://media.thorlabs.com/contentassets/65384a0c619f4a17a721930570bcae87/setup.exe?v=1116040938"
+        $SHA256 = "dd095269ed5fb7bc5676f5ba86a1f37b3db6e133480f8d29099863fdf90b9299"
     }
+    Install-FromUri `
+        -Name "Thorlabs Elliptec" `
+        -Filename "Thorlabs Elliptec setup ${Arch}.exe" `
+        -Uri "${Uri}" `
+        -SHA256 "${SHA256}"
 }
 
 function Install-ThorlabsKinesis {
@@ -681,22 +708,27 @@ function Install-ThorlabsKinesis {
     .SYNOPSIS
         Install Thorlabs Kinesis
     .LINK
-        https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
+        https://www.thorlabs.com/software-pages/motion_control/
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Justification="Thorlabs Kinesis is a singular noun")]
     param(
-        [string]$Version = "1.14.36",
-        [string]$Version2 = "20973"
+        [string]$Version = "1.14.59",
+        [string]$Version2 = "26708"
     )
-    Show-Output "Downloading Thorlabs Kinesis. The web server has strict bot detection and the download may therefore fail, producing an invalid file."
     $Arch = Get-InstallBitness -x86 "x86" -x86_64 "x64"
-    $Filename = "kinesis_${Version2}_setup_${Arch}.exe"
-    Invoke-WebRequestFast -Uri "https://www.thorlabs.com/Software/Motion%20Control/KINESIS/Application/v${Version}/${Filename}" -OutFile "${Downloads}\${Filename}"
-    Show-Output "Installing Thorlabs Kinesis"
-    $Process = Start-Process -NoNewWindow -Wait -PassThru "${Downloads}\${Filename}"
-    if ($Process.ExitCode -ne 0) {
-        Show-Output -ForegroundColor Red "Thorlabs Kinesis installation seems to have failed. Probably the server detected that this is a script, resulting in a corrupted download. Please download Thorlabs Kinesis manually from the Thorlabs website."
+    $Filename = "thorlabs_kinesis_setup_${Version2}_${Arch}.exe"
+    if ("${Arch}" -eq "x86") {
+        $Uri = "https://media.thorlabs.com/contentassets/fb56e416e2b248f5a7888aae3fcf71d3/${Filename}?v=0126103520"
+        $SHA256 = "fe073773316e6ca472eeeb47cafaada8324303c6d9a1e25788875fcafd27d888"
+    } else {
+        $Uri = "https://media.thorlabs.com/contentassets/98b8893ed3ff41cc8b1794e39e81e6fe/${Filename}?v=0126103405"
+        $SHA256 = "12240a38699d2fa9a0974daccb52a0f66867b394963e52fcc964f2d42ba6b88e"
     }
+    Install-FromUri `
+        -Name "Thorlabs Kinesis" `
+        -Filename "${Filename}" `
+        -Uri "${Uri}" `
+        -SHA256 "${SHA256}"
 }
 
 function Install-VCU {
@@ -811,7 +843,8 @@ $OtherOperations = [ordered]@{
     "SMC ThermoChiller" = ${function:Install-SMCThermoChiller}, "Monitoring software for SMC ThermoChillers, especially the HRR series";
     "SNLO" = ${function:Install-SNLO}, "Crystal nonlinear optics simulator";
     "SSMbe (NOTE!)" = ${function:Install-SSMbe}, "Control software for the SS10-1 MBE reactor. NOTE! Also install the LabVIEW Runtime and NI-VISA dependencies.";
-    "Thorlabs ThorCam (NOTE!)" = ${function:Install-ThorCam}, "Driver for Thorlabs cameras. NOTE! Use IDS Peak instead for old cameras.";
+    "Thorlabs ThorCam" = ${function:Install-ThorCam}, "Driver for old Thorlabs cameras. NOTE! Use IDS Peak instead for the oldest cameras.";
+    "Thorlabs ThorImageCAM" = ${function:Install-ThorImageCAM}, "Driver for Thorlabs cameras.";
     "Thorlabs Beam" = ${function:Install-ThorlabsBeam}, "Driver for Thorlabs beam profilers and M2 measurement systems";
     "Thorlabs Elliptec" = ${function:Install-ThorlabsElliptec}, "Driver for Thorlabs Elliptec stages and mounts";
     "Thorlabs Kinesis" = ${function:Install-ThorlabsKinesis}, "Driver for Thorlabs motors and stages";

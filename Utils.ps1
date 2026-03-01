@@ -434,6 +434,9 @@ function Install-FromUri {
     # Download the file
     if ($IsRemote -and (-not $FileAlreadyOK)) {
         Show-Output "Downloading ${Name}"
+        # If the download fails, then something like this may be tried as a fix:
+        # $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
+        # The "FireFox" typo is by Microsoft itself.
         Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
     }
 
