@@ -30,11 +30,15 @@ if (! $RepoInUserDir) {
 # Startup info
 $host.ui.RawUI.WindowTitle = "Mika's computer installation script"
 Show-Output -ForegroundColor Cyan "Starting Mika's computer installation script."
-Show-Output -ForegroundColor Cyan "If some installer requests a reboot, select no, and only reboot the computer when the installation script is ready."
+Show-Output -ForegroundColor Cyan `
+    "If some installer requests a reboot, select no, and only reboot the computer when the installation script is ready."
 Request-DomainConnection
-Show-Output -ForegroundColor Cyan "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
-Show-Output -ForegroundColor Cyan "If it doesn't fit on your monitor, please reduce the display scaling at:"
-Show-Output -ForegroundColor Cyan "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
+Show-Output -ForegroundColor Cyan `
+    "The graphical user interface (GUI) is a very preliminary version and will be improved in the future."
+Show-Output -ForegroundColor Cyan `
+    "If it doesn't fit on your monitor, please reduce the display scaling at:"
+Show-Output -ForegroundColor Cyan `
+    "`"Settings -> System -> Display -> Scale and layout -> Change the size of text, apps and other items`""
 
 # Startup tasks
 Add-ScriptShortcuts
@@ -198,7 +202,10 @@ function Install-AtostekID([string]$Version = "4.4.0.0") {
         Show-Output "Fujitsu mPollux DigiSign Client was not found, so there's no need to uninstall it before installing Atostek ID."
     }
     $Filename = "AtostekID_WIN_${Version}.msi"
-    Install-FromUri -Name "Atostek ID" -Uri "https://files.fineid.fi/download/atostek/${Version}/windows/${Filename}" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "Atostek ID" `
+        -Uri "https://files.fineid.fi/download/atostek/${Version}/windows/${Filename}" `
+        -Filename "${Filename}"
 }
 
 function Install-BaslerPylon([string]$Version = "25.10.2") {
@@ -208,7 +215,10 @@ function Install-BaslerPylon([string]$Version = "25.10.2") {
     #>
     $Filename = "Basler pylon ${Version}.exe"
     $FilenameUrl = [uri]::EscapeDataString($Filename)
-    Install-FromUri -Name "Basler Pylon Camera Software Suite" -Uri "https://downloadbsl.blob.core.windows.net/software/pylon%20${Version}/${FilenameUrl}" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "Basler Pylon Camera Software Suite" `
+        -Uri "https://downloadbsl.blob.core.windows.net/software/pylon%20${Version}/${FilenameUrl}" `
+        -Filename "${Filename}"
 }
 
 function Install-CorelDRAW {
@@ -218,13 +228,11 @@ function Install-CorelDRAW {
     .LINK
         https://www.coreldraw.com/en/licensing/download/
     #>
-    Install-FromUri -Name "CorelDRAW" -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" -Filename "CDGS.exe"
+    Install-FromUri `
+        -Name "CorelDRAW" `
+        -Uri "https://www.corel.com/akdlm/6763/downloads/free/trials/GraphicsSuite/22H1/JL83s3fG/CDGS.exe" `
+        -Filename "CDGS.exe"
 }
-
-# function Install-DigiSign([string]$Version = "4.3.0(8707)") {
-#     $Filename = "DigiSignClient_for_dvv_${Version}.exe"
-#     Install-FromUri -Name "Fujitsu mPollux DigiSign" -Uri "https://dvv.fi/documents/16079645/216375523/${Filename}" -Filename "${Filename}"
-# }
 
 function Install-DigilentWaveforms([string]$Version = "3.24.4") {
     <#
@@ -232,7 +240,10 @@ function Install-DigilentWaveforms([string]$Version = "3.24.4") {
         https://cloud.digilent.com/myproducts/waveforms
     #>
     $Filename = "digilent.waveforms_v${Version}_64bit.exe"
-    Install-FromUri -Name "Digilent Waveforms" -Uri "https://files.digilent.com/Software/Waveforms/${Version}/${Filename}" -Filename "${Filename}"
+    Install-FromUri `
+        -Name "Digilent Waveforms" `
+        -Uri "https://files.digilent.com/Software/Waveforms/${Version}/${Filename}" `
+        -Filename "${Filename}"
 }
 
 function Install-Eduroam {
@@ -240,7 +251,10 @@ function Install-Eduroam {
     .LINK
         https://www.eduroam.app/
     #>
-    Install-FromUri -Name "Eduroam" -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" -Filename "geteduroam.exe"
+    Install-FromUri `
+        -Name "Eduroam" `
+        -Uri "https://dl.eduroam.app/windows/x86_64/geteduroam.exe" `
+        -Filename "geteduroam.exe"
 }
 
 function Install-FDAeSubmitter {
@@ -470,7 +484,9 @@ function Install-OriginViewer {
         throw [System.IO.FileNotFoundException] "No exe file was found in the extracted directory `"${DestinationPath}`"."
     }
     Test-AuthenticodeSignature -FilePath $ExePath
-    New-Shortcut -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" -TargetPath "${ExePath}"
+    New-Shortcut `
+        -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" `
+        -TargetPath "${ExePath}"
 }
 
 function Install-PicoScope {
@@ -917,7 +933,11 @@ function New-Table {
     $Label = New-Object System.Windows.Forms.Label;
     $Label.Text = $Title;
     # $Label.MinimumSize = New-Object System.Drawing.Size($Width, 0);
-    $Label.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $Label.Anchor = `
+        [System.Windows.Forms.AnchorStyles]::Top -bor `
+        [System.Windows.Forms.AnchorStyles]::Bottom -bor `
+        [System.Windows.Forms.AnchorStyles]::Left -bor `
+        [System.Windows.Forms.AnchorStyles]::Right
     $Parent.Controls.Add($Label);
     # Create the DataTable
     $Table = New-Object system.Data.DataTable;
@@ -958,7 +978,11 @@ function New-Table {
     # $View.Height = $Data.Count * 25 + 50;
     # $View.Width = $Width;
 
-    $View.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $View.Anchor = `
+        [System.Windows.Forms.AnchorStyles]::Top -bor `
+        [System.Windows.Forms.AnchorStyles]::Bottom -bor `
+        [System.Windows.Forms.AnchorStyles]::Left -bor `
+        [System.Windows.Forms.AnchorStyles]::Right
 
     # https://forums.powershell.org/t/datagridview-hide-column/16739
     # https://stackoverflow.com/a/23763025/
@@ -1022,7 +1046,11 @@ Add-Type -AssemblyName System.Windows.Forms;
 
 # Create the Form
 $Form = New-Object -TypeName System.Windows.Forms.Form;
-$AllDirectionsAnchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$AllDirectionsAnchor = `
+    [System.Windows.Forms.AnchorStyles]::Top -bor `
+    [System.Windows.Forms.AnchorStyles]::Bottom -bor `
+    [System.Windows.Forms.AnchorStyles]::Left -bor `
+    [System.Windows.Forms.AnchorStyles]::Right
 $Form.Anchor = $AllDirectionsAnchor
 # $Form.AutoSize = $true;
 # $Form.AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowAndShrink;
@@ -1038,14 +1066,38 @@ $Layout.RowCount = 6;
 $Form.Controls.Add($Layout);
 
 # Create grid views
-$ChocoProgramsView = New-Table -Form $Form -Parent $Layout -Title "Centrally updated programs (Chocolatey)" -Data $ChocoPrograms;
-$WingetProgramsView = New-Table -Form $Form -Parent $Layout -Title "Centrally updated programs (Winget)" -Data $WingetPrograms;
+$ChocoProgramsView = New-Table `
+    -Form $Form `
+    -Parent $Layout `
+    -Title "Centrally updated programs (Chocolatey)" `
+    -Data $ChocoPrograms;
+
+$WingetProgramsView = New-Table `
+    -Form $Form `
+    -Parent $Layout `
+    -Title "Centrally updated programs (Winget)" `
+    -Data $WingetPrograms;
 $WingetProgramsView.Height = 50;
-$WindowsCapabilitiesView = New-Table -Form $Form -Parent $Layout -Title "Windows capabilities" -Data $WindowsCapabilities;
+
+$WindowsCapabilitiesView = New-Table `
+    -Form $Form `
+    -Parent $Layout `
+    -Title "Windows capabilities" `
+    -Data $WindowsCapabilities;
 $WindowsCapabilitiesView.Height = 150;
-$WindowsFeaturesView = New-Table -Form $Form -Parent $Layout -Title "Windows features" -Data $WindowsFeatures;
+
+$WindowsFeaturesView = New-Table `
+    -Form $Form `
+    -Parent $Layout `
+    -Title "Windows features" `
+    -Data $WindowsFeatures;
 $WindowsFeaturesView.Height = 95;
-$OtherOperationsView = New-Table -Form $Form -Parent $Layout -Title "Other programs and operations. These you have to keep updated manually." -Data $OtherOperations
+
+$OtherOperationsView = New-Table `
+    -Form $Form `
+    -Parent $Layout `
+    -Title "Other programs and operations. These you have to keep updated manually." `
+    -Data $OtherOperations
 $OtherOperationsView.height = 150;
 
 # Disable unsupported features
@@ -1101,7 +1153,10 @@ function Select-PersonalDefaults {
 
 function Select-WorkstationDefaults {
     Select-CommonDefaults
-    Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names @("KeePassXC", "Notepad++", "OpenVPN", "PDF-XChange Editor", "Slack")
+    Select-Cells `
+        -View $ChocoProgramsView `
+        -Dict $ChocoPrograms `
+        -Names @("KeePassXC", "Notepad++", "OpenVPN", "PDF-XChange Editor", "Slack")
     Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
     Select-Cells -View $OtherOperationsView -Dict $OtherOperations -Names @("WithSecure Elements Agent")
 }
@@ -1190,7 +1245,8 @@ if ($WindowsFeaturesSelected.Count) {
     Show-Output "No Windows features were selected to be installed."
 }
 
-# These have to be after the package manager -based installations, as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
+# These have to be after the package manager -based installations,
+# as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
 $OtherSelected = Get-SelectedCommands $OtherOperationsView
 if ($OtherSelected.Count) {
     Show-Output "Running $($OtherSelected.Count) other selected operation(s)."

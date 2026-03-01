@@ -3,8 +3,16 @@
     Utility methods for scripts
 #>
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "", Justification="Overriding only for old PowerShell versions")]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "LogPath", Justification="Used in scripts")]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    "PSAvoidAssignmentToAutomaticVariable",
+    "",
+    Justification="Overriding only for old PowerShell versions"
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    "PSUseDeclaredVarsMoreThanAssignments",
+    "LogPath",
+    Justification="Used in scripts"
+)]
 param()
 
 # Compatibility for old PowerShell versions
@@ -24,7 +32,11 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
         .LINK
             https://stackoverflow.com/a/43544903
         #>
-        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidOverwritingBuiltInCmdlets", "", Justification="Overriding only for old PowerShell versions")]
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+            "PSAvoidOverwritingBuiltInCmdlets",
+            "",
+            Justification="Overriding only for old PowerShell versions"
+        )]
         param(
             [Parameter(Mandatory=$true)][string]$Uri,
             [Parameter(Mandatory=$true)][string]$OutFile
@@ -43,7 +55,11 @@ if($PSVersionTable.PSVersion.Major -lt 3) {
         .LINK
             https://stackoverflow.com/a/54687028
         #>
-        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidOverwritingBuiltInCmdlets", "", Justification="Overriding only for old PowerShell versions")]
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+            "PSAvoidOverwritingBuiltInCmdlets",
+            "",
+            Justification="Overriding only for old PowerShell versions"
+        )]
         param(
             [Parameter(Mandatory=$true)][string]$Path,
             [Parameter(Mandatory=$true)][string]$DestinationPath
@@ -82,7 +98,9 @@ $InstalledSoftware = $null
 # Force Invoke-WebRequest to use TLS 1.2 and TLS 1.3 instead of the insecure TLS 1.0, which is the default.
 # https://stackoverflow.com/a/41618979
 if ([Net.SecurityProtocolType]::Tls13) {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+    [Net.ServicePointManager]::SecurityProtocol = `
+        [Net.SecurityProtocolType]::Tls12 -bor `
+        [Net.SecurityProtocolType]::Tls13
 } else {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 }
@@ -108,12 +126,24 @@ function Add-ScriptShortcuts {
     $RepoShortcutPath = "${BasePath}\windows-scripts.lnk"
 
     # if(!(Test-Path $InstallShortcutPath)) {
-    New-Shortcut -Path $InstallShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Install-Software.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,21" | Out-Null
+    New-Shortcut -Path $InstallShortcutPath `
+        -TargetPath "powershell" `
+        -Arguments "-File ${RepoPath}\Install-Software.ps1" `
+        -WorkingDirectory "${RepoPath}" `
+        -IconLocation "shell32.dll,21" | Out-Null
     # }
     # if(!(Test-Path $MaintenanceShortcutPath)) {
-    New-Shortcut -Path $MaintenanceShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Maintenance.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,80" | Out-Null
+    New-Shortcut -Path $MaintenanceShortcutPath `
+        -TargetPath "powershell" `
+        -Arguments "-File ${RepoPath}\Maintenance.ps1" `
+        -WorkingDirectory "${RepoPath}" `
+        -IconLocation "shell32.dll,80" | Out-Null
     # }
-    New-Shortcut -Path $ReportShortcutPath -TargetPath "powershell" -Arguments "-File ${RepoPath}\Report.ps1" -WorkingDirectory "${RepoPath}" -IconLocation "shell32.dll,1" | Out-Null
+    New-Shortcut -Path $ReportShortcutPath `
+        -TargetPath "powershell" `
+        -Arguments "-File ${RepoPath}\Report.ps1" `
+        -WorkingDirectory "${RepoPath}" `
+        -IconLocation "shell32.dll,1" | Out-Null
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
 
     $WindowsVersion = [System.Environment]::OSVersion.Version.Major
@@ -123,7 +153,11 @@ function Add-ScriptShortcuts {
         } else {
             $WindowsUpdateTargetPath = "ms-settings:windowsupdate"
         }
-        New-Shortcut -Path $WindowsUpdateShortcutPath -TargetPath "${env:windir}\explorer.exe" -Arguments "${WindowsUpdateTargetPath}" -IconLocation "shell32.dll,46" | Out-Null
+        New-Shortcut `
+            -Path $WindowsUpdateShortcutPath `
+            -TargetPath "${env:windir}\explorer.exe" `
+            -Arguments "${WindowsUpdateTargetPath}" `
+            -IconLocation "shell32.dll,46" | Out-Null
     }
 }
 
@@ -140,7 +174,12 @@ function Clear-Path {
         [Parameter(Mandatory=$true)][string]$Path
     )
     if (Test-Path "${Path}") {
-        $Decision = $Host.UI.PromptForChoice("The path `"${Path}`" already exists.", "Shall I clear and overwrite it?", ("y", "n"), 0)
+        $Decision = $Host.UI.PromptForChoice(
+            "The path `"${Path}`" already exists.",
+            "Shall I clear and overwrite it?",
+            ("y", "n"),
+            0
+        )
         if ($Decision -eq 0) {
             Remove-Item -Path "${Path}" -Recurse
             return 1
@@ -206,7 +245,9 @@ function Get-CertificateInfo {
         Get basic info of a certificate as a string
     #>
     [OutputType([string])]
-    param([Parameter(Mandatory=$true)][System.Security.Cryptography.X509Certificates.X509Certificate]$Certificate)
+    param(
+        [Parameter(Mandatory=$true)][System.Security.Cryptography.X509Certificates.X509Certificate]$Certificate
+    )
     $NotBefore = $Certificate.NotBefore.ToUniversalTime().ToString("yyyy-MM-dd")
     $NotAfter = $Certificate.NotAfter.ToUniversalTime().ToString("yyyy-MM-dd")
     $Algorithm = $Certificate.SignatureAlgorithm.FriendlyName
@@ -309,7 +350,11 @@ function Get-YesNo {
 }
 
 function Install-Chocolatey {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingInvokeExpression", "", Justification="Chocolatey installation requires Invoke-Expression")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSAvoidUsingInvokeExpression",
+        "",
+        Justification="Chocolatey installation requires Invoke-Expression"
+    )]
     param(
         [switch]$Force
     )
@@ -361,7 +406,11 @@ function Install-Executable {
 }
 
 function Install-FromUri {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingBrokenHashAlgorithms", "", Justification="Legacy MD5 support is on purpose for backwards compatibility")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSAvoidUsingBrokenHashAlgorithms",
+        "",
+        Justification="Legacy MD5 support is on purpose for backwards compatibility"
+    )]
     param(
         [Parameter(mandatory=$true)][string]$Name,
         [Parameter(mandatory=$true)][string]$Uri,
@@ -832,7 +881,9 @@ function Test-Admin {
         https://superuser.com/questions/108207/how-to-run-a-powershell-script-as-administrator
     #>
     [OutputType([bool])]
-    $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+    $CurrentUser = New-Object `
+        Security.Principal.WindowsPrincipal `
+        $([Security.Principal.WindowsIdentity]::GetCurrent())
     return $CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
@@ -934,7 +985,8 @@ function Test-PendingRebootAndExit {
 function Test-RebootPending {
     <#
     .SYNOPSIS
-        Test whether the computer has a reboot pending. The name is chosen not to conflict with the PendingReboot PowerShell module.
+        Test whether the computer has a reboot pending.
+        The name is chosen not to conflict with the PendingReboot PowerShell module.
     .LINK
         https://4sysops.com/archives/use-powershell-to-test-if-a-windows-server-is-pending-a-reboot/
     #>
