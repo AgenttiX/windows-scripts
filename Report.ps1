@@ -107,6 +107,11 @@ if (Test-CommandExists "dxdiag") {
     Show-Output "The command `"dxdiag`" was not found."
 }
 
+if (Test-CommandExists "dsregcmd") {
+    Show-Output "Creating report of Microsoft Entra ID device registration."
+    dsregcmd /status > "${Reports}\dsregcmd.txt"
+}
+
 if (Test-CommandExists "gpresult") {
     Show-Output "Creating report of group policies."
     gpresult /h "${Reports}\gpresult.html" /f
