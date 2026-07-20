@@ -481,11 +481,11 @@ function Install-OriginViewer {
         -Filename "${Filename}" `
         -UnzipFolderName "Origin Viewer"
     $DestinationPath = "${Downloads}\Origin Viewer"
-    $ExePath = Find-First -Filter "*.exe" -Path "${DestinationPath}"
+    $ExePath = (Find-First -Filter "*.exe" -Path "${DestinationPath}").FullName
     if ($null -eq $ExePath) {
         throw [System.IO.FileNotFoundException] "No exe file was found in the extracted directory `"${DestinationPath}`"."
     }
-    Test-AuthenticodeSignature -FilePath $ExePath
+    Test-AuthenticodeSignature -FilePath "${ExePath}"
     New-Shortcut `
         -Path "${env:APPDATA}\Microsoft\Windows\Start Menu\Programs\Origin Viewer.lnk" `
         -TargetPath "${ExePath}"
