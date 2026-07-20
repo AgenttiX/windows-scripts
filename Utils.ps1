@@ -372,7 +372,6 @@ function Install-Executable {
         [string]$Name,
         [string]$Path,
         [switch]$BypassAuthenticode = $false,
-        [string]$MD5,
         [string]$SHA256
     )
     # Validate the file path
@@ -387,7 +386,7 @@ function Install-Executable {
         throw [System.IO.FileNotFoundException] "${Name} installer was not found at `"${Path}`"."
     }
     # Validate checksum
-    Test-Checksum -Path $Path -MD5 $MD5 -SHA256 $SHA256
+    Test-Checksum -Path $Path -SHA256 $SHA256
     # Validate Authenticode
     if (-not $BypassAuthenticode) {
         Test-AuthenticodeSignature -FilePath "${Path}"
@@ -406,25 +405,19 @@ function Install-Executable {
 }
 
 function Install-FromUri {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-        "PSAvoidUsingBrokenHashAlgorithms",
-        "",
-        Justification="Legacy MD5 support is on purpose for backwards compatibility"
-    )]
     param(
         [Parameter(mandatory=$true)][string]$Name,
         [Parameter(mandatory=$true)][string]$Uri,
         [Parameter(mandatory=$false)][string]$Filename,
         [Parameter(mandatory=$false)][string]$UnzipFolderName,
         [Parameter(mandatory=$false)][string]$UnzippedFilePath,
-        [Parameter(mandatory=$false)][string]$MD5,
         [Parameter(mandatory=$false)][string]$SHA256,
         [switch]$BypassAuthenticode = $false
     )
     # Check whether $Uri is a remote resource or a path from e.g. a network drive.
     $IsRemote = $Uri.Contains("://")
     if ($IsRemote) {
-        if (($Uri.Contains("http://") -or ($Uri.Contains("ftp://"))) -and (-not ($PSBoundParameters.ContainsKey("SHA256") -or $PSBoundParameters.ContainsKey("MD5")))) {
+        if (($Uri.Contains("http://") -or ($Uri.Contains("ftp://"))) -and (-not ($PSBoundParameters.ContainsKey("SHA256")))) {
             throw [System.Security.SecurityException] "Downloading over an unencrypted connection without providing a hash for checking file integrity is not supported for security."
         }
         $Path = "${Downloads}\${Filename}"
@@ -462,19 +455,6 @@ function Install-FromUri {
                     throw [System.Security.SecurityException]
                 }
             }
-        } elseif ($PSBoundParameters.ContainsKey("MD5")) {
-            Show-Output "Verifying MD5 checksum for `"${Path}`"."
-            $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
-            if ($FileHash -eq $MD5) {
-                $FileAlreadyOK = $true
-                Show-Output "The file `"${Path}`" ${DownloadText1}has the correct MD5 hash ${MD5}.${DownloadText2}"
-            } else {
-                Show-Output -ForegroundColor Red "The file `"${Path}` was ${DownloadText3}, but has an incorrect MD5 hash. " `
-                    + "(Expected ${MD5}, got ${FileHash}.)${DownloadText4}"
-                if (-not $IsRemote) {
-                    throw [System.Security.SecurityException]
-                }
-            }
         }
     } elseif (-not $IsRemote) {
         throw [System.IO.FileNotFoundException] "The path `"${Path}`" seems not to exist on the system, nor does it seem to be a remote uri."
@@ -498,7 +478,7 @@ function Install-FromUri {
 
     # Verify the file checksum if not already verified
     if (-not $FileAlreadyOK) {
-        Test-Checksum -Path $Path -MD5 $MD5 -SHA256 $SHA256
+        Test-Checksum -Path $Path -SHA256 $SHA256
     }
 
     # Process the downloaded file
@@ -931,8 +911,7 @@ function Test-AuthenticodeSignature {
 
 function Test-Checksum {
     param(
-        [string]$Path,
-        [string]$MD5,
+        [Parameter(Mandatory=$true)][string]$Path,
         [string]$SHA256
     )
     if ($SHA256) {
@@ -942,14 +921,6 @@ function Test-Checksum {
             Show-Output "SHA256 checksum OK"
         } else {
             throw [System.Security.SecurityException] "The file has an invalid SHA256 checksum. Expected: ${SHA256}, got: ${FileHash}"
-        }
-    } elseif ($MD5) {
-        Show-Output "Verifying MD5 checksum for `"${Path}`"."
-        $FileHash = (Get-FileHash -Path "${Path}" -Algorithm "MD5").Hash
-        if ($FileHash -eq $MD5) {
-            Show-Output "MD5 checksum OK"
-        } else {
-            throw [System.Security.SecurityException] "The file has an invalid MD5 checksum. Expected: ${MD5}, got: ${FileHash}"
         }
     }
 }
