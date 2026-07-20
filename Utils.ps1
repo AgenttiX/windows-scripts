@@ -482,10 +482,10 @@ function Install-FromUri {
 
     # Download the file
     if ($IsRemote -and (-not $FileAlreadyOK)) {
-        Show-Output "Downloading ${Name}"
+        Show-Output "Downloading ${Name} from ${Uri}"
         # If the download fails, then something like this may be tried as a fix:
         # $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
-        # The "FireFox" typo is by Microsoft itself.
+        # The "FireFox" typo (capital F) is by Microsoft itself.
         Invoke-WebRequestFast -Uri "${Uri}" -OutFile "${Path}"
     }
 
@@ -896,6 +896,12 @@ function Test-AuthenticodeSignature {
         [Parameter(Mandatory=$true)][string]$FilePath,
         [switch]$Silent
     )
+    if (! (Test-Path $FilePath)) {
+        throw "File not found: `"${FilePath}`"."
+    }
+    if ("${FilePath}".ToLower().EndsWith(".exe") -and (! (Test-IsExecutable "${FilePath}"))) {
+        throw "The file is not a valid executable: `"${FilePath}`"."
+    }
     $Signature = Get-AuthenticodeSignature -FilePath "${FilePath}"
     $Failed = $Signature.Status -ne "Valid"
     if (-not $Silent) {
@@ -965,6 +971,40 @@ function Test-CommandExists {
     } finally {
         $ErrorActionPreference=$OldPreference
     }
+}
+
+function Test-IsExecutable {
+    <#
+    .SYNOPSIS
+        Test whether a file is a Windows Portable Executable (PE) file, e.g. a .exe or .dll file.
+    .NOTES
+        All Windows PE files start with the MZ header 0x4D 0x5A.
+    .LINK
+        https://en.wikipedia.org/wiki/Portable_Executable
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path
+    )
+
+    if (-not (Test-Path $Path)) {
+        throw "File not found: $Path"
+    }
+
+    # Read first 2 bytes
+    $bytes = [byte[]]::new(2)
+    $fs = [System.IO.File]::OpenRead($Path)
+    try {
+        $null = $fs.Read($bytes, 0, 2)
+    }
+    finally {
+        $fs.Close()
+    }
+
+    # MZ = 0x4D 0x5A
+    if ($bytes[0] -eq 0x4D -and $bytes[1] -eq 0x5A) {
+        return $true
+    }
+    return $false
 }
 
 function Test-PendingRebootAndExit {
