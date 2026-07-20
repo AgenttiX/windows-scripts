@@ -236,7 +236,7 @@ function Install-CorelDRAW {
         -Filename "CDGS.exe"
 }
 
-function Install-DigilentWaveforms([string]$Version = "3.24.4") {
+function Install-DigilentWaveforms([string]$Version = "3.25.1") {
     <#
     .LINK
         https://cloud.digilent.com/myproducts/waveforms
