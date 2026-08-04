@@ -449,7 +449,9 @@ if (Get-IsVirtualMachine) {
     $IntelDSAInstalled = Test-Path "${IntelDSAPath}"
 }
 
+# -----
 # Game updates (non-blocking)
+# -----
 # Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
 # https://stackoverflow.com/a/19015642/
 
@@ -513,8 +515,9 @@ if (Test-Path $minecraft_path) {
     Show-Output "Minecraft was not found."
 }
 
-
+# -----
 # Misc non-blocking tasks
+# -----
 
 $kingston_ssd_manager_path = "${env:ProgramFiles(x86)}\Kingston_SSD_Manager\KSM.exe"
 if ($Reboot -or $Shutdown) {
@@ -554,6 +557,22 @@ Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseMode
 Add-ScriptShortcuts
 Set-RepoPermissions
 
+if (Test-CommandExists "claude") {
+    claude update
+}
+
+if (Test-CommandExists "docker") {
+    Show-Output -ForegroundColor Cyan "Cleaning Docker"
+    if ($Docker) {docker system prune -f -a}
+    else {docker system prune -f}
+} else {
+    Show-Output "Docker was not found."
+}
+
+# -----
+# Misc tasks that may require user input
+# -----
+
 $NIPackageManagerUpdaterPath = "${env:ProgramFiles}\National Instruments\NI Package Manager\Updater\Install.exe"
 if (Test-Path "$NIPackageManagerUpdaterPath") {
     Show-Output -ForegroundColor Cyan "Updating NI Package Manager. This will open a window where you have to install the update."
@@ -573,15 +592,9 @@ if (Test-Path $NIPackageManagerPath) {
     Show-Output "NI Package Manager was not found."
 }
 
-if (Test-CommandExists "docker") {
-    Show-Output -ForegroundColor Cyan "Cleaning Docker"
-    if ($Docker) {docker system prune -f -a}
-    else {docker system prune -f}
-} else {
-    Show-Output "Docker was not found."
-}
-
+# -----
 # Driver and firmware updates
+# -----
 # This should be the last step in the script so that its updates are not installed during other updates.
 if ($Reboot -or $Shutdown) {
     Show-Output -ForegroundColor Cyan "Driver updates will not be started, as automatic reboot or shutdown is enabled."
@@ -636,6 +649,10 @@ if ($Reboot -or $Shutdown) {
     }
 }
 
+# -----
+# Long blocking tasks
+# -----
+
 if (Test-CommandExists "Update-Help") {
     Show-Output -ForegroundColor Cyan "Updating PowerShell help. All modules don't have help info, and therefore this may produce errors, which is OK."
     Update-Help
@@ -668,6 +685,10 @@ if (Test-CommandExists "Start-MpScan") {
 if ($Zerofree) {
     .\zero-free-space.ps1 -DriveLetter "C"
 }
+
+# -----
+# Post-processing
+# -----
 
 Show-Output -ForegroundColor Cyan "Writing maintenance timestamp."
 Get-Date -Format "o" | Out-File $TimestampPath
