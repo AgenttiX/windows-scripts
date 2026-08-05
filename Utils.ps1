@@ -978,6 +978,21 @@ function Test-IsExecutable {
     return $false
 }
 
+function Test-IsLink{
+    <#
+    .SYNOPSIS
+        Test whether a file is a symbolic or a hard link.
+    .LINK
+        https://stackoverflow.com/a/818054
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path
+    )
+    [OutputType([bool])]
+    $File = Get-Item $Path -Force -ea SilentlyContinue
+    return [bool]($File.Attributes -band [IO.FileAttributes]::ReparsePoint)
+}
+
 function Test-PendingRebootAndExit {
     # The PendingReboot module gives false positives about the need to reboot.
     # if (Test-CommandExists "Install-Module") {
