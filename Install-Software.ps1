@@ -185,7 +185,7 @@ $WindowsCapabilities = [ordered]@{
     "RSAT Server Manager" = "Rsat.ServerManager.Tools~~~~0.0.1.0", "Remote server management tools";
     "RSAT Shielded VM tools" = "Rsat.Shielded.VM.Tools~~~~0.0.1.0", "Management tools for shielded virtual machines";
     "RSAT WSUS tools" = "Rsat.WSUS.Tools~~~~0.0.1.0", "Active Directory Windows Update management tools";
-    "SNMP client" = "SNMP.Client~~~~0.0.1.0", "SNMP remote monitoring client";
+    # "SNMP client (NOTE!)" = "SNMP.Client~~~~0.0.1.0", "SNMP remote monitoring client. This is deprecated and should no longer be used.";
 }
 $WindowsFeatures = [ordered]@{
     "Hyper-V (NOTE!)" = "Microsoft-Hyper-V-All", "Virtualization platform. NOTE! Cannot be installed on the same computer as VirtualBox. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
@@ -1149,7 +1149,7 @@ function Select-CommonDefaults {
 function Select-LabDefaults {
     Select-CommonDefaults
     Select-Cells -View $ChocoProgramsView -Dict $ChocoPrograms -Names @("Notepad++")
-    Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
+    # Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
 }
 
 function Select-PersonalDefaults {
@@ -1163,7 +1163,7 @@ function Select-WorkstationDefaults {
         -View $ChocoProgramsView `
         -Dict $ChocoPrograms `
         -Names @("KeePassXC", "Notepad++", "OpenVPN", "PDF-XChange Editor", "Slack")
-    Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
+    # Select-Cells -View $WindowsCapabilitiesView -Dict $WindowsCapabilities -Names @("SNMP client")
     Select-Cells -View $OtherOperationsView -Dict $OtherOperations -Names @("WithSecure Elements Agent")
 }
 

@@ -394,6 +394,11 @@ if (Test-CommandExists "Install-WindowsUpdate") {
     Show-Output -ForegroundColor Red "Windows Update bindings were not found. You have to check for Windows updates manually."
 }
 
+# Uninstall SNMP agent
+Get-WindowsCapability -Online -Name "SNMP.Client*" |
+    Where-Object State -eq "Installed" |
+    Remove-WindowsCapability -Online
+
 Install-Chocolatey
 if (Test-CommandExists "choco") {
     $ChocoPackages = choco list
