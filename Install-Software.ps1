@@ -170,7 +170,8 @@ $ChocoProgramsPersonal = [ordered]@{
     "Steam" = "steam", "Game store";
 }
 if (! $IsDomainJoined) {
-    $ChocoPrograms += $ChocoProgramsPersonal
+    Show-Output -ForegroundColor Cyan "You can safely ignore the `"key is not valid`" error below."
+    $ChocoPrograms = Sort-Object ($ChocoPrograms + $ChocoProgramsPersonal)
 }
 
 $WingetPrograms = [ordered]@{
