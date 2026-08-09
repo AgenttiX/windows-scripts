@@ -1064,7 +1064,9 @@ function Update-Repo {
     if (!(Test-Path "${FetchHeadPath}")) {
         Show-Output "The date of the previous `"git pull`" could not be determined. Updating."
         if($PSCmdlet.ShouldProcess($RepoPath, "git pull")) {
+            Push-Location "${RepoPath}"
             git pull
+            Pop-Location
         }
         Show-Output "You may have to restart the script to use the new version."
         # return $true
