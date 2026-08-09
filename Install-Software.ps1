@@ -14,6 +14,7 @@ param(
 # Script startup
 #####
 
+# Set-StrictMode -Version 3.0
 . "${PSScriptRoot}\Utils.ps1"
 
 if ($RepoInUserDir) {
@@ -54,12 +55,12 @@ $GlobalHeight = 800;
 $GlobalWidth = 700;
 $SoftwareRepoPath = "V:\IT\Software"
 $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
+$IsDomainJoined = Get-IsDomainJoined
 
 #####
 # Installer definitions
 #####
 
-# TODO: hide non-work-related apps on domain computers
 $ChocoPrograms = [ordered]@{
     "7-Zip" = "7zip", "File compression utility";
     "ActivityWatch" = "activitywatch", "Time management utility";
@@ -78,9 +79,7 @@ $ChocoPrograms = [ordered]@{
     "Discord" = "discord", "Chat and group call platform";
     "DisplayCal" = "displaycal", "Display calibration utility";
     "Docker Desktop (NOTE!)" = "docker-desktop", "Container platform. NOTE! Windows Subsystem for Linux 2 (WSL 2) has to be installed before installing this";
-    "EA App" = "ea-app", "Game store";
     "eDrawings Viewer" = "edrawings-viewer", "2D & 3D CAD viewer";
-    "Epic Games Launcher" = "epicgameslauncher", "Game store";
     "Firefox" = "firefox", "Web browser";
     "GIMP" = "gimp", "Image editor";
     # "Git" = "git", "Version control";
@@ -139,7 +138,6 @@ $ChocoPrograms = [ordered]@{
     "SpaceSniffer" = "spacesniffer", "See what's consuming the hard disk space";
     "Speedtest CLI" = "speedtest", "Command-line utility for measuring internet speed";
     "Spotify" = "spotify", "Music streaming service client";
-    "Steam" = "steam", "Game store";
     "Stream Deck" = "streamdeck", "Control software for Elgato Stream Decks";
     "Syncthing / SyncTrayzor" = "synctrayzor", "Utility for directly synchronizing files between devices";
     "TeamViewer" = "teamviewer", "Remote control utility, commercial use requires a license";
@@ -166,6 +164,15 @@ $ChocoPrograms = [ordered]@{
     "Zoom" = "zoom", "Video conferencing";
     "Zotero" = "zotero", "Reference and citation management software";
 }
+$ChocoProgramsPersonal = [ordered]@{
+    "EA App" = "ea-app", "Game store";
+    "Epic Games Launcher" = "epicgameslauncher", "Game store";
+    "Steam" = "steam", "Game store";
+}
+if (! $IsDomainJoined) {
+    $ChocoPrograms += $ChocoProgramsPersonal
+}
+
 $WingetPrograms = [ordered]@{
     "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
     # The PowerToys version available from WinGet is a preview.
@@ -834,19 +841,13 @@ function Install-Xeneth {
 
 $OtherOperations = [ordered]@{
     "Atostek ID" = ${function:Install-AtostekID}, "Card reader software for Finnish identity cards";
-    "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
-    "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
     "Digilent Waveforms" = ${function:Install-DigilentWaveforms}, "Measurement software for Digilent lab devices";
     "Eduroam" = ${function:Install-Eduroam}, "University Wi-Fi";
-    "FDA eSubmitter" = ${function:Install-FDAeSubmitter}, "Utility for submitting information to the U.S. Food & Drug Administration";
     # "Fujitsu mPollux DigiSign" = ${function:Install-DigiSign}, "Card reader software for Finnish identity cards";
     "Geekbench" = ${function:Install-Geekbench}, "Performance testing utility, versions 2-5. Commercial use requires a license.";
     "Git" = ${function:Install-Git}, "Git with custom arguments (SSH available from PATH etc.)";
-    "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
-    "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! IDS Peak should now be compatible also with these old cameras, so use it instead.";
     "Intel ME firmware" = ${function:Install-MEFirmware}, "Intel Management Engine firmware";
     # "LabVIEW Runtime" = ${function:Install-LabVIEWRuntime}, "Required for running LabVIEW-based applications";
-    "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
     "Lenovo Super IO firmware" = ${function:Install-LenovoSuperIOFirmware}, "Firmware for the IO chip on Lenovo motherboards";
     "Meerstetter TEC Software" = ${function:Install-MeerstetterTEC}, "Driver for Meerstetter TEC controllers";
     "NI 488.2 (GPIB)" = ${function:Install-NI4882}, "National Instruments GPIB drivers. Includes NI-VISA.";
@@ -854,10 +855,19 @@ $OtherOperations = [ordered]@{
     # OpenVPN is also available from Chocolatey.
     # Use this manual version only when the package version in Chocolatey is too old.
     # "OpenVPN" = ${function:Install-OpenVPN}, "VPN client";
+    "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
+    "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
+}
+$OtherOperationsWork = [ordered]@{
+    "Basler Pylon" = ${function:Install-BaslerPylon}, "Driver for Basler cameras";
+    "CorelDRAW" = ${function:Install-CorelDRAW}, "Graphic design, illustration and technical drawing software. Requires a license.";
+    "FDA eSubmitter" = ${function:Install-FDAeSubmitter}, "Utility for submitting information to the U.S. Food & Drug Administration";
+    "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
+    "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! IDS Peak should now be compatible also with these old cameras, so use it instead.";
+    "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
     "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
-    "Phoronix Test Suite" = ${function:Install-PTS}, "Performance testing framework";
     "PicoScope" = ${function:Install-PicoScope}, "Driver for Pico Technology oscilloscopes";
     "QuPath" = ${function:Install-QuPath}, "Bioimage analysis software";
     "reZonator 1" = ${function:Install-Rezonator1}, "Simulator for optical cavities (old stable version)";
@@ -874,13 +884,20 @@ $OtherOperations = [ordered]@{
     "VCU Remote 2" = ${function:Install-VCURemote2}, "VCU Remote 2";
     "Veeco (Wyko) Vision" = ${function:Install-VeecoVision}, "Data analysis tool for Veeco/Wyko profilers";
     "Wavesquared" = ${function:Install-Wavesquared}, "M2 factor analysis software";
-    "Windows Subsystem for Linux (WSL, NOTE!)" = ${function:Install-WSL}, "Compatibility layer for running Linux applications on Windows, version >= 2. Hardware virtualization should be enabled in BIOS/UEFI before installing.";
     "WithSecure Elements Agent" = ${function:Install-WithSecure}, "Anti-virus. Requires a license.";
     "Xeneth" = ${function:Install-Xeneth}, "Driver for Xenics cameras";
+}
+$OtherOperationsLast = [ordered]@{
     # These are the last on purpose
     "Maintenance" = "${PSScriptRoot}\Maintenance.ps1", "Run the maintenance script";
     "Report" = "${PSScriptRoot}\Report.ps1", "Run the reporting script";
 }
+if ($IsDomainJoined) {
+    Show-Output -ForegroundColor Cyan "You can safely ignore the `"key is not valid`" error below."
+    # Adding this does not help: -ErrorAction SilentlyContinue
+    $OtherOperations = Sort-Object ($OtherOperations + $OtherOperationsWork)
+}
+$OtherOperations += $OtherOperationsLast
 
 #####
 # GUI functions
@@ -1167,7 +1184,7 @@ function Select-WorkstationDefaults {
     Select-Cells -View $OtherOperationsView -Dict $OtherOperations -Names @("WithSecure Elements Agent")
 }
 
-if (Get-IsDomainJoined) {
+if ($IsDomainJoined) {
     $WorkstationDefaultsButton = New-Object System.Windows.Forms.Button
     $WorkstationDefaultsButton.Text = "Select workstation defaults"
     $WorkstationDefaultsButton.Width = 160
