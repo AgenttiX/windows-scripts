@@ -447,7 +447,7 @@ if ($Clean -or $Deep) {
 $IntelDSAPath = "${env:ProgramFiles(x86)}\Intel\Driver and Support Assistant\DSATray.exe"
 $IntelDSAInstalled = Test-Path "${IntelDSAPath}"
 if (Get-IsVirtualMachine) {
-    Show-Output "Skipping Intel DSA installation on a virtual machine."
+    Show-Output -ForegroundColor Cyan "Skipping Intel DSA installation on a virtual machine."
 } elseif ((-not $IntelDSAInstalled) -and ($ComputerInfo.CsProcessors[0].Manufacturer.ToLower() -contains "intel")) {
     Show-Output -ForegroundColor Cyan "Detected an Intel CPU. Installing Intel Driver & Support Assistant."
     choco install intel-dsa -y
@@ -544,7 +544,7 @@ if ($Clean -or $Deep) {
         Show-Output "Windows disk cleanup was not found."
     }
 } else {
-    Show-Output "Skipping Windows disk cleanup, as the parameters -Clean or -Deep has not been specified."
+    Show-Output "Skipping Windows disk cleanup, as the parameters -Clean or -Deep have not been specified."
 }
 
 # Windows Store app updates (partially blocking)
@@ -617,7 +617,9 @@ if ($Reboot -or $Shutdown) {
     }
 
     # Intel Driver & Support Assistant (non-blocking)
-    if ($IntelDSAInstalled) {
+    if ($IsDomainJoined) {
+        Show-Output -ForegroundColor Cyan "Skipping Intel Driver & Support Assistant, as this computer is part of a domain."
+    } elseif ($IntelDSAInstalled) {
         Start-Process -NoNewWindow "${IntelDSAPath}"
         Start-Process "https://www.intel.com/content/www/us/en/support/intel-driver-support-assistant.html"
     } else {
