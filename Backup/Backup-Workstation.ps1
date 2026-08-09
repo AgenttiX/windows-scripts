@@ -64,8 +64,10 @@ param(
         ".cache",
         ".cargo",
         ".lmstudio\models",
+        ".matplotlib",
         ".phoronix-test-suite",
         ".ssh",
+        ".vscode",
         ".vscode-oss",
         ".wakatime",
         "__pycache__",
@@ -73,12 +75,15 @@ param(
         "AppData",
         "Application Data",
         "cache",
+        "Documents\PowerShell",
         "http-cache",
         "Local Settings",
         "Temporary Internet Files",
         "OneDrive",
         "OneDrive - *",
         "OneDriveTemp",
+        "Searches",
+        "venv",
         "${env:SystemDrive}\Users\Default",
         "${env:SystemDrive}\Users\Default User"
     ),
@@ -109,7 +114,7 @@ param(
     [switch]$Elevated
 )
 
-Set-StrictMode -Version Latest
+Set-StrictMode -Version 3.0
 
 . "$(Join-Path $((Get-Item "${PSScriptRoot}").Parent.FullName) "Utils.ps1")"
 
