@@ -92,6 +92,8 @@ param(
         "*.ovpn",
         "*.tmp",
         ".bash_history",
+        ".lesshst",
+        ".python_history",
         ".ssh-agent-info",
         ".wakatime.cfg",
         "desktop.ini",
