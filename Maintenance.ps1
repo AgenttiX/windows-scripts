@@ -33,6 +33,8 @@ param(
     [switch]$Zerofree
 )
 
+Set-StrictMode -Version 3.0
+
 # Load utility functions from another file.
 . "${PSScriptRoot}\Utils.ps1"
 
@@ -297,7 +299,7 @@ if ((Test-Path "${SSHDir}") -and (Test-CommandExists "ssh-keygen")) {
             }
         }
     }
-    if ($BadKeys.Length) {
+    if ($BadKeys.Count) {
         Add-Type -AssemblyName PresentationCore,PresentationFramework
         $ButtonType = [System.Windows.MessageBoxButton]::OK
         $MessageIcon = [System.Windows.MessageBoxImage]::Error
@@ -377,6 +379,7 @@ if (Test-CommandExists "gpupdate") {
     Show-Output -ForegroundColor Cyan "Group policy updates are not supported on this system."
 }
 
+# Todo: Disable Windows Update here once Intune is properly configured.
 if (Test-CommandExists "Install-Module") {
     Show-Output -ForegroundColor Cyan "Installing PowerShell bindings for Windows Update. You may now be asked whether to install the NuGet package provider. Please select yes."
     Install-Module PSWindowsUpdate -Force
