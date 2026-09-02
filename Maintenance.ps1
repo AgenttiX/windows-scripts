@@ -525,6 +525,12 @@ if (Test-CommandExists "docker") {
     Show-Output "Docker was not found."
 }
 
+# Update the WSL kernel.
+# Docker runs on WSL, and should therefore be pruned before this.
+if (Test-CommandExists "wsl") {
+    wsl --update
+}
+
 # -----
 # Misc tasks that may require user input
 # -----
