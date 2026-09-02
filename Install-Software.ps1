@@ -894,9 +894,13 @@ $OtherOperationsLast = [ordered]@{
     "Report" = "${PSScriptRoot}\Report.ps1", "Run the reporting script";
 }
 if ($IsDomainJoined) {
-    Show-Output -ForegroundColor Cyan "You can safely ignore the `"key is not valid`" error below."
-    # Adding this does not help: -ErrorAction SilentlyContinue
-    $OtherOperations = Sort-Object ($OtherOperations + $OtherOperationsWork)
+    # Sort-Object cannot be used directly on a dictionary,
+    # as it would interpret the dictionary as a sorting rule instead of as input.
+    $OtherOperationsMerged = $OtherOperations + $OtherOperationsWork
+    $OtherOperations = [ordered]@{}
+    foreach ($Key in ($OtherOperationsMerged.Keys | Sort-Object)) {
+        $OtherOperations[$Key] = $OtherOperationsMerged[$Key]
+    }
 }
 $OtherOperations += $OtherOperationsLast
 
@@ -1043,7 +1047,9 @@ function Get-SelectedCommands {
     foreach($row in $rows) {
         $commands += $row.Command;
     }
-    return $commands;
+    # The comma prevents PowerShell from unrolling the array,
+    # which would return $null for an empty array and a scalar for a single item.
+    return ,$commands;
 }
 
 function Select-Cells {
@@ -1230,7 +1236,7 @@ if (! $Form.Continue) {
 #####
 
 $ChocoSelected = Get-SelectedCommands $ChocoProgramsView
-if ($ChocoSelected.Count) {
+if ($ChocoSelected.Count -gt 0) {
     Show-Output "Installing $($ChocoSelected.Count) program(s) with Chocolatey."
     choco upgrade -y $ChocoSelected
 } else {
@@ -1238,7 +1244,7 @@ if ($ChocoSelected.Count) {
 }
 
 $WingetSelected = Get-SelectedCommands $WingetProgramsView
-if ($WingetSelected.Count) {
+if ($WingetSelected.Count -gt 0) {
     Show-Output "Installing $($WingetSelected.Count) program(s) with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($Program in $WingetSelected) {
         winget install "${Program}"
@@ -1248,7 +1254,7 @@ if ($WingetSelected.Count) {
 }
 
 $WindowsCapabilitiesSelected = Get-SelectedCommands $WindowsCapabilitiesView
-if ($WindowsCapabilitiesSelected.Count) {
+if ($WindowsCapabilitiesSelected.Count -gt 0) {
     Show-Output "Installing $($WindowsCapabilitiesSelected.Count) Windows capabilitie(s)."
     foreach($Capability in $WindowsCapabilitiesSelected) {
         Show-Output "Installing ${Capability}"
@@ -1259,7 +1265,7 @@ if ($WindowsCapabilitiesSelected.Count) {
 }
 
 $WindowsFeaturesSelected = Get-SelectedCommands $WindowsFeaturesView
-if ($WindowsFeaturesSelected.Count) {
+if ($WindowsFeaturesSelected.Count -gt 0) {
     Show-Output "Installing $($WindowsFeaturesSelected.Count) Windows feature(s)."
     foreach($Feature in $WindowsFeaturesSelected) {
         Show-Output "Installing ${Feature}"
@@ -1272,7 +1278,7 @@ if ($WindowsFeaturesSelected.Count) {
 # These have to be after the package manager -based installations,
 # as the package managers may install some Visual C++ runtimes etc., which we want to update automatically.
 $OtherSelected = Get-SelectedCommands $OtherOperationsView
-if ($OtherSelected.Count) {
+if ($OtherSelected.Count -gt 0) {
     Show-Output "Running $($OtherSelected.Count) other selected operation(s)."
     foreach($Command in $OtherSelected) {
         try {
