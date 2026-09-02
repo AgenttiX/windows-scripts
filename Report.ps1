@@ -14,6 +14,7 @@ param(
     [switch]$OnlyArchive
 )
 
+Set-StrictMode -Version 3.0
 . "${PSScriptRoot}\Utils.ps1"
 
 if ($RepoInUserDir) {

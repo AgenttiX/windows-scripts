@@ -10,6 +10,7 @@
 # It may be possible to use psexec to run a command prompt as a service account
 # https://learn.microsoft.com/en-us/sysinternals/downloads/psexec
 
+# Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
 
 . "${PSScriptRoot}\Utils.ps1"

@@ -14,6 +14,7 @@
 param(
     [Parameter(Mandatory=$true)][char]$DriveLetter
 )
+# Set-StrictMode -Version 3.0
 
 # This works on Windows 10 but seems to have no effect on Hyper-V Server 2019
 # $driveEject = New-Object -comObject Shell.Application

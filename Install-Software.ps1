@@ -14,7 +14,7 @@ param(
 # Script startup
 #####
 
-# Set-StrictMode -Version 3.0
+Set-StrictMode -Version 3.0
 . "${PSScriptRoot}\Utils.ps1"
 
 if ($RepoInUserDir) {

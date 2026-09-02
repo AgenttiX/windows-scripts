@@ -15,6 +15,8 @@
 )]
 param()
 
+# Set-StrictMode -Version 3.0
+
 # Compatibility for old PowerShell versions
 if($PSVersionTable.PSVersion.Major -lt 3) {
     # Configure PSScriptRoot variable for old PowerShell versions

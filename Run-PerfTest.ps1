@@ -19,6 +19,7 @@ param(
     [switch]$Unigine
 )
 
+Set-StrictMode -Version 3.0
 . "${PSScriptRoot}\Utils.ps1"
 Elevate($MyInvocation.MyCommand.Definition)
 

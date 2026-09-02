@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory=$true)] [string] $ExportPath,
     [string] $Server = "localhost"
 )
+Set-StrictMode -Version 3.0
 
 Write-Host "Virtual machines on $Server"
 Get-VM -ComputerName $Server

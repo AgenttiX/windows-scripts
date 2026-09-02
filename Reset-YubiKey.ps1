@@ -10,6 +10,7 @@ param(
     [switch]$Elevated
 )
 
+Set-StrictMode -Version 3.0
 . "${PSScriptRoot}\Utils.ps1"
 Elevate($myinvocation.MyCommand.Definition)
 . "${PSScriptRoot}\venv\Scripts\activate.ps1"

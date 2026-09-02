@@ -1,4 +1,5 @@
-﻿. ".\utils.ps1"
+﻿# Set-StrictMode -Version 3.0
+. ".\utils.ps1"
 
 $FloppyFolder = "./floppy"
 if (-not (Test-Path "${FloppyFolder}")) {

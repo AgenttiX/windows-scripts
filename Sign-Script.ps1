@@ -14,8 +14,10 @@
 param(
     [Parameter(Position=0, Mandatory=$true)][string]$FilePath,
     [string]$CertPath,
-    [string]$TimestampServer = "http://timestamp.digicert.com"
+    [string]$TimestampServer = "https://timestamp.digicert.com"
 )
+
+Set-StrictMode -Version 3.0
 
 # Get the code-signing certificate from the local computer's certificate store
 if ($PSBoundParameters.ContainsKey("CertPath")) {
