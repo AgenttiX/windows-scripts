@@ -4,11 +4,11 @@ on: push
 jobs:
   lint:
     name: Lint with PSScriptAnalyzer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
@@ -31,12 +31,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Run reporting script
         shell: powershell
         run: .\Report.ps1
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Report
           path: Reports
