@@ -943,7 +943,6 @@ function New-Table {
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "sender", Justification="Probably used by library code")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "e", Justification="Probably used by library code")]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "sender", Justification="Probably used by library code")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Form", Justification="Reserved for future use")]
     [OutputType([system.Windows.Forms.DataGridView])]
     param(
@@ -1015,14 +1014,15 @@ function New-Table {
             [object]$sender,
             [System.EventArgs]$e
         )
-        Show-Output "Locking the UI from modifications and hiding unnecessary columns. (This does not work yet.)";
-        # Show-Output $View.Columns;
-        foreach($column in $View.Columns) {
+        Show-Output "Locking the table columns from modifications.";
+        $Grid = [System.Windows.Forms.DataGridView]$sender;
+        # Show-Output $Grid.Columns;
+        foreach($column in $Grid.Columns) {
             if ($column.Name -ne "Selected") {
                 $column.ReadOnly = $true;
             }
         }
-        # $View.Columns["Command"].Visible = $false;
+        # $Grid.Columns["Command"].Visible = $false;
     }
     # $Form.Add_load($dataBindingComplete);
 
