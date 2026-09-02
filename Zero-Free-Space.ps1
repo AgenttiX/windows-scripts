@@ -11,7 +11,7 @@
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
-    [Parameter(Mandatory=$true)] [string]$DriveLetter,
+    [Parameter(Mandatory=$true)][string]$DriveLetter,
     [switch]$Elevated
 )
 

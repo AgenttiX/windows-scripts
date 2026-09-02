@@ -406,11 +406,11 @@ Install-Chocolatey
 if (Test-CommandExists "choco") {
     $ChocoPackages = choco list
     if ($ChocoPackages -match "altdrag .*") {
-        Show-Output -ForegroundColor Cyan "Replacing discontinued AltDrag with AltSnap"
+        Show-Output -ForegroundColor Cyan "Replacing discontinued AltDrag with AltSnap."
         choco uninstall altdrag -y
         choco install altsnap -y
     }
-    Show-Output -ForegroundColor Cyan "Installing updates with Chocolatey"
+    Show-Output -ForegroundColor Cyan "Installing updates with Chocolatey."
     choco upgrade all -y
 }
 
