@@ -460,68 +460,16 @@ if (Get-IsVirtualMachine) {
 # -----
 # Game updates (non-blocking)
 # -----
-# Todo: Create a function for these, which would check for both Program Files (x86) and Program Files, as the former does not exist on 32-bit systems.
-# https://stackoverflow.com/a/19015642/
-
 if (-not $IsDomainJoined) {
     Show-Output -ForegroundColor Cyan "Installing game updates. (If this is a work computer, probably no games will be found.)"
 }
-
-$steam_path="${env:ProgramFiles(x86)}\Steam\Steam.exe"
-if (Test-Path $steam_path) {
-    Show-Output "Starting Steam for updates."
-    & $steam_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Steam was not found."
-}
-
-$battle_net_path="${env:ProgramFiles(x86)}\Battle.net\Battle.net Launcher.exe"
-if (Test-Path $battle_net_path) {
-    Show-Output "Starting Battle.net for updates."
-    & $battle_net_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Battle.net was not found."
-}
-
-$epic_games_path="${env:ProgramFiles(x86)}\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"
-if (Test-Path $epic_games_path) {
-    Show-Output "Staring Epic Games Launcher for updates."
-    & $epic_games_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Epic Games Launcher was not found."
-}
-
-$origin_path="${env:ProgramFiles(x86)}\Origin\Origin.exe"
-if (Test-Path $origin_path) {
-    Show-Output "Starting Origin for updates."
-    & $origin_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Origin was not found."
-}
-
-$ubisoft_connect_path="${env:ProgramFiles(x86)}\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
-if (Test-Path $ubisoft_connect_path) {
-    Show-Output "Starting Ubisoft Connect for updates."
-    & $ubisoft_connect_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Ubisoft Connect was not found."
-}
-
-$riot_client_path="C:\Riot Games\Riot Client\RiotClientServices.exe"
-if (Test-Path $riot_client_path) {
-    Show-Output "Starting Riot Games client for League of Legends updates."
-    & $riot_client_path --launch-product=league_of_legends --launch-patchline=live
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Riot Games client was not found."
-}
-
-$minecraft_path="${env:ProgramFiles(x86)}\Minecraft Launcher\MinecraftLauncher.exe"
-if (Test-Path $minecraft_path) {
-    Show-Output "Starting Minecraft for updates."
-    & $minecraft_path
-} elseif (-not $IsDomainJoined) {
-    Show-Output "Minecraft was not found."
-}
+Start-ProgramFile -Name "Steam" -Path "Steam\Steam.exe" -ForUpdates -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Battle.net" -Path "Battle.net\Battle.net Launcher.exe" -ForUpdates -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Epic Games Launcher" -Path "Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe" -ForUpdates -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Origin" -Path "Origin\Origin.exe" -ForUpdates -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Riot Games client" -Path "C:\Riot Games\Riot Client\RiotClientServices.exe" -ForUpdates -ArgumentList "--launch-product=league_of_legends","--launch-patchline=live" -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Ubisoft Connect" -Path "Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe" -ForUpdates -NoInfoWhenDomainJoined
+Start-ProgramFile -Name "Minecraft" -Path "Minecraft Launcher\MinecraftLauncher.exe" -ForUpdates -NoInfoWhenDomainJoined
 
 # -----
 # Misc non-blocking tasks

@@ -853,6 +853,43 @@ function Show-Stream {
     }
 }
 
+function Start-ProgramFile {
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [Parameter(Mandatory=$true)][string]$Path,
+        [switch]$ForUpdates = $false,
+        [switch]$NoInfoWhenDomainJoined = $false,
+        [string[]]$ArgumentList = @()
+    )
+    if ($ForUpdates) {
+        $Info = "Starting ${Name} for updates."
+    } else {
+        $Info = "Starting ${Name}."
+    }
+
+    if ([System.IO.Path]::IsPathRooted($Path)) {
+        Show-Output "${Info}"
+        & "${Path}"
+        return $true
+    }
+    # https://stackoverflow.com/a/19015642/
+    $PrgPath = "${env:ProgramFiles}\${Path}"
+    $PrgPath_x86 = "${env:ProgramFiles(x86)}\${Path}"
+    if (Test-Path $PrgPath) {
+        Show-Output "${Info}"
+        Start-Process "${PrgPath}" -ArgumentList $ArgumentList
+        return $true
+    } elseif ((Test-Path env:ProgramFiles(x86) -and (Test_Path $PrgPath_x86))) {
+        Show-Output "${Info}"
+        Start-Process "${PrgPath_x86}" -ArgumentList $ArgumentList
+        return $true
+    } elseif ((-not $NoInfoWhenDomainJoined) -or (-not (Get-IsDomainJoined))) {
+        Show-Output "${Name} was not found."
+    }
+    return $false
+}
+
 function Test-Admin {
     <#
     .SYNOPSIS
