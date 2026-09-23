@@ -30,7 +30,7 @@ Show-Output "Running Mika's performance testing script"
 Install-PTS
 
 # The reporting has to be after PTS installation to be able to generate the PTS reports
-& ".\Report.ps1"
+& ".\New-Report.ps1"
 # This folder is created by the reporting script
 $Reports = ".\reports"
 

@@ -891,7 +891,7 @@ $OtherOperationsWork = [ordered]@{
 $OtherOperationsLast = [ordered]@{
     # These are the last on purpose
     "Maintenance" = "${PSScriptRoot}\Maintenance.ps1", "Run the maintenance script";
-    "Report" = "${PSScriptRoot}\Report.ps1", "Run the reporting script";
+    "Report" = "${PSScriptRoot}\New-Report.ps1", "Run the reporting script";
 }
 if ($IsDomainJoined) {
     # Sort-Object cannot be used directly on a dictionary,

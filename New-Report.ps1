@@ -5,13 +5,20 @@
     Do not generate the zip archive. This is useful if you want to generate additional reports after this script.
 .PARAMETER OnlyArchive
     Only create the archive from existing reports. This is useful if you have generated additional reports after this script.
+.PARAMETER NoPerformanceDiagnostics
+    Do not collect the live performance diagnostics. This makes the script considerably faster.
+.PARAMETER PerformanceDuration
+    How many seconds to sample the live performance diagnostics for.
+    Run the report while the computer is slow to get useful data.
 #>
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "Elevated", Justification="Used in utils")]
 param(
     [switch]$Elevated,
     [switch]$NoArchive,
-    [switch]$OnlyArchive
+    [switch]$OnlyArchive,
+    [switch]$NoPerformanceDiagnostics,
+    [ValidateRange(5, 86400)][int]$PerformanceDuration = 180
 )
 
 Set-StrictMode -Version 3.0
@@ -67,8 +74,14 @@ Get-CimInstance Win32_WinSat > "${Reports}\windows_experience_index.txt"
 Show-Output "Creating report of basic computer info."
 Get-ComputerInfo > "${Reports}\computer_info.txt"
 
+Show-Output "Creating report of the display configuration."
+Get-DisplayTopology | Format-List > "${Reports}\displays.txt"
+
 Show-Output "Creating report of SSD/HDD SMART data."
 Get-Disk | Get-StorageReliabilityCounter | Select-Object -Property "*" > "${Reports}\smart.txt"
+
+Show-Output "Creating report of virtualization-based security."
+Get-VirtualizationSecurityStatus | Format-List > "${Reports}\virtualization_based_security.txt"
 
 Show-Output "Creating report of network configuration."
 Get-NetIPConfiguration | Select-Object `
@@ -182,6 +195,21 @@ if (Test-Path $PTS) {
     & "$PTS" network-info > "${Reports}\pts_network_info.txt"
 } else {
     Show-Output "Phoronix Test Suite (PTS) was not found."
+}
+
+# -----
+# Live performance diagnostics
+# -----
+# This is last, because it takes several minutes and samples the running system.
+# Everything above is a static snapshot, so the sampling is not disturbed by it.
+if (-not $NoPerformanceDiagnostics) {
+    Show-Output "Collecting live performance diagnostics for ${PerformanceDuration} seconds."
+    Show-Output "If the computer is currently slow, leave it running and reproduce the slowness now."
+    & "${PSScriptRoot}\Get-PerformanceDiagnostics.ps1" `
+        -Duration $PerformanceDuration `
+        -OutputPath "${Reports}\Performance"
+} else {
+    Show-Output "Skipping the live performance diagnostics."
 }
 
 # -----

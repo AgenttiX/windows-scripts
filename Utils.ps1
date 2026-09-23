@@ -143,7 +143,7 @@ function Add-ScriptShortcuts {
     # }
     New-Shortcut -Path $ReportShortcutPath `
         -TargetPath "powershell" `
-        -Arguments "-File ${RepoPath}\Report.ps1" `
+        -Arguments "-File ${RepoPath}\New-Report.ps1" `
         -WorkingDirectory "${RepoPath}" `
         -IconLocation "shell32.dll,1" | Out-Null
     New-Shortcut -Path $RepoShortcutPath -TargetPath "${RepoPath}" | Out-Null
@@ -257,6 +257,168 @@ function Get-CertificateInfo {
         + "Currently valid: $($Certificate.Verify()), Thumbprint: $($Certificate.Thumbprint))"
 }
 
+function Get-DisplayTopology {
+    <#
+    .SYNOPSIS
+        Get the resolution, refresh rate and connection type of each active display.
+    .DESCRIPTION
+        Combines the active display modes reported by the Win32 API with the monitor
+        identification data from WMI. Also computes the scanout bandwidth of each display,
+        which is a useful metric on systems with an integrated GPU, since the scanout
+        consumes the same memory bandwidth as the CPU.
+    .NOTES
+        The displays are matched to the WMI monitor data by their Plug and Play ID.
+        If several identical monitors are connected, they may get matched in the wrong order.
+        This affects only the monitor names and serial numbers, not the modes.
+    #>
+    [OutputType([System.Array])]
+    param()
+
+    if (-not ("WindowsScripts.Display" -as [type])) {
+        Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+namespace WindowsScripts {
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DEVMODE {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmDeviceName;
+        public ushort dmSpecVersion, dmDriverVersion, dmSize, dmDriverExtra;
+        public uint dmFields;
+        public int dmPositionX, dmPositionY;
+        public uint dmDisplayOrientation, dmDisplayFixedOutput;
+        public short dmColor, dmDuplex, dmYResolution, dmTTOption, dmCollate;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmFormName;
+        public ushort dmLogPixels;
+        public uint dmBitsPerPel, dmPelsWidth, dmPelsHeight, dmDisplayFlags, dmDisplayFrequency;
+        public uint dmICMMethod, dmICMIntent, dmMediaType, dmDitherType;
+        public uint dmReserved1, dmReserved2, dmPanningWidth, dmPanningHeight;
+    }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DISPLAY_DEVICE {
+        public int cb;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
+        public int StateFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceID;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
+    }
+    public static class Display {
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool EnumDisplayDevices(string device, uint deviceNum, ref DISPLAY_DEVICE displayDevice, uint flags);
+    }
+}
+"@
+    }
+
+    # D3DKMDT_VIDEO_OUTPUT_TECHNOLOGY.
+    # The keys are strings, since the values do not all fit in the same integer type.
+    $ConnectionTypes = @{
+        "0" = "VGA"; "1" = "S-Video"; "2" = "Composite"; "3" = "Component"; "4" = "DVI"; "5" = "HDMI";
+        "6" = "LVDS"; "8" = "D-Jpn"; "9" = "SDI"; "10" = "DisplayPort (external)"; "11" = "DisplayPort (embedded)";
+        "12" = "UDI (external)"; "13" = "UDI (embedded)"; "14" = "SDTV dongle"; "15" = "Miracast";
+        "16" = "Indirect wired"; "2147483648" = "Internal"; "4294967295" = "Other"
+    }
+
+    # Collect the monitor identification data from WMI, keyed by the Plug and Play ID.
+    $MonitorInfo = @{}
+    try {
+        $MonitorIds = @(Get-CimInstance -Namespace "root\wmi" -ClassName "WmiMonitorID" -ErrorAction Stop)
+        $ConnectionParams = @{}
+        foreach ($Params in @(Get-CimInstance -Namespace "root\wmi" -ClassName "WmiMonitorConnectionParams" -ErrorAction SilentlyContinue)) {
+            $ConnectionParams[$Params.InstanceName] = $Params.VideoOutputTechnology
+        }
+        foreach ($Monitor in $MonitorIds) {
+            # The InstanceName is of the form "DISPLAY\GSM7727\4&283e8cdb&0&UID41031_0"
+            $PnpId = ($Monitor.InstanceName -split "\\")[1]
+            if ($MonitorInfo.ContainsKey($PnpId)) { continue }
+            $Technology = "Unknown"
+            if ($ConnectionParams.ContainsKey($Monitor.InstanceName)) {
+                $Value = ([uint32]$ConnectionParams[$Monitor.InstanceName]).ToString()
+                if ($ConnectionTypes.ContainsKey($Value)) { $Technology = $ConnectionTypes[$Value] }
+                else { $Technology = "Unknown (${Value})" }
+            }
+            $MonitorInfo[$PnpId] = [PSCustomObject]@{
+                Name = (Convert-CharArrayToString $Monitor.UserFriendlyName)
+                Manufacturer = (Convert-CharArrayToString $Monitor.ManufacturerName)
+                SerialNumber = (Convert-CharArrayToString $Monitor.SerialNumberID)
+                Year = $Monitor.YearOfManufacture
+                ConnectionType = $Technology
+            }
+        }
+    } catch {
+        Show-Information "Could not read the monitor data from WMI: $($_.Exception.Message)"
+    }
+
+    $Displays = New-Object System.Collections.Generic.List[PSObject]
+    $DeviceNum = 0
+    while ($true) {
+        $Device = New-Object WindowsScripts.DISPLAY_DEVICE
+        $Device.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($Device)
+        # [NullString]::Value has to be used instead of $null,
+        # since PowerShell marshals $null as an empty string, which the API rejects.
+        if (-not [WindowsScripts.Display]::EnumDisplayDevices([NullString]::Value, $DeviceNum, [ref]$Device, 0)) { break }
+        $DeviceNum++
+        # DISPLAY_DEVICE_ATTACHED_TO_DESKTOP
+        if (-not ($Device.StateFlags -band 0x1)) { continue }
+
+        $Mode = New-Object WindowsScripts.DEVMODE
+        $Mode.dmSize = [System.Runtime.InteropServices.Marshal]::SizeOf($Mode)
+        # ENUM_CURRENT_SETTINGS
+        if (-not [WindowsScripts.Display]::EnumDisplaySettings($Device.DeviceName, -1, [ref]$Mode)) { continue }
+
+        # The monitor attached to this adapter output has a DeviceID of the form
+        # "MONITOR\GSM7727\{4d36e96e-e325-11ce-bfc1-08002be10318}\0003"
+        $Monitor = New-Object WindowsScripts.DISPLAY_DEVICE
+        $Monitor.cb = [System.Runtime.InteropServices.Marshal]::SizeOf($Monitor)
+        $PnpId = $null
+        if ([WindowsScripts.Display]::EnumDisplayDevices($Device.DeviceName, 0, [ref]$Monitor, 0)) {
+            $Parts = $Monitor.DeviceID -split "\\"
+            if ($Parts.Count -ge 2) { $PnpId = $Parts[1] }
+        }
+
+        $Info = $null
+        if ($PnpId -and $MonitorInfo.ContainsKey($PnpId)) { $Info = $MonitorInfo[$PnpId] }
+
+        $PixelsPerSecond = [double]$Mode.dmPelsWidth * [double]$Mode.dmPelsHeight * [double]$Mode.dmDisplayFrequency
+        $Displays.Add([PSCustomObject]@{
+            DeviceName = $Device.DeviceName
+            Description = $Device.DeviceString
+            MonitorName = $(if ($Info) { $Info.Name } else { "" })
+            Manufacturer = $(if ($Info) { $Info.Manufacturer } else { "" })
+            SerialNumber = $(if ($Info) { $Info.SerialNumber } else { "" })
+            ConnectionType = $(if ($Info) { $Info.ConnectionType } else { "Unknown" })
+            # DISPLAY_DEVICE_PRIMARY_DEVICE
+            Primary = [bool]($Device.StateFlags -band 0x4)
+            Width = [int]$Mode.dmPelsWidth
+            Height = [int]$Mode.dmPelsHeight
+            RefreshRate = [int]$Mode.dmDisplayFrequency
+            BitsPerPixel = [int]$Mode.dmBitsPerPel
+            PositionX = $Mode.dmPositionX
+            PositionY = $Mode.dmPositionY
+            MegapixelsPerSecond = [math]::Round($PixelsPerSecond / 1e6, 1)
+            # Four bytes per pixel. This is the bandwidth required to read the framebuffer
+            # for display output, excluding all rendering and compositing.
+            ScanoutGigabytesPerSecond = [math]::Round($PixelsPerSecond * 4 / 1e9, 2)
+        })
+    }
+    return $Displays.ToArray()
+}
+
+function Convert-CharArrayToString {
+    <#
+    .SYNOPSIS
+        Convert a null-padded UInt16 array from WMI monitor data to a string.
+    #>
+    [OutputType([string])]
+    param(
+        [AllowNull()][AllowEmptyCollection()]$CharArray
+    )
+    if ($null -eq $CharArray) { return "" }
+    return (-join ($CharArray | Where-Object { $_ -gt 0 } | ForEach-Object { [char]$_ })).Trim()
+}
+
 function Get-InstallBitness {
     [OutputType([string])]
     param(
@@ -333,6 +495,171 @@ function Get-IsVirtualBoxMachine {
         (Test-Path "${env:ProgramFiles}\Oracle\VirtualBox Guest Additions") -or
         ((Get-CimInstance Win32_ComputerSystem).Model -eq "VirtualBox")
     )
+}
+
+function Get-PowerModeOverlay {
+    <#
+    .SYNOPSIS
+        Get the active Windows power mode, a.k.a. the power scheme overlay.
+    .DESCRIPTION
+        On Windows 10 and 11 the power mode slider is implemented as an overlay on top of the
+        active power scheme, and is therefore not visible in the Control Panel power options.
+        On Lenovo ThinkPads this overlay also selects the Intelligent Cooling mode,
+        which controls the thermal and power limits enforced by the firmware.
+    .OUTPUTS
+        A PSCustomObject with the overlay GUID and its human-readable name.
+    .LINK
+        https://learn.microsoft.com/en-us/windows/win32/api/powersetting/nf-powersetting-powergeteffectiveoverlayscheme
+    #>
+    [OutputType([PSCustomObject])]
+    param()
+    Initialize-PowerOverlayApi
+    $Guid = [Guid]::Empty
+    $Result = [WindowsScripts.PowerOverlay]::PowerGetActualOverlayScheme([ref]$Guid)
+    if ($Result -ne 0) {
+        throw "Could not read the power mode overlay. Error code: ${Result}"
+    }
+    return [PSCustomObject]@{
+        Guid = $Guid
+        Name = Get-PowerModeOverlayName $Guid
+    }
+}
+
+function Get-PowerModeOverlayName {
+    <#
+    .SYNOPSIS
+        Convert a power mode overlay GUID to a human-readable name.
+    #>
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory=$true)][Guid]$Guid
+    )
+    $Names = @{
+        "ded574b5-45a0-4f42-8737-46345c09c238" = "Best performance"
+        "00000000-0000-0000-0000-000000000000" = "Balanced (recommended)"
+        "961cc777-2547-4f9d-8174-7d86181b8a7a" = "Best power efficiency"
+    }
+    $Key = $Guid.ToString()
+    if ($Names.ContainsKey($Key)) { return $Names[$Key] }
+    return "Unknown (${Key})"
+}
+
+function Initialize-PowerOverlayApi {
+    <#
+    .SYNOPSIS
+        Load the P/Invoke definitions for the power mode overlay API.
+    #>
+    param()
+    if (-not ("WindowsScripts.PowerOverlay" -as [type])) {
+        Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+namespace WindowsScripts {
+    public static class PowerOverlay {
+        [DllImport("powrprof.dll")] public static extern uint PowerGetActualOverlayScheme(out Guid scheme);
+        [DllImport("powrprof.dll")] public static extern uint PowerGetEffectiveOverlayScheme(out Guid scheme);
+        [DllImport("powrprof.dll")] public static extern uint PowerSetActiveOverlayScheme(Guid scheme);
+    }
+}
+"@
+    }
+}
+
+function Set-PowerModeOverlay {
+    <#
+    .SYNOPSIS
+        Set the active Windows power mode, a.k.a. the power scheme overlay.
+    .DESCRIPTION
+        This is the programmatic equivalent of the power mode dropdown in
+        Settings -> System -> Power & battery -> Power mode.
+        It does not require administrator privileges.
+    .PARAMETER Mode
+        The power mode to activate.
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSUseShouldProcessForStateChangingFunctions",
+        "",
+        Justification="Interactive administration script"
+    )]
+    [OutputType([void])]
+    param(
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("BestPerformance", "Balanced", "BestPowerEfficiency")]
+        [string]$Mode
+    )
+    $Guids = @{
+        "BestPerformance" = [Guid]"ded574b5-45a0-4f42-8737-46345c09c238"
+        "Balanced" = [Guid]"00000000-0000-0000-0000-000000000000"
+        "BestPowerEfficiency" = [Guid]"961cc777-2547-4f9d-8174-7d86181b8a7a"
+    }
+    Initialize-PowerOverlayApi
+    $Result = [WindowsScripts.PowerOverlay]::PowerSetActiveOverlayScheme($Guids[$Mode])
+    if ($Result -ne 0) {
+        throw "Could not set the power mode to ${Mode}. Error code: ${Result}"
+    }
+}
+
+function Get-VirtualizationSecurityStatus {
+    <#
+    .SYNOPSIS
+        Get the status of virtualization-based security (VBS) and its dependent features.
+    .DESCRIPTION
+        VBS runs Windows on top of the Hyper-V hypervisor, which has a performance cost.
+        This function reports which of the features that justify that cost are actually running.
+    .LINK
+        https://learn.microsoft.com/en-us/windows/security/hardware-security/enable-virtualization-based-protection-of-code-integrity
+    #>
+    [OutputType([PSCustomObject])]
+    param()
+    $ServiceNames = @{
+        1 = "Credential Guard"
+        2 = "Hypervisor-enforced code integrity (HVCI)"
+        3 = "System Guard Secure Launch"
+        4 = "SMM firmware measurement"
+        5 = "APIC virtualization / hypervisor-enforced paging translation"
+        7 = "Kernel-mode hardware-enforced stack protection"
+        8 = "Hypervisor-enforced paging translation"
+    }
+    $StatusNames = @{ 0 = "Not enabled"; 1 = "Enabled but not running"; 2 = "Running" }
+
+    $DeviceGuard = Get-CimInstance `
+        -Namespace "root\Microsoft\Windows\DeviceGuard" `
+        -ClassName "Win32_DeviceGuard" `
+        -ErrorAction SilentlyContinue
+    if ($null -eq $DeviceGuard) {
+        return [PSCustomObject]@{
+            Status = "Unknown"
+            HypervisorPresent = (Get-CimInstance Win32_ComputerSystem).HypervisorPresent
+            Configured = @()
+            Running = @()
+            ConfiguredButNotRunning = @()
+        }
+    }
+
+    $Configured = @()
+    foreach ($Id in @($DeviceGuard.SecurityServicesConfigured)) {
+        if ($ServiceNames.ContainsKey([int]$Id)) { $Configured += $ServiceNames[[int]$Id] }
+        else { $Configured += "Unknown service ${Id}" }
+    }
+    $Running = @()
+    foreach ($Id in @($DeviceGuard.SecurityServicesRunning)) {
+        if ($ServiceNames.ContainsKey([int]$Id)) { $Running += $ServiceNames[[int]$Id] }
+        else { $Running += "Unknown service ${Id}" }
+    }
+    $VbsStatus = "Unknown"
+    if ($StatusNames.ContainsKey([int]$DeviceGuard.VirtualizationBasedSecurityStatus)) {
+        $VbsStatus = $StatusNames[[int]$DeviceGuard.VirtualizationBasedSecurityStatus]
+    }
+
+    return [PSCustomObject]@{
+        Status = $VbsStatus
+        HypervisorPresent = (Get-CimInstance Win32_ComputerSystem).HypervisorPresent
+        Configured = $Configured
+        Running = $Running
+        # Features that are configured but not running still cost the VBS overhead
+        # without providing the protection they were enabled for.
+        ConfiguredButNotRunning = @($Configured | Where-Object { $Running -notcontains $_ })
+    }
 }
 
 function Get-YesNo {
