@@ -237,7 +237,12 @@ if (-not (Test-Path -LiteralPath "${SettingsPath}")) {
 Install-Analyzer
 
 $Root = (Resolve-Path -LiteralPath "${Path}").ProviderPath
-$Targets = Get-LintTarget -Target "${Path}"
+if (-not (Test-Path -LiteralPath "${Root}" -PathType Container)) {
+    # Report the paths of a single file relative to its directory.
+    $Root = Split-Path -Path "${Root}" -Parent
+}
+# The array subexpression is required, since PowerShell unrolls a single-element array into a string.
+$Targets = @(Get-LintTarget -Target "${Path}")
 if ($Targets.Count -eq 0) {
     Write-Output "No PowerShell files were found in `"${Root}`"."
     exit 0
