@@ -112,6 +112,7 @@ $ChocoPrograms = [ordered]@{
     "NVM" = "nvm", "Node.js Version Manager";
     "Obsidian" = "obsidian", "A note-taking app";
     "OBS Studio" = "obs-studio", "Screen capture and broadcasting utility";
+    "OpenSC" = "opensc", "Smart card tools and PKCS#11 module. Required for the TPM virtual smart card SSH scripts.";
     "OpenVPN" = "openvpn", "VPN client";
     "PDFsam" = "pdfsam", "PDF Split & Merge utility";
     "PDF-XChange Editor" = "pdfxchangeeditor", "PDF editor";

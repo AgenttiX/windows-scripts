@@ -11,7 +11,7 @@ for configuring and maintaining Windows workstations and servers.
 - New code should be compatible with both PowerShell 7 and PowerShell 5.1.
 - Scripts and functions should provide comment-based help, at least `.SYNOPSIS`.
 - Define types for function parameters and return values where possible.
-- On Windows script files are UTF-8 with a BOM and CRLF line endings (as cloned by `git`).
+- Keep the encoding and line endings as cloned by `git` (CRLF on Windows).
 - Use `Show-Output` and `Show-Information` from `Utils.ps1` instead of `Write-Host`.
   Note that `Show-Output` writes to the output stream, so use `Show-Information`
   inside functions that return a value.
