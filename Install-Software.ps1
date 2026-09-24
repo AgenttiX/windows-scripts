@@ -524,6 +524,33 @@ function Install-PicoScope {
         -SHA256 "${SHA256}"
 }
 
+function Install-PNDS {
+    <#
+    .SYNOPSIS
+        Install Nanotec Plug & Drive Studio
+    .LINK
+        https://www.nanotec.com/eu/en/knowledge-base-article/plug-drive-studio
+    #>
+    param(
+        # [string]$Version = "3.2.0.1"
+        # [string]$SHA256 = "ef023ea1a8c151f5a8993c1ccafcc291bf74d2af21ec8297c5c665da77d1dbf5"
+        [string]$Version = "2.1.7",
+        [string]$SHA256 = "7207ac270a41d11748257e38bc2cff6effba4034a2ea26e86a7655138aca56e3"
+    )
+#     # This zip file contains nested zip files and would require special handling.
+#     $Filename = "PnDS3_v.${Version}_Package.zip"
+#     Install-FromUri `
+#         -Name "Nanotec Plug & Drive Studio (PNDS)" `
+#         -Uri "https://www.nanotec.com/fileadmin/files/Software/Plug_Drive_Studio/${Filename}" `
+#         -SHA256 "${SHA256}"
+#     }
+    Install-Executable `
+        -Name "Nanotec Plug & Drive Studio (PNDS)" `
+        -Path "${SoftwareRepoPath}\Nanotec\PNDS ${Version} Release Package\Plug & Drive Studio\PNDS-${Version}-x86.exe" `
+        -SHA256 "${SHA256}" `
+        -BypassAuthenticode
+}
+
 function Install-QuPath {
     <#
     .SYNOPSIS
@@ -868,6 +895,7 @@ $OtherOperationsWork = [ordered]@{
     "IDS Peak" = ${function:Install-IDSPeak}, "Driver for IDS cameras and old Thorlabs cameras";
     "IDS Software Suite (µEye, NOTE!)" = ${function:Install-IDSSoftwareSuite}, "Driver for old IDS/Thorlabs cameras. NOTE! IDS Peak should now be compatible also with these old cameras, so use it instead.";
     "LabVIEW Runtime 2014 SP1 32-bit" = ${function:Install-LabVIEWRuntime2014SP1}, "Required for SSMbe (it requires this specific older version instead of the latest)";
+    "Nanotec Plug & Drive Studio (PNDS)" = ${function:Install-PNDS}, "Driver for Nanotec motor controllers";
     "Ophir StarLab" = ${function:Install-StarLab}, "Driver for Ophir power meters";
     "OriginLab" = ${function:Install-OriginLab}, "OriginLab data graphing and analysis software";
     "Origin Viewer" = ${function:Install-OriginViewer}, "Viewer for OriginLab data graphing and analysis files";
