@@ -41,6 +41,15 @@ New-Junction -Path "${SSHDir}" -Target "${ConfigDir}"
 Show-Output "Creating junction to SSH config.d directory."
 New-Junction -Path "${ConfigDir}\config.d" -Target "${GitPath}\linux-scripts\ssh\config.d"
 
+# Do not run this code. The ssh-agent of Git for Windows is started by Profile/Profile.ps1 instead.
+# This creates a service called "ssh-agent",
+# which runs "C:\Program Files\Git\cmd\start-ssh-agent.cmd" as LocalSystem with automatic startup.
+# The service fails to start, since a .cmd file is not a service executable,
+# and it has the same name as the agent service of Windows OpenSSH.
+# If it has been created, check it and remove it in an elevated shell with:
+# Get-CimInstance Win32_Service -Filter "Name='ssh-agent'" | Select-Object Name, State, StartMode, PathName
+# sc.exe delete ssh-agent
+#
 # $Service = Get-Service -Name "ssh-agent" -ErrorAction SilentlyContinue
 # if ($Service.Length -gt 0) {
 #     Remove-Service -Name "ssh-agent"
