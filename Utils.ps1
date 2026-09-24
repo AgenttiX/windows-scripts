@@ -1166,9 +1166,9 @@ function Show-Stream {
         $OldBackgroundColor = [Console]::BackgroundColor
         [Console]::BackgroundColor = $BackgroundColor
     }
-    if ($args) {
-        & $Stream $InputObject $args
-    } elseif ($Stream -eq "Write-Information") {
+    # This is an advanced function, so $args is not available here.
+    # Referencing it would read the $args of the caller's scope, which fails with Set-StrictMode in advanced scripts.
+    if ($Stream -eq "Write-Information") {
         # Write-Information does not support piping
         & $Stream $InputObject
     } else {
