@@ -181,6 +181,7 @@ $WingetPrograms = [ordered]@{
     # The PowerToys version available from WinGet is a preview.
     # https://github.com/microsoft/PowerToys#via-winget-preview
     # "PowerToys" = "Microsoft.PowerToys";
+    "uv" = "astral-sh.uv", "Fast Python package and project manager (Highly recommended over Python+pip+virtualenv)";
 }
 $WindowsCapabilities = [ordered]@{
     # "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "NOTE! This is an old version that does not support FIDO2. Install SSH from the other programs menu instead.";
@@ -1137,7 +1138,7 @@ $WingetProgramsView = New-Table `
     -Parent $Layout `
     -Title "Centrally updated programs (Winget)" `
     -Data $WingetPrograms;
-$WingetProgramsView.Height = 50;
+$WingetProgramsView.Height = 75;
 
 $WindowsCapabilitiesView = New-Table `
     -Form $Form `
@@ -1250,7 +1251,7 @@ if ($IsDomainJoined) {
 function Resize-Layout {
     $Layout.Width = $Form.Width - 10;
     $Layout.Height = $Form.Height - 10;
-    $ChocoProgramsView.Height = $Form.Height - 660;
+    $ChocoProgramsView.Height = $Form.Height - 685;
 }
 $Form.Add_Resize(${function:Resize-Layout});
 Resize-Layout;
@@ -1277,7 +1278,7 @@ $WingetSelected = Get-SelectedCommands $WingetProgramsView
 if ($WingetSelected.Count -gt 0) {
     Show-Output "Installing $($WingetSelected.Count) program(s) with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($Program in $WingetSelected) {
-        winget install "${Program}"
+        winget install "--id=${Program}" --exact
     }
 } else {
     Show-Output "No programs were selected to be installed with Winget."
