@@ -122,6 +122,7 @@ $ChocoPrograms = [ordered]@{
     "Plexamp" = "plexamp", "Plex client for playing music from a self-hosted server";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
+    "pstop" = "pstop", "Terminal-based system monitor (htop for Windows)";
     # "PuTTY" = "putty", "SSH, Telnet and serial port terminal client";
     "PuTTY-CAC" = "putty-cac", "PuTTY with support for smart cards and certificates. Required for the TPM virtual smart card SSH scripts. Install this instead of PuTTY, as they use the same installation directory.";
     "PyCharm Community" = "pycharm-community", "Python IDE";
