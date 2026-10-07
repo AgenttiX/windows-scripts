@@ -1,5 +1,7 @@
 *.bak
 *.exe
+*.json
+!*-template.json
 *.zip
 .idea
 downloads

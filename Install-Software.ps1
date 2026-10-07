@@ -177,6 +177,8 @@ if (! $IsDomainJoined) {
 }
 
 $WingetPrograms = [ordered]@{
+    "Azure Artifact Signing Client Tools" = "Microsoft.Azure.ArtifactSigningClientTools", "For signing executables for Authenticode";
+    "Azure CLI" = "Microsoft.AzureCLI", "Command-line interface for Microsoft Azure";
     "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
     "pstop" = "marlocarlo.pstop", "Terminal-based system monitor (htop for Windows)";
     # The PowerToys version available from WinGet is a preview.

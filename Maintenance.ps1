@@ -513,6 +513,11 @@ Get-CimInstance -Namespace "Root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseMode
 Add-ScriptShortcuts
 Set-RepoPermissions
 
+# Microsoft Azure CLI
+if (Test-CommandExists "az") {
+    az upgrade
+}
+
 if (Test-CommandExists "claude") {
     claude update
 }

@@ -1,0 +1,17 @@
+{
+  "Endpoint": "<Artifact Signing account endpoint>",
+  "CodeSigningAccountName": "<Artifact Signing account name>",
+  "CertificateProfileName": "<Certificate profile name>",
+  "CorrelationId": "<Optional CorrelationId value>",
+  "ExcludeCredentials": [
+     "ManagedIdentityCredential",
+     "WorkloadIdentityCredential",
+     "SharedTokenCacheCredential",
+     "VisualStudioCredential",
+     "VisualStudioCodeCredential",
+     "AzureCliCredential",
+     "AzurePowerShellCredential",
+     "AzureDeveloperCliCredential",
+     "InteractiveBrowserCredential"
+  ]
+}
