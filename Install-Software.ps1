@@ -122,7 +122,6 @@ $ChocoPrograms = [ordered]@{
     "Plexamp" = "plexamp", "Plex client for playing music from a self-hosted server";
     "PostgreSQL" = "postgresql", "Database for e.g. web app development";
     "PowerToys" = "powertoys", "Various utilities for Windows";
-    "pstop" = "pstop", "Terminal-based system monitor (htop for Windows)";
     # "PuTTY" = "putty", "SSH, Telnet and serial port terminal client";
     "PuTTY-CAC" = "putty-cac", "PuTTY with support for smart cards and certificates. Required for the TPM virtual smart card SSH scripts. Install this instead of PuTTY, as they use the same installation directory.";
     "PyCharm Community" = "pycharm-community", "Python IDE";
@@ -179,6 +178,7 @@ if (! $IsDomainJoined) {
 
 $WingetPrograms = [ordered]@{
     "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
+    "pstop" = "marlocarlo.pstop", "Terminal-based system monitor (htop for Windows)";
     # The PowerToys version available from WinGet is a preview.
     # https://github.com/microsoft/PowerToys#via-winget-preview
     # "PowerToys" = "Microsoft.PowerToys";
@@ -1271,11 +1271,6 @@ $ChocoSelected = Get-SelectedCommands $ChocoProgramsView
 if ($ChocoSelected.Count -gt 0) {
     Show-Output "Installing $($ChocoSelected.Count) program(s) with Chocolatey."
     choco upgrade -y $ChocoSelected
-
-    if (($ChocoSelected -contains "pstop") -and (Test-CommandExists "pstop")) {
-        Show-Output "Installing the shell alias `"htop`" for pstop."
-        pstop --install-alias
-    }
 } else {
     Show-Output "No programs were selected to be installed with Chocolatey."
 }
@@ -1284,7 +1279,11 @@ $WingetSelected = Get-SelectedCommands $WingetProgramsView
 if ($WingetSelected.Count -gt 0) {
     Show-Output "Installing $($WingetSelected.Count) program(s) with Winget. If asked to accept the license of the package repository, please select yes."
     foreach($Program in $WingetSelected) {
-        winget install "--id=${Program}" --exact
+        winget install --exact "--id=${Program}"
+    }
+    if (($ChocoSelected -contains "pstop") -and (Test-CommandExists "pstop")) {
+        Show-Output "Installing the shell alias `"htop`" for pstop."
+        pstop --install-alias
     }
 } else {
     Show-Output "No programs were selected to be installed with Winget."
