@@ -1271,6 +1271,11 @@ $ChocoSelected = Get-SelectedCommands $ChocoProgramsView
 if ($ChocoSelected.Count -gt 0) {
     Show-Output "Installing $($ChocoSelected.Count) program(s) with Chocolatey."
     choco upgrade -y $ChocoSelected
+
+    if (($ChocoSelected -contains "pstop") -and (Test-CommandExists "pstop")) {
+        Show-Output "Installing the shell alias `"htop`" for pstop."
+        pstop --install-alias
+    }
 } else {
     Show-Output "No programs were selected to be installed with Chocolatey."
 }
