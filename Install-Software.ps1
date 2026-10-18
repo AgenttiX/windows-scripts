@@ -190,6 +190,7 @@ $WindowsCapabilities = [ordered]@{
     # "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "NOTE! This is an old version that does not support FIDO2. Install SSH from the other programs menu instead.";
     "RSAT AD LDS (Active Directory management tools)" = "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0", "Active Directory management tools";
     "RSAT BitLocker tools" = "Rsat.BitLocker.Recovery.Tools~~~~0.0.1.0", "Active Directory BitLocker management tools";
+    "RSAT certificate services tools" = "Rsat.CertificateServices.Tools~~~~0.0.1.0", "Active Directory Certificate Services (AD CS) management tools";
     "RSAT DHCP tools" = "Rsat.DHCP.Tools~~~~0.0.1.0", "Active Directory DHCP management tools";
     "RSAT DNS tools" = "Rsat.Dns.Tools~~~~0.0.1.0", "Active Directory DNS management tools";
     "RSAT cluster tools" = "Rsat.FailoverCluster.Management.Tools~~~~0.0.1.0", "Server cluster management tools";
