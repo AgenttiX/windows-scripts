@@ -530,6 +530,11 @@ if (Test-CommandExists "docker") {
     Show-Output "Docker was not found."
 }
 
+if (Test-CommandExists "llama.exe") {
+    Show-Output -ForegroundColor Cyan "Updating llama.cpp"
+    llama.exe update
+}
+
 # Update the WSL kernel.
 # Docker runs on WSL, and should therefore be pruned before this.
 if (Test-CommandExists "wsl") {
