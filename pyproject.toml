@@ -1,0 +1,119 @@
+[project]
+name = "windows-scripts"
+version = "0.1.0"
+description = "A collection of Windows scripts"
+readme = "README.md"
+license = "MIT"
+keywords = [
+    "PowerShell",
+    "script",
+    "scripts",
+    "Windows"
+]
+authors = [
+    {name = "Mika Mäki"}
+]
+maintainers = [
+    {name = "Mika Mäki"}
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Operating System :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Desktop Environment",
+    "Topic :: Games/Entertainment",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Security",
+    "Topic :: Software Development",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Terminals",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+dependencies = [
+    "yubikey-manager >= 5.9.2"
+]
+requires-python = ">=3.14"
+
+[dependency-groups]
+dev = [
+    "prek >= 0.5.10",
+    "pyrefly >= 1.4.1",
+    "pytest >= 9.2.0",
+    "pytest-cov >= 7.1.0",
+    "ruff >= 0.17.4"
+]
+
+[project.urls]
+Repository = "https://github.com/AgenttiX/windows-scripts"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:"
+]
+show_missing = true
+
+[tool.coverage.run]
+branch = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--durations=10",
+    "--durations-min=1.0"
+]
+testpaths = [
+    "tests"
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "A",     # flake8-builtins
+    "ARG",   # flake8-unused-arguments
+    "B",     # flake8-bugbear
+    "BLE",   # flake8-blind-except
+    "C4",    # flake8-comprehensions
+    "D",     # pydocstyle
+    "E",     # pycodestyle errors
+    "F",     # Pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "NPY",   # NumPy-specific rules
+    "PERF",  # Perflint
+    "PIE",   # flake8-pie
+    "PL",    # Pylint
+    "PT",    # flake8-pytest-style
+    "RET",   # flake8-return
+    "RUF",   # Ruff-specific rules
+    "SIM",   # flake8-simplify
+    "TID",   # flake8-tidy-imports
+    "UP",    # pyupgrade
+    "W"      # pycodestyle warnings
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests compare against literal values.
+"tests/**" = ["PLR2004"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.uv]
+# This repository is a collection of scripts, not an installable package.
+package = false

@@ -1,12 +1,15 @@
+*.7z
 *.bak
 *.exe
 *.json
 !.claude/settings.json
 !*-template.json
+*.log
 *.zip
 .idea
+.coverage
+.venv
 downloads
-errors.log
 lib
 logs
 obs-studio/crashes
