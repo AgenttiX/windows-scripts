@@ -1,6 +1,7 @@
 *.bak
 *.exe
 *.json
+!.claude/settings.json
 !*-template.json
 *.zip
 .idea
