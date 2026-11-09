@@ -41,6 +41,23 @@ New-Junction -Path "${SSHDir}" -Target "${ConfigDir}"
 Show-Output "Creating junction to SSH config.d directory."
 New-Junction -Path "${ConfigDir}\config.d" -Target "${GitPath}\linux-scripts\ssh\config.d"
 
+# Older OpenSSH versions refuse the entire configuration if it contains this file,
+# so it is linked only if the ssh found in PATH supports it. See linux-scripts/ssh/openssh10.conf.
+# Without it, RemoteCommand breaks "ssh host command" and the SSH remoting of JetBrains IDEs.
+# Creating a file symlink requires administrator privileges or Developer Mode.
+$OpenSSH10ConfPath = "${ConfigDir}\openssh10.conf"
+$SSHVersion = (& ssh -V 2>&1 | Out-String)
+if (($SSHVersion -match "OpenSSH_(?:for_Windows_)?(\d+)\.") -and ([int]$Matches[1] -ge 10)) {
+    Show-Output "Creating symlink to the configuration for OpenSSH 10.0 or newer."
+    if (Test-Path "${OpenSSH10ConfPath}") {
+        Remove-Item "${OpenSSH10ConfPath}"
+    }
+    New-Item -ItemType "SymbolicLink" -Path "${OpenSSH10ConfPath}" -Target "${GitPath}\linux-scripts\ssh\openssh10.conf"
+} elseif ((Get-Item "${OpenSSH10ConfPath}" -ErrorAction SilentlyContinue).LinkType -eq "SymbolicLink") {
+    Show-Output "Removing symlink to the configuration for OpenSSH 10.0 or newer, since this version does not support it."
+    Remove-Item "${OpenSSH10ConfPath}"
+}
+
 # Do not run this code. The ssh-agent of Git for Windows is started by Profile/Profile.ps1 instead.
 # This creates a service called "ssh-agent",
 # which runs "C:\Program Files\Git\cmd\start-ssh-agent.cmd" as LocalSystem with automatic startup.
