@@ -188,7 +188,7 @@ $WingetPrograms = [ordered]@{
     "uv" = "astral-sh.uv", "Fast Python package and project manager (Highly recommended over Python+pip+virtualenv)";
 }
 $WindowsCapabilities = [ordered]@{
-    # "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "NOTE! This is an old version that does not support FIDO2. Install SSH from the other programs menu instead.";
+    "OpenSSH client" = "OpenSSH.Client~~~~0.0.1.0", "NOTE! This is an old version that does not support FIDO2. Install SSH from the other programs menu instead. Use this version only for Claude Desktop, which doesn't support the SSH that comes with Git for Windows";
     "RSAT AD LDS (Active Directory management tools)" = "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0", "Active Directory management tools";
     "RSAT BitLocker tools" = "Rsat.BitLocker.Recovery.Tools~~~~0.0.1.0", "Active Directory BitLocker management tools";
     "RSAT certificate services tools" = "Rsat.CertificateServices.Tools~~~~0.0.1.0", "Active Directory Certificate Services (AD CS) management tools";

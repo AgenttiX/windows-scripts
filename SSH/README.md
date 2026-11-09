@@ -4,6 +4,23 @@
 Links `~/.ssh` to the SSH configuration directory of a Git repository.
 
 
+## Remove-MicrosoftOpenSSHFromPath.ps1
+Keeps the OpenSSH of Git for Windows as the `ssh` in PATH,
+when Microsoft OpenSSH is installed alongside it.
+Git for Windows supports more key types and agents,
+but some programs, such as Claude Desktop, accept only Microsoft OpenSSH.
+Claude Desktop finds Microsoft OpenSSH in System32 or Program Files without PATH.
+
+Install Microsoft OpenSSH and then remove it from PATH in an elevated PowerShell:
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+.\Remove-MicrosoftOpenSSHFromPath.ps1
+```
+Run the script again after OpenSSH updates and Windows feature updates, since they may add the PATH entry back.
+Use `-WhatIf` to see what would be removed.
+Git itself can be pinned to its own OpenSSH with `sshCommand = /usr/bin/ssh` in the `[core]` section of the Git config.
+
+
 ## SSH agent of the PowerShell profile
 [`Profile.ps1`](../Profile/Profile.ps1) starts the `ssh-agent` of Git for Windows
 when a PowerShell session is opened and no `ssh-agent` process is running.
