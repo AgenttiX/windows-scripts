@@ -45,8 +45,9 @@ function Stop-Bridge {
         Remove-Item Env:\SSH_PAGEANT_PID
     }
     # MSYS2 creates the socket as a file with the system attribute, so -Force is required.
+    # ssh-pageant -k may remove the socket by itself right after the check, so a missing file is not an error.
     if (Test-Path "${SmartCardSSHSocket}") {
-        Remove-Item -Path "${SmartCardSSHSocket}" -Force
+        Remove-Item -Path "${SmartCardSSHSocket}" -Force -ErrorAction SilentlyContinue
     }
 }
 
