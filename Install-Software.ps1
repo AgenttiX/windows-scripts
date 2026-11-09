@@ -180,6 +180,7 @@ $WingetPrograms = [ordered]@{
     "actionlint" = "rhysd.actionlint", "GitHub Actions config linter";
     "Azure Artifact Signing Client Tools" = "Microsoft.Azure.ArtifactSigningClientTools", "For signing executables for Authenticode";
     "Azure CLI" = "Microsoft.AzureCLI", "Command-line interface for Microsoft Azure";
+    "delta" = "dandavison.delta", "Syntax highlighting for git, diff, grep etc.";
     "NVIDIA CUDA" = "Nvidia.CUDA", "NVIDIA GPU computing libraries";
     "PowerShell" = "Microsoft.PowerShell", "The new cross-platform PowerShell (>= 7)";
     "pstop" = "marlocarlo.pstop", "Terminal-based system monitor (htop for Windows)";
