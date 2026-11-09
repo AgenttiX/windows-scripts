@@ -41,21 +41,32 @@ New-Junction -Path "${SSHDir}" -Target "${ConfigDir}"
 Show-Output "Creating junction to SSH config.d directory."
 New-Junction -Path "${ConfigDir}\config.d" -Target "${GitPath}\linux-scripts\ssh\config.d"
 
-# Older OpenSSH versions refuse the entire configuration if it contains this file,
-# so it is linked only if the ssh found in PATH supports it. See linux-scripts/ssh/openssh10.conf.
+# Older OpenSSH versions refuse the entire configuration if it contains this file.
+# See linux-scripts/ssh/openssh10.conf.
 # Without it, RemoteCommand breaks "ssh host command" and the SSH remoting of JetBrains IDEs.
+# On Windows, it must be visible only to the MSYS-based OpenSSH of Git for Windows,
+# since Microsoft OpenSSH, e.g. 9.5 that is used by Claude Desktop, may be older than 10.0.
+# Therefore, it is linked as "openssh10:msys.conf", which the SSH config includes.
+# MSYS stores the ":" of file names as the private-use character U+F03A, and translates it back,
+# but for Windows programs such as Microsoft OpenSSH, "openssh10:msys.conf" refers to
+# an alternate data stream of the nonexistent file "openssh10", so they don't find it.
 # Creating a file symlink requires administrator privileges or Developer Mode.
-$OpenSSH10ConfPath = "${ConfigDir}\openssh10.conf"
+$OpenSSH10LegacyPath = "${ConfigDir}\openssh10.conf"
+if ((Get-Item "${OpenSSH10LegacyPath}" -ErrorAction SilentlyContinue).LinkType -eq "SymbolicLink") {
+    Show-Output "Removing the symlink openssh10.conf, since Microsoft OpenSSH older than 10.0 would refuse the configuration."
+    Remove-Item "${OpenSSH10LegacyPath}"
+}
+$OpenSSH10ConfPath = "${ConfigDir}\openssh10$([char]0xF03A)msys.conf"
 $SSHVersion = (& ssh -V 2>&1 | Out-String)
-if (($SSHVersion -match "OpenSSH_(?:for_Windows_)?(\d+)\.") -and ([int]$Matches[1] -ge 10)) {
-    Show-Output "Creating symlink to the configuration for OpenSSH 10.0 or newer."
-    if (Test-Path "${OpenSSH10ConfPath}") {
-        Remove-Item "${OpenSSH10ConfPath}"
+if (($SSHVersion -notmatch "for_Windows") -and ($SSHVersion -match "OpenSSH_(\d+)\.") -and ([int]$Matches[1] -ge 10)) {
+    Show-Output "Creating symlink to the configuration for OpenSSH 10.0 or newer for the OpenSSH of Git for Windows."
+    if (Test-Path -LiteralPath "${OpenSSH10ConfPath}") {
+        Remove-Item -LiteralPath "${OpenSSH10ConfPath}"
     }
     New-Item -ItemType "SymbolicLink" -Path "${OpenSSH10ConfPath}" -Target "${GitPath}\linux-scripts\ssh\openssh10.conf"
-} elseif ((Get-Item "${OpenSSH10ConfPath}" -ErrorAction SilentlyContinue).LinkType -eq "SymbolicLink") {
-    Show-Output "Removing symlink to the configuration for OpenSSH 10.0 or newer, since this version does not support it."
-    Remove-Item "${OpenSSH10ConfPath}"
+} elseif ((Get-Item -LiteralPath "${OpenSSH10ConfPath}" -ErrorAction SilentlyContinue).LinkType -eq "SymbolicLink") {
+    Show-Output "Removing symlink to the configuration for OpenSSH 10.0 or newer, since the ssh in PATH is not a supported version."
+    Remove-Item -LiteralPath "${OpenSSH10ConfPath}"
 }
 
 # Do not run this code. The ssh-agent of Git for Windows is started by Profile/Profile.ps1 instead.
