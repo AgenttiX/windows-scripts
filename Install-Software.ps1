@@ -177,6 +177,7 @@ if (! $IsDomainJoined) {
 }
 
 $WingetPrograms = [ordered]@{
+    "actionlint" = "rhysd.actionlint", "GitHub Actions config linter";
     "Azure Artifact Signing Client Tools" = "Microsoft.Azure.ArtifactSigningClientTools", "For signing executables for Authenticode";
     "Azure CLI" = "Microsoft.AzureCLI", "Command-line interface for Microsoft Azure";
     "NVIDIA CUDA" = "Nvidia.CUDA", "NVIDIA GPU computing libraries";
@@ -184,7 +185,8 @@ $WingetPrograms = [ordered]@{
     "pstop" = "marlocarlo.pstop", "Terminal-based system monitor (htop for Windows)";
     # The PowerToys version available from WinGet is a preview.
     # https://github.com/microsoft/PowerToys#via-winget-preview
-    # "PowerToys" = "Microsoft.PowerToys";
+    # "PowerToys" = "Microsoft.PowerToys", "Microsoft utilities";
+    "ShellCheck" = "koalaman.shellcheck", "Bash linter";
     "uv" = "astral-sh.uv", "Fast Python package and project manager (Highly recommended over Python+pip+virtualenv)";
 }
 $WindowsCapabilities = [ordered]@{
